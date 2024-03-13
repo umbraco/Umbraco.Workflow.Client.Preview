@@ -1,0 +1,72 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "ES2020",
+    "lib": [
+      "es2020",
+      "dom",
+      "dom.iterable"
+    ],
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": false,
+    "baseUrl": ".",
+    "incremental": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitAny": false,
+    "typeRoots": [
+      "src/types",
+      "./node_modules/@types"
+    ],
+    "paths": {
+      "@umbraco-workflow/generated": [
+        "./src/generated/index.ts"
+      ],
+      "@umbraco-workflow/utils": [
+        "./src/utils/index.ts"
+      ],
+      "@umbraco-workflow/modal": [
+        "./src/modal/index.ts"
+      ],
+      "@umbraco-workflow/context": [
+        "./src/context/index.ts"
+      ],
+      "@umbraco-workflow/components": [
+        "./src/components/index.ts"
+      ],
+      "@umbraco-workflow/constants": [
+        "./src/constants.ts"
+      ],
+      "@umbraco-workflow/enums": [
+        "./src/enums.ts"
+      ],
+      "@umbraco-workflow/css": [
+        "./src/css/index.ts"
+      ],
+      "@umbraco-workflow/approval-group": [
+        "./src/section/approval-group/index.ts",
+      ],
+      "@umbraco-workflow/types": [
+        "./src/types.ts",
+      ],
+      "@umbraco-workflow/collections": [
+        "./src/collections/index.ts",
+      ],
+      "@umbraco-workflow/editor-view": [
+        "./src/editor-view/index.ts",
+      ]
+    }
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+}

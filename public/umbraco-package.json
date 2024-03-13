@@ -1,0 +1,12 @@
+{
+  "name": "Umbraco Workflow",
+  "version": "",
+  "extensions": [
+    {
+      "name": "Umbraco Workflow EntryPoint",
+      "alias": "Umb.Workflow.EntryPoint",
+      "type": "entryPoint",
+      "js": "/App_Plugins/Umbraco.Workflow/umbraco-workflow.js"
+    }
+  ]
+}

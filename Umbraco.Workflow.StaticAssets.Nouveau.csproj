@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <Title>Umbraco Workflow - Static assets</Title>
+    <Description>Contains the static assets needed to run Umbraco Workflow.</Description>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <StaticWebAssetBasePath>App_Plugins/Umbraco.Workflow</StaticWebAssetBasePath>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <EnablePackageValidation>false</EnablePackageValidation>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Umbraco.Workflow.Web\Umbraco.Workflow.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Umbraco.JsonSchema.Extensions" Version="0.3.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Build client assets using NPM -->
+  <Import Project="build\Microsoft.AspNetCore.ClientAssets.targets" />
+
+  <Target Name="ClientAssetsBuildOutputPath" AfterTargets="ClientAssetsBuild">
+    <WriteLinesToFile File="config.outputPath.js" Lines="export const outputPath = '$(IntermediateOutputPath.Replace('\', '/'))clientassets';" Overwrite="true" />
+  </Target>
+
+  <!--Update package.manifest files with current build version after client assets build-->
+  <!-- TODO => JsonFile is not receiving valid value-->
+  <!--<Target Name="UpdatePackageManifestVersion" DependsOnTargets="ClientAssetsBuild" AfterTargets="GetUmbracoBuildVersion">
+    <ItemGroup>
+      <_PackageManifestFiles Include="$(IntermediateOutputPath)clientassets\**\umbraco-package.json" />
+    </ItemGroup>
+    <Message Text="%(_PackageManifestFiles.FullPath)" Importance="High" />
+    <JsonPathUpdateValue JsonFile="%(_PackageManifestFiles.FullPath)" Path="$.version" Value="&quot;$(PackageVersion)&quot;" />
+  </Target>-->
+</Project>

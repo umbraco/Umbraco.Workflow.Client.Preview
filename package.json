@@ -1,0 +1,56 @@
+{
+  "name": "umbraco-workflow",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20.9 <21",
+    "npm": ">=10.1 < 11"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "build-storybook": "storybook build",
+    "generate:api": "openapi --input http://localhost:33007/umbraco/swagger/workflow/swagger.json --output src/generated --postfixServices Resource --useOptions",
+    "preview": "vite preview",
+    "storybook": "storybook dev -p 6006",
+    "watch": "vite build --watch",
+    "lint:errors": "npm run lint -- --quiet",
+    "lint:fix": "npm run lint -- --fix",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.0",
+    "diff": "^5.1.0"
+  },
+  "devDependencies": {
+    "@storybook/addon-essentials": "^7.6.15",
+    "@storybook/addon-links": "^7.6.15",
+    "@storybook/blocks": "^7.6.15",
+    "@storybook/web-components": "^7.6.15",
+    "@storybook/web-components-vite": "^7.6.15",
+    "@types/diff": "^5.0.8",
+    "@types/node": "^20.5.9",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "@umbraco-cms/backoffice": "14.0.0-beta001",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-lit": "^1.11.0",
+    "eslint-plugin-lit-a11y": "^4.1.1",
+    "eslint-plugin-local-rules": "^2.0.1",
+    "eslint-plugin-storybook": "^0.6.15",
+    "eslint-plugin-wc": "^2.0.4",
+    "openapi-typescript-codegen": "^0.25.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "remark-gfm": "^3.0.1",
+    "storybook": "^7.6.15",
+    "typescript": "^5.0.2",
+    "vite": "^5.1.1",
+    "vite-tsconfig-paths": "^4.3.1",
+    "web-component-analyzer": "^2.0.0"
+  }
+}

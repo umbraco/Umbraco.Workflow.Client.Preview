@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<language alias="nl" intName="Dutch" localName="Nederlands" lcid="" culture="nl-NL">
+	<area alias="dashboardTabs">
+		<key alias="workflow">Workflow</key>
+	  <key alias="advancedSearch">Geavanceerd zoeken</key>
+  </area>
+	<area alias="sections">
+		<key alias="workflow">Workflow</key>
+	</area>
+	<area alias="workflow">
+		<key alias="actionWorkflow">Actie workflow</key>
+		<key alias="activeWorkflow">Actieve workflow</key>
+		<key alias="activity">Workflow-activiteit</key>
+		<key alias="addComment">Opmerking toevoegen</key>
+		<key alias="addFile">Bestand toevoegen</key>
+		<key alias="asAdmin">als admin</key>
+		<key alias="assignTo">Afgewezen taak toewijzen</key>
+		<key alias="attachment">Bijlage</key>
+		<key alias="awaitingResubmission">In afwachting van herindiening</key>
+		<key alias="cancelledWithError">Verwerking geannuleerd wegens fout</key>
+		<key alias="cannotBeEdited">en kan niet worden bewerkt</key>
+		<key alias="completedByAdmin">Fase voltooid door beheerder</key>
+		<key alias="completedDate">Datum voltooid</key>
+		<key alias="contentReview">Inhoud beoordeling</key>
+		<key alias="createdDate">Aanmaakdatum</key>
+		<key alias="currentPageExcluded">De huidige pagina is uitgesloten van de workflow</key>
+		<key alias="dateRange">Bereik (days)</key>
+		<key alias="describeChanges">Beschrijf de wijzigingen</key>
+		<key alias="describeChangesOptional">Beschrijf de wijzigingen (optioneel)</key>
+		<key alias="detailButton">Workflow detail</key>
+		<key alias="docIsActive">Document bevindt zich momenteel in een workflow</key>
+		<key alias="editButton">Ga naar node</key>
+		<key alias="excludedNodeAlert">Document is uitgesloten van workflow</key>
+		<key alias="hasChanged">is aangepast</key>
+    <key alias="inherited">geërfd</key>
+    <key alias="initiateWorkflow">Initieër workflow</key>
+		<key alias="installedVersion">Geïnstalleerde versie van Umbraco Workflow:</key>
+		<key alias="invalidContent">Ongeldige inhoud kan niet worden ingediend voor workflowgoedkeuring</key>
+		<key alias="learnMoreAbout">Leer meer over</key>
+		<key alias="newNodeApprovalFlow">Nieuwe goedkeuringsflow voor nodes</key>
+		<key alias="newNodeApprovalFlowDescription">Alle nieuwe nodes gebruiken deze workflow voor de eerste publicatie</key>
+		<key alias="newNodeConfig">Nieuwe nodes moeten worden opgeslagen voordat de workflow wordt geconfigureerd</key>
+		<key alias="noActiveWorkflow">Geen actieve workflow gevonden</key>
+		<key alias="noPendingReview">Er is geen inhoudsbeoordeling in behandeling voor deze node</key>
+		<key alias="noPendingWorkflow">Er is geen workflow in behandeling voor deze node</key>
+		<key alias="nothingToDo">Je hoeft niets te doen...</key>
+		<key alias="noUnpublishPermissions">Er is geen workflow voor het ongedaan maken van publicatie geconfigureerd voor dit content item.</key>
+		<key alias="originalEditor">Oorspronkelijke redacteur</key>
+		<key alias="outOfDate">Workflow is verouderd..</key>
+    <key alias="overview">Overzicht</key>
+    <key alias="pageSize">Aantal items</key>
+		<key alias="pendingApproval">In afwachting van goedkeuring</key>
+		<key alias="previousChangesRejected">Eerdere wijzigingen zijn afgewezen</key>
+		<key alias="previousGroup">Vorige goedkeuringsgroep</key>
+		<key alias="publishButton">Publicatie aanvragen</key>
+		<key alias="removeAll">Alles verwijderen</key>
+		<key alias="requestedBy">Aangevraagd door</key>
+		<key alias="requestedOn">Aangevraagd op</key>
+		<key alias="requiredApprovals">Vereiste goedkeuringen</key>
+		<key alias="taskAlreadyApproved">De taak is al goedgekeurd door een ander lid van de groep</key>
+		<key alias="unpublishButton">Verzoek tot depublicatie</key>
+		<key alias="unsavedChanges">Lopende wijzigingen worden automatisch opgeslagen</key>
+		<key alias="updateAvailable">Update beschikbaar</key>
+		<key alias="userCannotAction">De huidige gebruiker heeft geen toestemming om de workflow uit te voeren.</key>
+		<key alias="viewAttachment">Bekijk bijlage</key>
+		<key alias="viewType">Bekijk type</key>
+		<key alias="workflowActivity">Workflow-activiteit</key>
+		<key alias="workflowHistory">Workflow-geschiedenis</key>
+
+		<!-- one worders -->
+		<key alias="action">Actie</key>
+		<key alias="active">actief</key>
+    <key alias="all">Alles</key>
+    <key alias="approve">Goedkeuren</key>
+		<key alias="at">op</key>
+		<key alias="both">Beide</key>
+		<key alias="by">door</key>
+		<key alias="configuration">Configuratie</key>
+		<key alias="detail">Detail</key>
+    <key alias="exclude">Foobar</key>
+    <key alias="explicit">Foo</key>
+		<key alias="filters">Filters</key>
+    <key alias="implicit">Bar</key>
+		<key alias="include">Bevat</key>
+		<key alias="most">Meeste</key>
+		<key alias="node">Node</key>
+    <key alias="now">Nu</key>
+    <key alias="on">op</key>
+		<key alias="one">Een</key>
+    <key alias="optional">Optioneel</key>
+    <key alias="overview">Overzicht</key>
+    <key alias="reject">Afwijzen</key>
+		<key alias="resubmit">Opnieuw indienen</key>
+		<key alias="some">Sommige</key>
+		<key alias="stage">Fase</key>
+		<key alias="when">wanneer</key>
+
+		<!-- tokenised -->
+		<key alias="changeDescriptionDetail">%0% aangevraagd door %1% on %2%</key>
+		<key alias="commentMaxLength">Opmerking max. lengte overschreden - limiet is %0% tekens</key>
+		<key alias="commentRemaining">%0% tekens resterend</key>
+		<key alias="historyFor">Workflowgeschiedenis voor %0%</key>
+		<key alias="lastDays">laatste %0% dagen</key>
+		<key alias="pendingForNode">In afwachting %0% workflow voor '%1%'</key>
+		<key alias="plusMore">en %0% meer</key>
+		<key alias="xOfYApprovalsCompleted">%0% van %1% vereiste goedkeuringen voltooid</key>
+
+		<key alias="approved">Goedgekeurd</key>
+		<key alias="cancelled">Geannuleerd</key>
+		<key alias="errored">Fouten</key>
+		<key alias="expired">Verlopen</key>
+		<key alias="expiring">Verloopt</key>
+		<key alias="overdue">Verlopen</key>
+		<key alias="pending">In behandeling</key>
+		<key alias="reviewed">Beoordeeld</key>
+
+		<key alias="averageApproval">Gemiddeld</key>
+		<key alias="fastestApproval">Snelste beoordeling</key>
+		<key alias="slowestApproval">Langzaamste beoordeling</key>
+
+		<key alias="noApproval">GOEDKEURING NIET VEREIST</key>
+		<key alias="noGroup">GROEP NIET GEVONDEN</key>
+		<key alias="noNode">NODE NIET GEVONDEN</key>
+		<key alias="noUser">GEBRUIKER NIET GEVONDEN</key>
+
+		<!-- workflow email -->
+		<key alias="approvalRejection">Afgewezen</key>
+		<key alias="approvalRequest">Aanvraag voor goedkeuring</key>
+		<key alias="approvedAndCompleted">Goedgekeurd en afgerond</key>
+		<key alias="approvedAndCompletedForScheduler">Goedgekeurd en voltooid voor planning</key>
+		<key alias="changeDescription">Omschrijving aanpassen</key>
+		<key alias="currentStatus">Huidige status</key>
+		<key alias="emailTemplate">Email sjabloon</key>
+		<key alias="pendingResubmission">In afwachting van herindiening</key>
+		<key alias="reminder">Herinnering</key>
+		<key alias="schedulerActionCancelled">Planneractie geannuleerd</key>
+		<key alias="sendTo">Verzenden naar</key>
+    <key alias="toAdmin">Beheerder</key>
+    <key alias="toAll">Alles</key>
+    <key alias="toAuthor">Auteur</key>
+    <key alias="toGroup">Groep</key>
+    <key alias="sendToDescription">
+			<![CDATA[<ul>
+          <li><strong>Alle</strong> verzendt naar alle leden van alle groepen tot en met de huidige taak</li>
+          <li><strong>Admin</strong> bevat de systeem-e-mail</li>
+          <li><strong>Auteur</strong> bevat de redacteur die de workflow heeft geïnitieerd</li>
+          <li><strong>Groep</strong> stuurt naar de groep die verantwoordelijk is voor de huidige taak</li>
+          <li>Dubbele gebruikers worden verwijderd</li>
+        </ul>
+      ]]>
+		</key>
+		<key alias="summary">Samenvatting</key>
+		<key alias="workflowCancelled">Workflow geannuleerd</key>
+		<key alias="workflowErrored">Workflow is mislukt</key>
+
+		<!-- status name keys - one per workflow status, based on the enum value -->
+		<!-- makes lookups easier as the status int is always know, text value is not -->
+		<key alias="status1">Goedgekeurd</key>
+		<key alias="status2">Afgekeurd</key>
+		<key alias="status3">In afwachting</key>
+		<key alias="status4">Niet verplicht</key>
+		<key alias="status5">Geannuleerd</key>
+		<key alias="status6">Fouten</key>
+		<key alias="status7">Opnieuw ingediend</key>
+		<key alias="status8">Geannuleerd door derde partij</key>
+		<key alias="status9">Uitgesloten</key>
+
+		<!-- also key by enum name -->
+		<key alias="approved">Goedgekeurd</key>
+		<key alias="cancelled">Geannuleerd</key>
+		<key alias="cancelledbythirdparty">Geannuleerd door derde partij</key>
+		<key alias="errored">Fouten</key>
+		<key alias="excluded">Uitgesloten</key>
+		<key alias="notrequired">Niet verplicht</key>
+		<key alias="pendingapproval">In afwachting van goedkeuring</key>
+		<key alias="rejected">Afgewezen</key>
+		<key alias="resubmitted">Opnieuw ingediend</key>
+
+		<!-- flow types -->
+		<key alias="contentApprovalFlow">Content beoordelingsflow</key>
+		<key alias="currentFlow">Huidige flow</key>
+		<key alias="currentPageInheritsFrom"><![CDATA[Het huidige document neemt over van <strong>%0%</strong> voor <strong>%1%</strong> workflows]]></key>
+		<key alias="docTypeApprovalFlow">Document Type beoordelingsflow</key>
+		<key alias="documentFlows">Documenttype beoordelingen</key>
+		<key alias="inheritedApprovalFlow">Overgenomen goedkeuringsflow</key>
+		<key alias="nodeApprovalFlows">Goedkeuringen op basis van nodes</key>
+		<key alias="noDoctypeFlow">Geen documenttypes flow ingesteld voor %0%</key>
+		<key alias="noInheritedFlow">Er bestaat geen overgenomen beoordelingsworkflow voor dit document</key>
+
+		<!-- groups -->
+    <key alias="addWorkflowGroups">Voeg workflow beoordelingsgroep(en) toe</key>
+    <key alias="approvalGroups">Beoordelingsgroepen</key>
+		<key alias="createGroup">Groep aanmaken</key>
+		<key alias="currentWorkflowRoles">Huidige workflowrollen</key>
+		<key alias="deleteGroup">Groep verwijderen</key>
+		<key alias="deleteGroupWarning">
+			<![CDATA[<h4>Voorzichtig! Dit is een destructieve actie.</h4>
+        <p>Als u een groep verwijdert, worden alle lopende taken en workflows waarvan de groep deelnemer is, geannuleerd en worden alle aan de groep toegewezen machtigingen verwijderd.</p><p>Als u wilt verwijderen, typt u hieronder <strong>%0%</strong>.</p>]]>
+		</key>
+		<key alias="editGroup">Groep bewerken</key>
+		<key alias="emailGroup">Email groep</key>
+		<key alias="groupEmail">Groeps e-mail</key>
+		<key alias="groupEmailDescription">Meldingen worden naar dit adres gestuurd in plaats van naar groepsleden</key>
+		<key alias="groupHasNoMembers">Groep heeft geen leden</key>
+		<key alias="groupPermissionsRemoved">Groepsrechten verwijderd</key>
+		<key alias="groupsLimitedByLicense">Maximumaantal groepen beperkt voor huidig licentietype</key>
+		<key alias="groupWorkflowsCancelled">Groepsworkflows geannuleerd</key>
+		<key alias="inheritedMembership">Overgenomen groepslidmaatschap</key>
+		<key alias="inheritedMembershipDescription">Groepslidmaatschap overnemen van een bestaande Umbraco-groep</key>
+		<key alias="languageDescription">Alleen vereist als de groep een e-mailadres heeft</key>
+		<key alias="membership">Groepsleden</key>
+		<key alias="offlineApproval">Offline goedkeuring inschakelen</key>
+		<key alias="roles">Rollen</key>
+		<key alias="saveGroup">Groep opslaan</key>
+
+		<!-- settings -->
+		<key alias="allSettingsHidden">Alle instellingen zijn verborgen - neem contact op met uw sitebeheerder</key>
+		<key alias="appliesTo">Geldt voor</key>
+		<key alias="publishAndUnpublish">Publiceren en depubliceren</key>
+		<key alias="publishOnly">Alleen publiceren</key>
+		<key alias="saveSettings">Instellingen opslaan</key>
+		<key alias="settingsHiddenOrReadonly">%0% instellingen zijn verborgen of alleen-lezen - neem contact op met uw sitebeheerder</key>
+		<key alias="unpublishDisabled">Workflows voor het depubliceren zijn op globaal niveau uitgeschakeld</key>
+		<key alias="workflowSettingsUpdated">Workflow-instellingen bijgewerkt</key>
+
+		<!-- settings property labels -->
+		<key alias="adminCanEdit">Administrators kunnen bewerken</key>
+		<key alias="allowAttachments">Bijlagen toestaan</key>
+		<key alias="allowScheduling">Plannen toestaan</key>
+		<key alias="approvalThreshold">Goedkeuringsdrempel</key>
+		<key alias="configureApprovalThreshold">Sta configureren van goedkeuringsdrempel toe</key>
+		<key alias="documentTypeApprovalFlows">Documenttype beoordelingsflows</key>
+		<key alias="editUrl">Site-URL bewerken</key>
+		<key alias="email">Workflow e-mail</key>
+		<key alias="emailTemplates">E-mail sjablonen</key>
+		<key alias="excludeNodes">Nodes uitsluiten</key>
+		<key alias="extendPermissions">Machtigingen uitbreiden</key>
+		<key alias="flowType">Flow type</key>
+		<key alias="lockIfActive">Vergrendel actieve inhoud</key>
+		<key alias="mandatoryComments">Verplichte opmerkingen</key>
+		<key alias="rejectionResetsApprovals">Afwijzing stelt beoordeling opnieuw in</key>
+		<key alias="reminderDelay">Herinneringsvertraging (dagen)</key>
+		<key alias="requireUnpublish">Gebruik de workflow om te depubliceren</key>
+		<key alias="sendNotifications">Meldingen verzenden</key>
+		<key alias="siteUrl">Site URL</key>
+
+		<!-- settings property descriptions - should have corresponding label -->
+		<key alias="adminCanEditDescription">Zet deze optie aan om beheerders in staat te stellen inhoud in elk stadium van een workflow te bewerken</key>
+		<key alias="allowAttachmentsDescription">Zet deze optie aan om het toevoegen van een media-item toe te staan bij het starten van een workflow</key>
+		<key alias="allowSchedulingDescription">Zet deze optie aan om het plannen van publicatie toe te staan bij het starten van een workflow</key>
+		<key alias="approvalThresholdDescription">Hoeveel groepsleden moeten elke workflowtaak goedkeuren?</key>
+		<key alias="approvalThresholdDescriptionExtended">
+			<![CDATA[<p>Dit is een standaardwaarde en kan worden overschreven bij het configureren van afzonderlijke workflows.</p><ul>
+          <li>Een: elk lid van de beoordelingsgroep kan de taak goedkeuren.</li>
+          <li>Meeste: een absolute meerderheid van de leden van de beoordelingsgroep moet de taak goedkeuren.</li>
+          <li>Alle: alle leden van de beoordelingsgroep moeten de taak goedkeuren.</li></ul>]]>
+		</key>
+		<key alias="configureApprovalThresholdDescription">Schakel het instellen van de goedkeuringsdrempel in voor elke fase van een workflow</key>
+		<key alias="documentTypeApprovalFlowsDescription">Configureer standaard workflows voor alle knooppunten van een bepaald documenttype</key>
+		<key alias="documentTypeApprovalsDescription">Deze workflows zijn alleen van toepassing op het opgegeven documenttype</key>
+		<key alias="editUrlDescription">Site-URL bewerken voor weergave in e-mailmeldingen (bijv. http://edit.mydomain.com)</key>
+		<key alias="emailDescription">VAN-adres voor e-mailmeldingen</key>
+		<key alias="excludeNodesDescription">Nodes (en hun afstammelingen) die hier worden geselecteerd, worden NIET opgenomen in de workflow en keren terug naar de standaard Umbraco-acties</key>
+		<key alias="extendPermissionsDescription">Zet deze optie aan de standaard machtigingen voor opslaan en publiceren van gebruikers uit te breiden. Als deze optie uit staat, wordt de knop Opslaan en publiceren verwijderd</key>
+		<key alias="flowTypeDescription">Bepaalt hoe de oorspronkelijke auteur wordt beheerd in volgende taken</key>
+		<key alias="flowTypeDescriptionExtended">
+			<![CDATA[<ul>
+          <li>Expliciet vereist dat alle stappen worden goedgekeurd, inclusief stappen waarbij de oorspronkelijke wijzigingsauteur een groepslid is.</li>
+          <li>Impliciete automatische goedkeuring van stappen waarbij de auteur lid is van de beoordelingsgroep.</li>
+          <li>Uitsluiten gedraagt zich vergelijkbaar met Expliciet, maar sluit de oorspronkelijke auteur uit van meldingen (dwz de auteur kan zijn eigen werk niet goedkeuren)</li></ul>]]>
+		</key>
+		<key alias="lockIfActiveDescription">Zet deze  optie aan om bewerkingen te voorkomen terwijl inhoud zich in een workflow bevindt</key>
+		<key alias="mandatoryCommentsDescription">Zet deze optie aan om opmerkingen over workflows verplicht te maken</key>
+		<key alias="nodeApprovalFlowsDescription">Deze workflows zijn alleen van toepassing voor de opgegeven node</key>
+		<key alias="offlineApprovalDescription">Zet deze optie aan om gebruikers in deze groep toe te staan wijzigingen goed te keuren zonder in te loggen in de backoffice. Raadpleeg de documentatie voor alle details en instellingen</key>
+		<key alias="rejectionResetsApprovalsDescription">Zet deze optie aan, als de goedkeuringsdrempel is ingesteld op Meest of Alle, om eerdere goedkeuringen te resetten wanneer een workflowfase wordt afgewezen</key>
+		<key alias="reminderDelayDescription">Stel hier het aantal dagen in voor herinneringsmails voor inactieve taken. Zet op 0 om uit te schakelen</key>
+		<key alias="requireUnpublishDescription">Zet deze optie aan om workflowgoedkeuring te vereisen bij het ongedaan maken van de publicatie van inhoud</key>
+		<key alias="sendNotificationsDescription">Zet deze optie aan om e-mailmeldingen te verzenden</key>
+		<key alias="settingsEmailDescription">Beide onderstaande velden zijn optioneel en worden ingevuld met het huidige domein als ze niet zijn ingesteld. Stel deze velden in als de openbare productiesite wordt bediend vanuit een ander domein dan de backoffice van Umbraco (meestal een load-balanced/distributed omgeving). Als dat u niet bekend voorkomt, laat u deze blanco</key>
+		<key alias="siteUrlDescription">Live site-URL voor opname in e-mailmeldingen (bijv. http://www.mijndomein.com)</key>
+
+		<!-- user dashboards -->
+		<key alias="mySubmissions">Mijn bijdragen</key>
+		<key alias="myTasks">Taken die mijn goedkeuring vereisen</key>
+
+		<!-- variants -->
+		<key alias="invariant">Invariant</key>
+		<key alias="invariantDesc">Talen zonder openstaande workflows worden verzonden voor publicatie, waarbij gebruik wordt gemaakt van de workflow die is ingesteld op de standaardtaal (%0%).</key>
+		<key alias="invariantWorkflow">Invariante workflow</key>
+		<key alias="multiVariant">Multi-variant</key>
+		<key alias="multiVariantDesc">Talen zonder openstaande workflow worden verzonden voor publicatie, waarbij gebruik wordt gemaakt van de workflow die voor elke taal is ingesteld.</key>
+		<key alias="multiVariantWorkflow">Multi-variant workflow</key>
+		<key alias="selectVariants">Selecteer talen</key>
+		<key alias="thisVariant">Alleen deze</key>
+		<key alias="thisVariantDesc">De huidige taal (%0%) wordt verzonden voor publicatie.</key>
+		<key alias="variant">Variant</key>
+		<key alias="variantsActiveAndUnavailable">Variantworkflows niet beschikbaar omdat de volgende talen actieve workflows hebben:</key>
+
+		<!-- doctype approval flow -->
+		<key alias="addCondition">Voorwaarde toevoegen</key>
+		<key alias="addStatus">Status toevoegen</key>
+
+		<!-- licensing and subscriptions -->
+		<!-- < 12 only -->
+		<key alias="customerEmail">Klant e-mail</key>
+		<key alias="customerId">Klant ID</key>
+		<key alias="customerName">Klantnaam</key>
+		<key alias="licenseType">Licentietype</key>
+		<key alias="licensing">Licentiegegevens</key>
+		<key alias="validDomain">Geldig domein</key>
+		<!-- end < 12 only -->
+
+		<key alias="licenseImpersonationActive">De licentie-imitatie van de workflow is actief. Alle functies zijn alleen beschikbaar op niet-productiedomeinen.</key>
+		<key alias="licensedFeature">Voor deze functie is een licentie vereist.</key>
+		<key alias="licensedFeatureDescription">
+			<![CDATA[<p>Voor de geavanceerde functies van Workflow is een licentie vereist. Om deze in een ontwikkelomgeving te testen, stelt u Umbraco:Workflow:EnableTestLicense in op true in appSettings.development.json</p>]]>
+		</key>
+		<key alias="buyLicensePrompt">Om toegang te krijgen tot geavanceerde functies en om groepslimieten te verwijderen, dient u een licentie aan te schaffen.</key>
+		<key alias="buyLicense">Schaf een licentie aan</key>
+
+		<key alias="invalidOfflineUrl">
+			<![CDATA[<strong>ONGELDIG VERZOEK:</strong> de gevraagde URL verwijst niet naar een geldig workflowproces. De taak is mogelijk al voltooid of de aanvragende gebruiker heeft geen toestemming om de taak uit te voeren.]]>
+		</key>
+
+		<!-- scheduling -->
+		<key alias="scheduledDate">Geplande datum (optioneel)</key>
+		<key alias="scheduleDescription">Als de geplande datum verstrijkt voordat de workflow is voltooid, worden de wijzigingen gepubliceerd wanneer de laatste workflow is goedgekeurd.</key>
+		<key alias="scheduledForAt">Gepland voor %0% op %1% op %2%</key>
+		<key alias="schedulePassed">Geplande datum verstreken voordat de workflow werd voltooid. Inhoud wordt vrijgegeven wanneer de huidige workflow is voltooid.</key>
+		<key alias="scheduling">Plannen</key>
+
+		<!-- diffs -->
+		<key alias="diffHelp">
+			<![CDATA[De bovenstaande tabel toont de verschillen tussen de huidige gepubliceerde versie en de openstaande wijzigingen voor deze workflow.<br /><br />
+          <del>Rode tekst</del> zal worden verwijderd. <ins>Groene tekst</ins> zal worden toegevoegd.]]>
+		</key>
+		<key alias="diffNoVersions">Kan geen versies vinden om te vergelijken. Misschien zijn ze verwijderd? Probeer de Rollback-tool van Umbraco om alle beschikbare wijzigingsgeschiedenis voor dit item te bekijken.</key>
+		<key alias="diffVariants">De actieve workflow bevat meerdere inhoudsvarianten. Selecteer hieronder de taal om de wijzigingen voor elke variant te bekijken.</key>
+		<key alias="showDiff">Bekijk verschillen</key>
+	</area>
+	<area alias="workflowNotifications">
+		<key alias="approved">Workflow voltooid.</key>
+		<key alias="approvedLog">Workflow goedgekeurd door %0% op %1% [%2%].</key>
+		<key alias="cancelled">%0% verzoek is geannuleerd.</key>
+		<key alias="cancelledLog">%0% verzoek voor %1% [%2%] geannuleerd door %3%.</key>
+		<key alias="initiate">%0% ingediend voor %1% beoordeling.</key>
+		<key alias="initiateScheduled">Wijzigingen gepland voor %2% %0% bij %1%.</key>
+		<key alias="pageHasBeen">Pagina is %0%</key>
+		<key alias="pendingApproval">Taak afgerond. Pagina zal %0% zijn na voltooiing van de workflow.</key>
+		<key alias="pendingApprovalLog">Workflow %0% taak op %1% [%2%] goedgekeurd door %3%.</key>
+		<key alias="pendingApprovalResubmit">Wijzigingen opnieuw ingediend. Pagina zal %0% zijn na voltooiing van de workflow.</key>
+		<key alias="pendingApprovalResubmitLog">%0% verzoek voor %1% [%2%] is opnieuw ingediend door %3%.</key>
+		<key alias="rejected">%0% verzoek is afgewezen.</key>
+		<key alias="rejectedLog">%0% verzoek voor %1% [%2%] afgewezen door %3%.</key>
+	</area>
+	<area alias="treeHeaders">
+		<key alias="active">Actieve workflows</key>
+		<key alias="approval-groups">Beoordelingsgroepen</key>
+		<key alias="content-reviews">Inhoud beoordelingen</key>
+		<key alias="history">Geschiedenis</key>
+		<key alias="settings">Instellingen</key>
+	</area>
+	<area alias="workflowCommentTemplates">
+		<!-- comment templates-->
+		<!-- use these to add a default template to the initiate workflow textarea - similar to github templates
+         key alias is the Document Type alias
+         
+         because this is going directly into the textarea, formatting is important - leading spaces on a new line will be visible in the textarea
+         so new-lines need to be hard-left aligned
+    -->
+		<key alias="homepage">
+			<![CDATA[Dit is een belangrijke
+sjabloon voor het documenttype van de startpagina
+
+het kan spaties hebben
+
+en nieuwe lijnen]]>
+		</key>
+	</area>
+	<area alias="contentReviews">
+		<key alias="contentItemReviewed">Inhoud is gemarkeerd als beoordeeld</key>
+		<key alias="contentRequiresReview">De inhoud moet worden beoordeeld</key>
+		<key alias="contentRequiresReviewOnOrBefore">Inhoud vereist beoordeling op of vóór %0%</key>
+		<key alias="contentReviewActivity">Inhoudsbeoordelingsactiviteit</key>
+		<key alias="contentReviews">Inhoud beoordelingen</key>
+		<key alias="currentPageInheritsReview"><![CDATA[Het huidige document neemt over van <strong>%0%</strong> (via %1% configuratie) voor <strong>inhoudsreviews</strong>.]]></key>
+		<key alias="docTypeReview">Instellingen voor beoordeling van het documenttype</key>
+    <key alias="force">Kracht</key>
+    <key alias="forceDescription">True om bestaande beoordelingsdatums te overschrijven</key>
+    <key alias="lastReviewed">Laatst beoordeeld</key>
+		<key alias="lastReviewedByOn">Laatst beoordeeld door %0% op %1%.</key>
+		<key alias="markAsReviewed">Markeer als beoordeeld</key>
+		<key alias="nextReviewDue">Volgende beoordeling komt eraan</key>
+		<key alias="noContentReviewGroup">Er is geen inhoudsbeoordelingsgroep ingesteld voor dit document</key>
+		<key alias="nodeReview">Instellingen voor beoordeling van inhoudsitems</key>
+		<key alias="noReviewableNodes">Geen beoordeelbare nodes gevonden</key>
+		<key alias="reviewConfigDeleted">Configuratie van contentreview verwijderd</key>
+		<key alias="reviewGroup">Beoordelingsgroep</key>
+		<key alias="reviewOverlayPeriod">Deze inhoud moet elke %0% dagen worden beoordeeld.</key>
+		<key alias="reviewSettingsUpdateFailed">Kan de instellingen voor inhoudsbeoordeling niet bijwerken</key>
+		<key alias="reviewSettingsUpdateSucceeded">Instellingen voor inhoudsbeoordeling bijgewerkt</key>
+		<key alias="saveReviewConfigMessage">Dit kan even duren - door op te slaan wordt de einddatum voor de beoordeling gegenereerd voor alle inhoud die kan worden beoordeeld, wat een groot aantal nodes kan zijn.</key>
+		<key alias="staleContent">Verouderde inhoud</key>
+		<key alias="unableToSeedReviewDate">Kan beoordelingsdatum voor node niet updaten</key>
+    <key alias="generateRelativeTo">Genereer beoordelingsdatums ten opzichte van</key>
+    <key alias="saveAndRegenerate">Opslaan en regenereren</key
+    <key alias="externalReviewers">Externe recensenten</key>
+    <key alias="externalReviewersDescription">Door puntkomma's gescheiden lijst met e-mailadressen. Deze mogen niet worden gekoppeld aan CMS-gebruikers.</key>
+    
+    <!-- labels -->
+		<key alias="contentItemReviews">Beoordelingen van inhoudsitems</key>
+		<key alias="documentTypeReviews">Documenttypes beoordelingen</key>
+		<key alias="enableContentReviews">Inhoudsbeoordelingen inschakelen</key>
+		<key alias="publishIsReview">Publiceren behandelen als een beoordeling?</key>
+		<key alias="reminderThreshold">Herinneringsdrempel (dagen)</key>
+		<key alias="reviewPeriod">Beoordelingsperiode (dagen)</key>
+
+		<!-- descriptions - should have a corresponding label -->
+		<key alias="contentItemReviewsDescription">Configureer recensies voor individuele items</key>
+		<key alias="documentTypeReviewsDescription">Configureer beoordelingen voor alle nodes van een bepaald documenttype</key>
+		<key alias="enableContentReviewsDescription">Moeten gebruikers eraan worden herinnerd hun inhoud te beoordelen?</key>
+		<key alias="publishIsReviewDescription">Moet gepubliceerde inhoud worden behandeld als een beoordeling, of moet de inhoud een expliciete beoordeling vereisen</key>
+		<key alias="reminderThresholdDescription">Beoordelingsmeldingen worden zoveel dagen voor de beoordelingsdatum verzonden. Standaard is 1</key>
+		<key alias="reviewPeriodDescription">Maximale tijdsperiode tussen vereiste inhoudsbeoordelingen</key>
+	</area>
+	<area alias="workflowCleanup">
+    <key alias="cleanupConfiguration">Configuratie voor het opschonen van workflow geschiedenis</key>
+    <key alias="cleanupEnabled">Geschiedenis opschonen ingeschakeld</key>
+		<key alias="contentRules">Regels voor het opschonen van inhoud</key>
+		<key alias="daysToKeepHistory">Dagen om de workflow geschiedenis bij te houden</key>
+		<key alias="docTypeRules">Regels voor opschonen van documenttypen</key>
+		<key alias="globalSettings">Algemene opschooninstellingen</key>
+		<key alias="rulesUpdated">Regels voor het opschonen van workflow geschiedenis bijgewerkt</key>
+		<key alias="statusesToDelete">Workflowstatussen om te verwijderen</key>
+	</area>
+  <area alias="workflowSearch">
+    <key alias="addContentTypes">Inhoudstype(s) toevoegen</key>
+    <key alias="addDataType">Gegevenstype toevoegen</key>
+    <key alias="addProperties">Eigenschappen toevoegen</key>
+    <key alias="addProperty">Eigenschap toevoegen</key>
+    <key alias="addPropertyEditor">Eigenschappeneditor toevoegen</key>
+    <key alias="allProperties">Alle eigendommen</key>
+    <key alias="datatype">Data Type</key>
+    <key alias="fuzzy">Geschatte zoekopdracht</key>
+    <key alias="fuzzyDescription">Met zoeken bij benadering kunt u termen vinden die nauw aansluiten bij de zoekterm, rekening houdend met kleine variaties</key>
+    <key alias="propertyEditor">Eigendomseditor</key>
+    <key alias="selectContentTypes">Selecteer inhoudstype(s)</key>
+    <key alias="selectSearchFields">Selecteer zoekvelden</key>
+    <key alias="selectSearchType">Selecteer zoektype</key>
+    <key alias="showBaseProperties">Toon basiseigenschappen</key>
+    <key alias="singleProperty">Enkel eigendom</key>
+    <key alias="someProperties">Enkele eigenschappen</key>
+  </area>
+</language>
