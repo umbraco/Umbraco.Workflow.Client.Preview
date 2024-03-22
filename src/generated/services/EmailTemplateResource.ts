@@ -15,7 +15,7 @@ export class EmailTemplateResource {
     public static getEmailTemplateInstall(): CancelablePromise<Array<string>> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/email-template/install',
+            url: '/umbraco/workflow/api/v1/email-template/install',
             errors: {
                 400: `Bad Request`,
                 401: `The resource is protected and requires an authentication token`,

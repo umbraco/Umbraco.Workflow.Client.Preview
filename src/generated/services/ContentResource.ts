@@ -22,7 +22,7 @@ ids?: string,
 }): CancelablePromise<Array<ContentSlimModel>> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/content/content-slim',
+            url: '/umbraco/workflow/api/v1/content/content-slim',
             query: {
                 'ids': ids,
             },
@@ -41,7 +41,7 @@ ids?: string,
     public static getContentContentTypes(): CancelablePromise<Array<ContentTypePropertyModel>> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/content/content-types',
+            url: '/umbraco/workflow/api/v1/content/content-types',
             errors: {
                 400: `Bad Request`,
                 401: `The resource is protected and requires an authentication token`,

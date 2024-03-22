@@ -18,7 +18,7 @@ export class SettingsResource {
     public static getSettings(): CancelablePromise<WorkflowSettingsPropertiesModel> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/settings',
+            url: '/umbraco/workflow/api/v1/settings',
             errors: {
                 400: `Bad Request`,
                 401: `The resource is protected and requires an authentication token`,
@@ -38,7 +38,7 @@ requestBody?: WorkflowSettingsPropertiesModel,
 }): CancelablePromise<WorkflowSettingsPropertiesModel> {
         return __request(OpenAPI, {
             method: 'PUT',
-            url: '/umbraco/workflow/api/settings',
+            url: '/umbraco/workflow/api/v1/settings',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -56,7 +56,7 @@ requestBody?: WorkflowSettingsPropertiesModel,
     public static getSettingsVersion(): CancelablePromise<PackageVersionModel> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/settings/version',
+            url: '/umbraco/workflow/api/v1/settings/version',
             errors: {
                 400: `Bad Request`,
                 401: `The resource is protected and requires an authentication token`,

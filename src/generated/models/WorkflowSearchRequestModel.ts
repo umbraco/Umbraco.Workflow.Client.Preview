@@ -11,10 +11,7 @@ export type WorkflowSearchRequestModel = {
     skip?: number | null;
     take: number;
     variant?: string | null;
+    filters: Record<string, WorkflowFilterModel>;
     sortBy: string;
     sortDirection: string;
-    filters: Record<string, WorkflowFilterModel>;
-    historyOnly: boolean;
-    readonly isDescending: boolean;
-    readonly orderByClause: string;
 };

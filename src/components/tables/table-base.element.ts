@@ -82,16 +82,12 @@ export abstract class WorkflowTableBase extends UmbElementMixin(LitElement) {
 
     this.pagination.take = this.model.count;
 
-    // TODO => final 3 should not reach the client
     const query: WorkflowSearchRequestModel = {
       skip: this.pagination.skip,
       take: this.pagination.take,
       sortBy: this.sorter.sortBy,
       sortDirection: this.sorter.sortDirectionString,
       filters: this.model.filters ?? {},
-      historyOnly: false,
-      isDescending: false,
-      orderByClause: "",
     };
 
     // TODO => get rid of meta

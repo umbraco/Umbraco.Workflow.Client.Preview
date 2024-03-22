@@ -15,7 +15,7 @@ export class LicenseResource {
     public static getLicense(): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/license',
+            url: '/umbraco/workflow/api/v1/license',
             errors: {
                 401: `The resource is protected and requires an authentication token`,
             },

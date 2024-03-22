@@ -21,7 +21,7 @@ range?: number,
 }): CancelablePromise<ChartResponseModel> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/chart/content-review-chart',
+            url: '/umbraco/workflow/api/v1/chart/content-review-chart',
             query: {
                 'range': range,
             },
@@ -44,7 +44,7 @@ groupId?: string,
 }): CancelablePromise<ChartResponseModel> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/chart/workflow-chart',
+            url: '/umbraco/workflow/api/v1/chart/workflow-chart',
             query: {
                 'range': range,
                 'groupId': groupId,

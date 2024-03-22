@@ -19,7 +19,7 @@ export class AdvancedSearchResource {
     public static getAdvancedSearchContentTypes(): CancelablePromise<AdvancedSearchScaffoldResponseModel> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/advanced-search/content-types',
+            url: '/umbraco/workflow/api/v1/advanced-search/content-types',
             errors: {
                 401: `The resource is protected and requires an authentication token`,
             },
@@ -37,7 +37,7 @@ requestBody?: AdvancedSearchQueryModel,
 }): CancelablePromise<AdvancedSearchResponseModel> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/umbraco/workflow/api/advanced-search/search',
+            url: '/umbraco/workflow/api/v1/advanced-search/search',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

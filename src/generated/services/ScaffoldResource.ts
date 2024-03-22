@@ -31,7 +31,7 @@ variant?: string,
 }): CancelablePromise<WorkflowScaffoldResponseModel> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/scaffold',
+            url: '/umbraco/workflow/api/v1/scaffold',
             query: {
                 'NodeId': nodeId,
                 'NodeKey': nodeKey,

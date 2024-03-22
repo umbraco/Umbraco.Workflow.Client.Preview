@@ -24,7 +24,7 @@ requestBody?: UserGroupModel,
 }): CancelablePromise<string> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/umbraco/workflow/api/approval-group',
+            url: '/umbraco/workflow/api/v1/approval-group',
             body: requestBody,
             mediaType: 'application/json',
             responseHeader: 'Umb-Notifications',
@@ -51,7 +51,7 @@ filter?: string,
 }): CancelablePromise<PagedUserGroupModel> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/approval-group',
+            url: '/umbraco/workflow/api/v1/approval-group',
             query: {
                 'skip': skip,
                 'take': take,
@@ -76,7 +76,7 @@ id: string,
 }): CancelablePromise<UserGroupModel> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/approval-group/{id}',
+            url: '/umbraco/workflow/api/v1/approval-group/{id}',
             path: {
                 'id': id,
             },
@@ -99,7 +99,7 @@ id: string,
 }): CancelablePromise<string> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/umbraco/workflow/api/approval-group/{id}',
+            url: '/umbraco/workflow/api/v1/approval-group/{id}',
             path: {
                 'id': id,
             },
@@ -125,7 +125,7 @@ requestBody?: UserGroupModel,
 }): CancelablePromise<string> {
         return __request(OpenAPI, {
             method: 'PUT',
-            url: '/umbraco/workflow/api/approval-group/{id}',
+            url: '/umbraco/workflow/api/v1/approval-group/{id}',
             path: {
                 'id': id,
             },
@@ -151,7 +151,7 @@ ids?: string,
 }): CancelablePromise<Array<User2UserGroupModel>> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/approval-group/inherited-members',
+            url: '/umbraco/workflow/api/v1/approval-group/inherited-members',
             query: {
                 'ids': ids,
             },
@@ -170,7 +170,7 @@ ids?: string,
     public static getApprovalGroupScaffold(): CancelablePromise<UserGroupModel> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/approval-group/scaffold',
+            url: '/umbraco/workflow/api/v1/approval-group/scaffold',
             errors: {
                 400: `Bad Request`,
                 401: `The resource is protected and requires an authentication token`,
@@ -194,7 +194,7 @@ filter?: string,
 }): CancelablePromise<PagedUserGroupBaseModel> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/approval-group/slim',
+            url: '/umbraco/workflow/api/v1/approval-group/slim',
             query: {
                 'skip': skip,
                 'take': take,

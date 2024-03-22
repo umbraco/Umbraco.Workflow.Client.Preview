@@ -21,7 +21,7 @@ id: string,
 }): CancelablePromise<WorkflowTasksForInstanceResponseModel> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/task/{id}',
+            url: '/umbraco/workflow/api/v1/task/{id}',
             path: {
                 'id': id,
             },
@@ -44,7 +44,7 @@ id: string,
 }): CancelablePromise<Array<string>> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/task/active-variants/{id}',
+            url: '/umbraco/workflow/api/v1/task/active-variants/{id}',
             path: {
                 'id': id,
             },

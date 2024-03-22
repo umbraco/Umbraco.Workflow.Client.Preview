@@ -23,7 +23,7 @@ requestBody?: ActionWorkflowRequestModel,
 }): CancelablePromise<ActionWorkflowResponseModel> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/umbraco/workflow/api/action/approve',
+            url: '/umbraco/workflow/api/v1/action/approve',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -45,7 +45,7 @@ requestBody?: ActionWorkflowRequestModel,
 }): CancelablePromise<ActionWorkflowResponseModel> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/umbraco/workflow/api/action/cancel',
+            url: '/umbraco/workflow/api/v1/action/cancel',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -67,7 +67,7 @@ requestBody?: InitiateWorkflowRequestModel,
 }): CancelablePromise<ActionWorkflowResponseModel> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/umbraco/workflow/api/action/initiate',
+            url: '/umbraco/workflow/api/v1/action/initiate',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -89,7 +89,7 @@ requestBody?: ActionWorkflowRequestModel,
 }): CancelablePromise<ActionWorkflowResponseModel> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/umbraco/workflow/api/action/reject',
+            url: '/umbraco/workflow/api/v1/action/reject',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -111,7 +111,7 @@ requestBody?: ActionWorkflowRequestModel,
 }): CancelablePromise<ActionWorkflowResponseModel> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/umbraco/workflow/api/action/resubmit',
+            url: '/umbraco/workflow/api/v1/action/resubmit',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

@@ -23,7 +23,7 @@ requestBody?: WorkflowSearchRequestModel,
 }): CancelablePromise<PagedWorkflowInstanceResponseModel> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/umbraco/workflow/api/instance/active',
+            url: '/umbraco/workflow/api/v1/instance/active',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -45,7 +45,7 @@ requestBody?: WorkflowSearchRequestModel,
 }): CancelablePromise<PagedWorkflowInstanceResponseModel> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/umbraco/workflow/api/instance/all',
+            url: '/umbraco/workflow/api/v1/instance/all',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -67,7 +67,7 @@ requestBody?: WorkflowSearchRequestModel,
 }): CancelablePromise<PagedWorkflowInstanceResponseModel> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/umbraco/workflow/api/instance/assigned-to',
+            url: '/umbraco/workflow/api/v1/instance/assigned-to',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -89,7 +89,7 @@ guid?: string,
 }): CancelablePromise<WorkflowDiffsModel> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/instance/diff',
+            url: '/umbraco/workflow/api/v1/instance/diff',
             query: {
                 'guid': guid,
             },
@@ -112,7 +112,7 @@ requestBody?: WorkflowSearchRequestModel,
 }): CancelablePromise<PagedWorkflowInstanceResponseModel> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/umbraco/workflow/api/instance/initiated-by',
+            url: '/umbraco/workflow/api/v1/instance/initiated-by',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -134,7 +134,7 @@ days?: number,
 }): CancelablePromise<PagedWorkflowInstanceResponseModel> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/instance/range',
+            url: '/umbraco/workflow/api/v1/instance/range',
             query: {
                 'days': days,
             },
@@ -157,7 +157,7 @@ ids?: string,
 }): CancelablePromise<Record<string, boolean>> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/instance/status',
+            url: '/umbraco/workflow/api/v1/instance/status',
             query: {
                 'ids': ids,
             },

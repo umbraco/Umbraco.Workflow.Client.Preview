@@ -32,7 +32,7 @@ variant?: string,
 }): CancelablePromise<ContentReviewsNodeQueryResponseModel> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/content-review/check',
+            url: '/umbraco/workflow/api/v1/content-review/check',
             query: {
                 'NodeId': nodeId,
                 'NodeKey': nodeKey,
@@ -54,7 +54,7 @@ variant?: string,
     public static getContentReviewConfig(): CancelablePromise<ContentReviewsConfigModel> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/content-review/config',
+            url: '/umbraco/workflow/api/v1/content-review/config',
             errors: {
                 400: `Bad Request`,
                 401: `The resource is protected and requires an authentication token`,
@@ -74,7 +74,7 @@ requestBody?: ContentReviewsSaveSettingsModel,
 }): CancelablePromise<ContentReviewsConfigModel> {
         return __request(OpenAPI, {
             method: 'PUT',
-            url: '/umbraco/workflow/api/content-review/config',
+            url: '/umbraco/workflow/api/v1/content-review/config',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -95,9 +95,9 @@ groupId,
 skip,
 take,
 variant,
+filters,
 sortBy,
 sortDirection,
-filters,
 historyOnly,
 isDescending,
 orderByClause,
@@ -107,25 +107,25 @@ groupId?: string,
 skip?: number,
 take?: number,
 variant?: string,
+filters?: Record<string, WorkflowFilterModel>,
 sortBy?: string,
 sortDirection?: string,
-filters?: Record<string, WorkflowFilterModel>,
 historyOnly?: boolean,
 isDescending?: boolean,
 orderByClause?: string,
 }): CancelablePromise<PagedContentReviewsDetailedConfigModel> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/content-review/nodes',
+            url: '/umbraco/workflow/api/v1/content-review/nodes',
             query: {
                 'UserId': userId,
                 'GroupId': groupId,
                 'Skip': skip,
                 'Take': take,
                 'Variant': variant,
+                'Filters': filters,
                 'SortBy': sortBy,
                 'SortDirection': sortDirection,
-                'Filters': filters,
                 'HistoryOnly': historyOnly,
                 'IsDescending': isDescending,
                 'OrderByClause': orderByClause,
@@ -149,7 +149,7 @@ requestBody?: ContentReviewNodePocoModel,
 }): CancelablePromise<string> {
         return __request(OpenAPI, {
             method: 'PUT',
-            url: '/umbraco/workflow/api/content-review/review',
+            url: '/umbraco/workflow/api/v1/content-review/review',
             body: requestBody,
             mediaType: 'application/json',
             responseHeader: 'Umb-Notifications',
@@ -168,7 +168,7 @@ requestBody?: ContentReviewNodePocoModel,
     public static getContentReviewSeed(): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/content-review/seed',
+            url: '/umbraco/workflow/api/v1/content-review/seed',
             errors: {
                 400: `Bad Request`,
                 401: `The resource is protected and requires an authentication token`,

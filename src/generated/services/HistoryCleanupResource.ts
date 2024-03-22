@@ -24,7 +24,7 @@ contentTypeId?: string,
 }): CancelablePromise<HistoryCleanupModel> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/history-cleanup',
+            url: '/umbraco/workflow/api/v1/history-cleanup',
             query: {
                 'uniqueId': uniqueId,
                 'contentTypeId': contentTypeId,
@@ -46,7 +46,7 @@ requestBody?: Record<string, HistoryCleanupConfigModel>,
 }): CancelablePromise<string> {
         return __request(OpenAPI, {
             method: 'PUT',
-            url: '/umbraco/workflow/api/history-cleanup',
+            url: '/umbraco/workflow/api/v1/history-cleanup',
             body: requestBody,
             mediaType: 'application/json',
             responseHeader: 'Umb-Notifications',

@@ -27,7 +27,7 @@ variant?: string,
 }): CancelablePromise<NodePermissionsResponseModel> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/umbraco/workflow/api/config',
+            url: '/umbraco/workflow/api/v1/config',
             query: {
                 'NodeId': nodeId,
                 'ContentTypeId': contentTypeId,
@@ -52,7 +52,7 @@ requestBody?: (WorkflowConfigUpdateRequestModel | WorkflowConfigResponseModel),
 }): CancelablePromise<WorkflowConfigResponseModel> {
         return __request(OpenAPI, {
             method: 'PUT',
-            url: '/umbraco/workflow/api/config',
+            url: '/umbraco/workflow/api/v1/config',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
