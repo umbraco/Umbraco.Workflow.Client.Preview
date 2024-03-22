@@ -3,7 +3,7 @@ import { WORKFLOW_CONTENTREVIEWS_ENTITY_TYPE } from "../index.js";
 
 const menuItem: ManifestMenuItem = {
 	type: 'menuItem',
-	alias: 'Umb.MenuItem.Workflow.ContentReviews',
+	alias: '"Workflow.MenuItem.ContentReviews',
 	name: 'Workflow Content Reviews Menu Item',
 	weight: 600,
 	meta: {

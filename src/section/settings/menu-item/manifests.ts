@@ -3,7 +3,7 @@ import { WORKFLOW_SETTINGS_ENTITY_TYPE } from "../index.js";
 
 const menuItem: ManifestMenuItem = {
 	type: 'menuItem',
-	alias: 'Umb.MenuItem.Workflow.Settings',
+	alias: '"Workflow.MenuItem.Settings',
 	name: 'Workflow Settings Menu Item',
 	weight: 100,
 	meta: {

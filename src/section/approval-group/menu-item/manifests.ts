@@ -2,7 +2,7 @@ import type { ManifestMenuItem } from '@umbraco-cms/backoffice/extension-registr
 
 const menuItem: ManifestMenuItem = {
 	type: 'menuItem',
-	alias: 'Umb.MenuItem.Workflow.ApprovalGroups',
+	alias: '"Workflow.MenuItem.ApprovalGroups',
 	name: 'Approval Groups Menu Item',
 	weight: 600,
 	meta: {

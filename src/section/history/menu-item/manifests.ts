@@ -3,7 +3,7 @@ import { WORKFLOW_HISTORY_ROOT_ENTITY_TYPE } from "../index.js";
 
 const menuItem: ManifestMenuItem = {
 	type: 'menuItem',
-	alias: 'Umb.MenuItem.Workflow.History',
+	alias: '"Workflow.MenuItem.History',
 	name: 'Workflow Settings Menu Item',
 	weight: 600,
 	meta: {

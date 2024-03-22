@@ -3,9 +3,8 @@ import { ACTIVE_WORKFLOWS_ROOT_ENTITY_TYPE } from '../index.js';
 
 const menuItem: ManifestMenuItem = {
 	type: 'menuItem',
-	alias: 'Umb.MenuItem.Workflow.ActiveWorkflows',
-	name: 'Active Workflows Menu Item',
-	weight: 1000,
+	alias: 'Workflow.MenuItem.ActiveWorkflows',
+	name: 'Active Workflows Menu Item',	weight: 1000,
 	meta: {
 		label: 'Active Workflows',
 		icon: 'icon-nodes',
