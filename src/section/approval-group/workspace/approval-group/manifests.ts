@@ -8,7 +8,7 @@ import { WorkflowDeleteGroupEntityAction } from "../../entity-actions/delete.act
 import { WORKFLOW_APPROVALGROUP_ENTITY_TYPE } from "../../types.js";
 
 export const WORKFLOW_APPROVALGROUP_WORKSPACE_ALIAS =
-  "Umb.Workspace.Workflow.ApprovalGroup";
+  "Workflow.Workspace.ApprovalGroup";
 
 const workspace: ManifestWorkspace = {
   type: "workspace",
@@ -71,7 +71,7 @@ const workspaceActions: Array<ManifestWorkspaceAction> = [
   {
     type: "workspaceAction",
     kind: "default",
-    alias: "Umb.WorkspaceAction.Workflow.ApprovalGroup.Save",
+    alias: "Workflow.WorkspaceAction.ApprovalGroup.Save",
     name: "Save Approval Group Workspace Action",
     weight: 100,
     api: UmbSaveWorkspaceAction,
@@ -90,7 +90,7 @@ const workspaceActions: Array<ManifestWorkspaceAction> = [
   // {
   //   type: "workspaceAction",
   //   kind: "default",
-  //   alias: "Umb.WorkspaceAction.Workflow.ApprovalGroup.Delete",
+  //   alias: "Workflow.WorkspaceAction.ApprovalGroup.Delete",
   //   name: "Save Approval Group Workspace Delete",
   //   api: WorkflowDeleteGroupEntityAction,
   //   meta: {

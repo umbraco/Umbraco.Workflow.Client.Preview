@@ -3,7 +3,7 @@ import type { ExtendedWorkflowEmailConfigModel } from "../../components/email-te
 import type { ConfigTypeModel } from "@umbraco-workflow/generated";
 
 export const WORKFLOW_EMAIL_SENDTO_MODAL_ALIAS =
-  "Umb.Modal.Workflow.Email.SendTo";
+  "Workflow.Modal.Email.SendTo";
 
 export interface WorkflowEmailSendToModalData {
   config: ConfigTypeModel[];

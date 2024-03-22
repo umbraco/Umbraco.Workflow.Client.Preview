@@ -6,7 +6,7 @@ import type {
 import { UmbSaveWorkspaceAction } from "@umbraco-cms/backoffice/workspace";
 import { WORKFLOW_SETTINGS_ENTITY_TYPE } from "../index.js";
 
-const workspaceAlias = "Umb.Workspace.Workflow.Settings";
+const workspaceAlias = "Workflow.Workspace.Settings";
 
 const workspace: ManifestWorkspace = {
   type: "workspace",
@@ -62,7 +62,7 @@ const workspaceActions: Array<ManifestWorkspaceAction> = [
   {
     type: "workspaceAction",
     kind: "default",
-    alias: "Umb.WorkspaceAction.Workflow.Settings.Save",
+    alias: "Workflow.WorkspaceAction.Settings.Save",
     name: "Save Settings Workspace Action",
     api: UmbSaveWorkspaceAction,
     meta: {

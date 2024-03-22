@@ -65,7 +65,7 @@ export class WorkflowSettingsEditorElement extends UmbElementMixin(LitElement) {
 
       if (this.generalSettingsHidden && this.notificationsSettingsHidden) {
         umbExtensionsRegistry.unregister(
-          "Umb.WorkspaceAction.Workflow.Settings.Save"
+          "Workflow.WorkspaceAction.Settings.Save"
         );
       }
     };
@@ -85,7 +85,7 @@ export class WorkflowSettingsEditorElement extends UmbElementMixin(LitElement) {
   }
 
   render() {
-    return html`<umb-workspace-editor alias="Umb.Workspace.Workflow.Settings"
+    return html`<umb-workspace-editor alias="Workflow.Workspace.Settings"
       ><div id="header" slot="header">
         <h3>${this.localize.term("general_settings")}</h3>
       </div>

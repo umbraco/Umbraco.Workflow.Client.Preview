@@ -7,7 +7,7 @@ import type {
 import type { LanguageModel } from "@umbraco-workflow/generated";
 
 export const WORKFLOW_CONTENTREVIEWS_CONFIG_MODAL_ALIAS =
-  "Umb.Modal.Workflow.ContentReviews.Config";
+  "Workflow.Modal.ContentReviews.Config";
 
 export interface WorkflowContentReviewsConfigModalData {
   model: ContentReviewItem;

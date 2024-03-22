@@ -1,7 +1,7 @@
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
 
 export const WORKFLOW_CONTENTREVIEWS_REGENERATE_MODAL_ALIAS =
-  "Umb.Modal.Workflow.ContentReviews.Regenerate";
+  "Workflow.Modal.ContentReviews.Regenerate";
 
 export interface WorkflowContentReviewsRegenerateModalResult {
   relativeTo: 0 | 1;
@@ -9,7 +9,7 @@ export interface WorkflowContentReviewsRegenerateModalResult {
 }
 
 export const WORKFLOW_CONTENTREVIEWS_REGENERATE_MODAL = new UmbModalToken<
-  any,
+  never,
   WorkflowContentReviewsRegenerateModalResult
 >(WORKFLOW_CONTENTREVIEWS_REGENERATE_MODAL_ALIAS, {
   modal: {

@@ -1,7 +1,7 @@
 import type { UmbPickerModalData } from "@umbraco-cms/backoffice/modal";
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
 
-export const WORKFLOW_ITEM_PICKER_MODAL_ALIAS = "Umb.Modal.Workflow.ItemPicker";
+export const WORKFLOW_ITEM_PICKER_MODAL_ALIAS = "Workflow.Modal.ItemPicker";
 
 export interface WorkflowItemPickerModalData {
   multiple: boolean;

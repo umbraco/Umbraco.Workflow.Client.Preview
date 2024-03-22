@@ -28,7 +28,7 @@ export class WorkflowApprovalGroupWorkspaceContext
   #getDataPromise?: Promise<any>;
 
   constructor(host: UmbControllerHostElement) {
-    super(host, "Umb.Workspace.Workflow.ApprovalGroup");
+    super(host, "Workflow.Workspace.ApprovalGroup");
   }
 
   async load(unique: string) {

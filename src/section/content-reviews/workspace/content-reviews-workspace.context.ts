@@ -13,6 +13,7 @@ import {
   type ContentReviewType,
 } from "../types.js";
 import { WORKFLOW_CONTENTREVIEWS_ENTITY_TYPE } from "../index.js";
+import { WORKFLOW_CONTENTREVIEWS_WORKSPACE_ALIAS } from "./manifests.js";
 import type {
   ContentReviewsConfigModel,
   ContentReviewsDetailedConfigModel,
@@ -41,7 +42,7 @@ export class WorkflowContentReviewsWorkspaceContext
   deletedReviews: Array<number> = [];
 
   constructor(host: UmbControllerHostElement) {
-    super(host, "Umb.Workspace.Workflow.ContentReviews");
+    super(host, WORKFLOW_CONTENTREVIEWS_WORKSPACE_ALIAS);
   }
 
   async load() {

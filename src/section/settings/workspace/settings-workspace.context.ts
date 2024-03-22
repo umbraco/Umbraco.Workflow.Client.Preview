@@ -40,7 +40,7 @@ export class WorkflowSettingsWorkspaceContext
   validationErrors = this.#validationErrors.asObservable();
 
   constructor(host: UmbControllerHostElement) {
-    super(host, "Umb.Workspace.Workflow.Settings");
+    super(host, "Workflow.Workspace.Settings");
   }
 
   async load() {

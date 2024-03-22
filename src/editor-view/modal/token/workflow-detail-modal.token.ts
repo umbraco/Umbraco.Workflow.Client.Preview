@@ -1,7 +1,7 @@
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
 import type { WorkflowInstanceResponseModel } from "@umbraco-workflow/generated";
 
-export const WORKFLOW_DETAIL_MODAL_ALIAS = "Umb.Modal.Workflow.Detail";
+export const WORKFLOW_DETAIL_MODAL_ALIAS = "Workflow.Modal.Detail";
 
 export interface WorkflowDetailModalData {
   item?: WorkflowInstanceResponseModel;

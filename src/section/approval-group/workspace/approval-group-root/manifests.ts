@@ -2,7 +2,7 @@ import type { ManifestWorkspace } from "@umbraco-cms/backoffice/extension-regist
 
 const workspace: ManifestWorkspace = {
   type: "workspace",
-  alias: "Umb.Workspace.Workflow.ApprovalGroupsRoot",
+  alias: "Workflow.Workspace.ApprovalGroupsRoot",
   name: "Approval Groups Root Workspace",
   js: () => import("./approval-group-root-workspace.element.js"),
   meta: {

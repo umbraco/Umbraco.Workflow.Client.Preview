@@ -2,7 +2,7 @@ import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
 import type { WorkflowApprovalGroupsRepository } from '../../repository/approval-groups.repository.js';
 
 export const WORKFLOW_CONFIRM_DELETE_GROUP_MODAL_ALIAS =
-  "Umb.Modal.Workflow.ConfirmDeleteGroup";
+  "Workflow.Modal.ConfirmDeleteGroup";
 
 export interface WorkflowConfirmDeleteGroupModalData {
   groupName: string;

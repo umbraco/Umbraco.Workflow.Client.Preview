@@ -13,7 +13,7 @@ export class WorkflowContentReviewsEditorElement extends UmbElementMixin(
 ) {
   render() {
     return html`<umb-workspace-editor
-      alias="Umb.Workspace.Workflow.ContentReviews"
+      alias="Workflow.Workspace.ContentReviews"
       ><div id="header" slot="header">
         <h3>${this.localize.term("treeHeaders_contentReviews")}</h3>
       </div>

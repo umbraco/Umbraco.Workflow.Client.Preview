@@ -1,6 +1,6 @@
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
 
-export const WORKFLOW_DIFF_MODAL_ALIAS = "Umb.Modal.Workflow.Diff";
+export const WORKFLOW_DIFF_MODAL_ALIAS = "Workflow.Modal.Diff";
 
 export interface WorkflowDiffModalData {
   instanceKey: string;

@@ -1,7 +1,7 @@
 import type { ManifestWorkspace } from "@umbraco-cms/backoffice/extension-registry";
 import { WORKFLOW_HISTORY_ROOT_ENTITY_TYPE } from "../index.js";
 
-const workspaceAlias = "Umb.Workspace.Workflow.HistoryRoot";
+const workspaceAlias = "Workflow.Workspace.HistoryRoot";
 
 const workspace: ManifestWorkspace = {
   type: "workspace",

@@ -4,10 +4,10 @@ import { WorkflowContentReviewsRepository } from "./content-reviews.repository.j
 import { ContentReviewsStore } from "./content-reviews.store.js";
 
 export const WORKFLOW_CONTENTREVIEWS_REPOSITORY_ALIAS =
-  "Umb.Repository.Workflow.ContentReviews";
+  "Workflow.Repository.ContentReviews";
 
 export const WORKFLOW_CONTENTREVIEWS_STORE_ALIAS =
-  "Umb.Store.Workflow.ContentReviews";
+  "Workflow.Store.ContentReviews";
 
 const repository: ManifestRepository = {
   type: "repository",

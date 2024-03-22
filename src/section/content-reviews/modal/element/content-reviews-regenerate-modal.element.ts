@@ -11,7 +11,7 @@ const elementName = "workflow-content-reviews-regenerate-modal";
 
 @customElement(elementName)
 export class WorkflowContentReviewsRegenerateModalElement extends UmbModalBaseElement<
-  any,
+  never,
   WorkflowContentReviewsRegenerateModalResult
 > {
   @state()

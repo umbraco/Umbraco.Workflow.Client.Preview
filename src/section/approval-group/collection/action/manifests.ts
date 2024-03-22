@@ -8,7 +8,7 @@ export const createManifest: ManifestTypes = {
   type: "collectionAction",
   kind: "button",
   name: "Create Approval Group Collection Action",
-  alias: "Umb.CollectionAction.Workflow.ApprovalGroup.Create",
+  alias: "Workflow.CollectionAction.ApprovalGroup.Create",
   weight: 200,
   meta: {
     label: "Create",

@@ -8,7 +8,7 @@ import type {
 } from "@umbraco-workflow/generated";
 
 export const WORKFLOW_DOCUMENT_TYPE_FLOW_MODAL_ALIAS =
-  "Umb.Modal.Workflow.DocumentTypeFlow";
+  "Workflow.Modal.DocumentTypeFlow";
 
 export interface WorkflowDocumentTypeFlowModalData {
   contentTypes: Array<ContentTypePropertyModel>;

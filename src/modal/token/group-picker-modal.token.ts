@@ -3,7 +3,7 @@ import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
 import type { UserGroupBaseModel } from "@umbraco-workflow/generated";
 
 export const WORKFLOW_GROUP_PICKER_MODAL_ALIAS =
-  "Umb.Modal.Workflow.GroupPicker";
+  "Workflow.Modal.GroupPicker";
 
 export interface WorkflowGroupPickerModalData {
   selection: Array<string | null>;

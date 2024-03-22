@@ -126,7 +126,7 @@ export class ApprovalGroupWorkspaceEditorElement extends UmbElementMixin(
 
   render() {
     return html`<umb-workspace-editor
-      alias="Umb.Workspace.Workflow.ApprovalGroup"
+      alias="Workflow.Workspace.ApprovalGroup"
     >
       <div id="header" slot="header">
         <uui-button

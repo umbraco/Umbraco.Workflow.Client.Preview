@@ -18,7 +18,7 @@ const workspaceEditorViewManifest: ManifestWorkspaceView = {
     icon: "icon-nodes",
   },
   alias: "Document Workspace Workflow View",
-  name: "Umb.WorkspaceView.Document.Workflow",
+  name: "Workflow.WorkspaceView.Document",
   js: () => import("./document-workspace-view-workflow.element.js"),
 };
 

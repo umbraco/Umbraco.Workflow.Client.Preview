@@ -2,7 +2,7 @@ import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
 import type { WorkflowFilterConfig } from "@umbraco-workflow/components";
 
 export const WORKFLOW_FILTER_PICKER_MODAL_ALIAS =
-  "Umb.Modal.Workflow.FilterPicker";
+  "Workflow.Modal.FilterPicker";
 
 export interface WorkflowFilterPickerModalData {
   config?: WorkflowFilterConfig;
