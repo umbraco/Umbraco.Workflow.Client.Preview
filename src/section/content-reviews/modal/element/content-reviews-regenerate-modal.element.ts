@@ -36,7 +36,7 @@ export class WorkflowContentReviewsRegenerateModalElement extends UmbModalBaseEl
     return html`<umb-body-layout>
       <div id="main">
         <p>${this.localize.term("contentReviews_saveReviewConfigMessage")}</p>
-        <umb-workspace-property-layout
+        <umb-property-layout
           .label=${this.localize.term("contentReviews_generateRelativeTo")}
         >
           <uui-radio-group
@@ -51,8 +51,8 @@ export class WorkflowContentReviewsRegenerateModalElement extends UmbModalBaseEl
             >
             </uui-radio>
           </uui-radio-group>
-        </umb-workspace-property-layout>
-        <umb-workspace-property-layout
+        </umb-property-layout>
+        <umb-property-layout
           .label=${this.localize.term("contentReviews_force")}
           .description=${this.localize.term("contentReviews_forceDescription")}
         >
@@ -62,7 +62,7 @@ export class WorkflowContentReviewsRegenerateModalElement extends UmbModalBaseEl
             @change=${() => (this.force = !this.force)}
           >
           </uui-toggle>
-        </umb-workspace-property-layout>
+        </umb-property-layout>
       </div>
       <div slot="actions">
         <uui-button

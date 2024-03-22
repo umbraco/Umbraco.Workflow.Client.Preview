@@ -24,8 +24,6 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
   WorkflowContentReviewsConfigModalData,
   WorkflowContentReviewsConfigModalResult
 > {
-  #modalManagerContext?: typeof UMB_MODAL_MANAGER_CONTEXT.TYPE;
-
   @state()
   current?: ContentReviewConfigItem;
 
@@ -34,18 +32,6 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
 
   @state()
   headline = "";
-
-  get currentVariant() {
-    return this.current?.variant;
-  }
-
-  constructor() {
-    super();
-
-    this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (instance) => {
-      this.#modalManagerContext = instance;
-    });
-  }
 
   connectedCallback() {
     super.connectedCallback();
@@ -70,10 +56,14 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
     }
   }
 
-  #handleSubmit() {
-    const idx = this.configItems.findIndex(
-      (x) => x.variant === this.currentVariant
+  #getExistingIndex() {
+    return this.configItems.findIndex(
+      (x) => x.variant === this.current?.variant
     );
+  }
+
+  #handleSubmit() {
+    const idx = this.#getExistingIndex();
 
     if (idx > -1) {
       this.configItems[idx] = this.current!;
@@ -89,9 +79,8 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
     this.modalContext?.reject();
   }
 
-  #setValue(value: any, propertyAlias: string) {
-    this.current![propertyAlias] = value;
-    this.requestUpdate();
+  #setValue(value: unknown, propertyAlias: string) {
+    this.current = { ...this.current, ...{ [propertyAlias]: value } };
   }
 
   #removeGroup(idx: number) {
@@ -101,16 +90,12 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
   }
 
   async #openGroupPicker() {
-    const modalHandler = this.#modalManagerContext?.open(this, 
-      WORKFLOW_GROUP_PICKER_MODAL,
-      {
-        data: {
-          selection: [
-            ...(this.current!.groups?.map((p) => p.key ?? null) ?? []),
-          ],
-        },
-      }
-    );
+    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    const modalHandler = modalContext.open(this, WORKFLOW_GROUP_PICKER_MODAL, {
+      data: {
+        selection: [...(this.current!.groups?.map((p) => p.key ?? null) ?? [])],
+      },
+    });
 
     const { groups } = await modalHandler!.onSubmit();
     this.#setValue(groups, "groups");
@@ -118,10 +103,8 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
 
   #handleLanguageChange(e: UUIInputEvent) {
     const idx = this.configItems.findIndex((x) => x.variant === e.target.value);
+    const existingIndex = this.#getExistingIndex();
 
-    const existingIndex = this.configItems.findIndex(
-      (x) => x.variant === this.currentVariant
-    );
     this.configItems[existingIndex] = this.current!;
 
     if (idx !== -1) {
@@ -148,7 +131,7 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
         .options=${this.data?.languages.map((l) => ({
           name: l.name!,
           value: l.isoCode!,
-          selected: l.isoCode === this.currentVariant,
+          selected: l.isoCode === this.current?.variant,
         })) ?? []}
         @change=${this.#handleLanguageChange}
       ></uui-select>
@@ -157,7 +140,7 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
 
   #renderGeneralBox() {
     return html`<uui-box .headline=${this.localize.term("general_general")}>
-      <umb-property-layout .label=${"Exclude from review"}>
+      <umb-property-layout label="Exclude from review">
         <uui-toggle
           slot="editor"
           .checked=${this.current?.excluded ?? false}
@@ -166,11 +149,11 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
       </umb-property-layout>
       ${when(
         !this.current?.excluded,
-        () => html`<umb-property-layout .label=${"Review period (days)"}>
+        () => html`<umb-property-layout label="Review period (days)">
           <uui-input
             type="number"
             slot="editor"
-            .label=${"Review period (days)"}
+            label="Review period (days)"
             .value=${this.current?.period}
             @change=${(e) => this.#setValue(Number(e.target.value), "period")}
           ></uui-input>
@@ -195,7 +178,7 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
       </uui-ref-list>
       <workflow-add-button
         @click=${this.#openGroupPicker}
-        .labelKey=${"workflow_addWorkflowGroups"}
+        labelKey="workflow_addWorkflowGroups"
       ></workflow-add-button>
     </uui-box>`;
   }

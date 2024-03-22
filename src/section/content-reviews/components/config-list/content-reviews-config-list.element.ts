@@ -29,7 +29,6 @@ const elementName = "workflow-content-reviews-config-list";
 export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
   LitElement
 ) {
-  #modalManagerContext?: typeof UMB_MODAL_MANAGER_CONTEXT.TYPE;
   #contentReviewsWorkspaceContext?: typeof WORKFLOW_CONTENTREVIEWS_WORKSPACE_CONTEXT.TYPE;
   #documentRepository = new UmbDocumentItemRepository(this);
 
@@ -57,11 +56,6 @@ export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
   constructor() {
     super();
 
-    this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (instance) => {
-      if (!instance) return;
-      this.#modalManagerContext = instance;
-    });
-
     this.consumeContext(
       WORKFLOW_CONTENTREVIEWS_WORKSPACE_CONTEXT,
       (instance) => {
@@ -86,37 +80,31 @@ export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
   }
 
   async #openPicker() {
-    if (!this.#modalManagerContext) return;
-
     const data = {
       hideTreeRoot: true,
       multiple: false,
     };
 
+    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+
     let modalHandler;
     if (this.type === "document") {
-      modalHandler = this.#modalManagerContext.open(
-        this,
-        UMB_DOCUMENT_PICKER_MODAL,
-        {
-          data,
-        }
-      );
+      modalHandler = modalContext.open(this, UMB_DOCUMENT_PICKER_MODAL, {
+        data,
+      });
     } else {
-      modalHandler = this.#modalManagerContext.open(
-        this,
-        UMB_DOCUMENT_TYPE_PICKER_MODAL,
-        { data }
-      );
+      modalHandler = modalContext.open(this, UMB_DOCUMENT_TYPE_PICKER_MODAL, {
+        data,
+      });
     }
 
-    const { selection } = await modalHandler.onSubmit();
+    const result = await modalHandler.onSubmit().catch(() => undefined);
 
-    if (!selection?.length) return;
+    if (!result?.selection?.length) return;
 
     const itemToConfigure: ContentReviewItem = {
-      documentKey: this.type === "document" ? selection[0]! : undefined,
-      documentTypeKey: this.type === "documentType" ? selection[0]! : undefined,
+      documentKey: this.type === "document" ? result.selection[0]! : undefined,
+      documentTypeKey: this.type === "documentType" ? result.selection[0]! : undefined,
       type: this.type!,
       configItems: [],
     };
@@ -126,7 +114,8 @@ export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
   }
 
   async #editReview(itemToConfigure: ContentReviewItem, isAdd = false) {
-    const modalHandler = this.#modalManagerContext?.open(
+    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    const modalHandler = modalContext.open(
       this,
       WORKFLOW_CONTENTREVIEWS_CONFIG_MODAL,
       {
@@ -139,8 +128,10 @@ export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
       }
     );
 
-    const { configItems } = await modalHandler!.onSubmit();
-    const newItem = { ...itemToConfigure, ...{ configItems } };
+    const result = await modalHandler.onSubmit().catch(() => undefined);
+    if (!result?.configItems) return;
+
+    const newItem = { ...itemToConfigure, ...{ configItems: result?.configItems } };
 
     if (isAdd) {
       this.#setValue([...this.value, newItem]);

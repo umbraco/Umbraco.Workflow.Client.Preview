@@ -378,7 +378,7 @@ and new lines
     saveReviewConfigMessage: `This might take a while - saving generates the review due date for all reviewable content, which might be a lot of nodes. This does not modify node-level review configuration.`,
     staleContent: `Stale content`,
     unableToSeedReviewDate: `Unable to update review date for node`,
-    generateRelativeTo: `Generate review dates relative to`,
+    generateRelativeTo: `Generate relative to`,
     saveAndRegenerate: `Save and regenerate`,
     externalReviewers: `External reviewers`,
     externalReviewersDescription: `Semi-colon-delimited list of email addresses. These should not be associated with CMS users.`,

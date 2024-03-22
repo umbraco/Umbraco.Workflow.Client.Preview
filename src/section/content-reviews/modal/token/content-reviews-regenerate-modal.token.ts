@@ -14,6 +14,6 @@ export const WORKFLOW_CONTENTREVIEWS_REGENERATE_MODAL = new UmbModalToken<
 >(WORKFLOW_CONTENTREVIEWS_REGENERATE_MODAL_ALIAS, {
   modal: {
     type: "dialog",
-    size: "medium",
+    size: "large",
   },
 });

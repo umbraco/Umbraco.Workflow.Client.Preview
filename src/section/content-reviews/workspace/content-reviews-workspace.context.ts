@@ -174,7 +174,8 @@ export class WorkflowContentReviewsWorkspaceContext
 
   deleteReview(item: ContentReviewItem) {
     item.configItems.forEach((c) => {
-      if (!c.id) throw new Error('id is missing');
+      // if no id, item has not been saved so no need to mark for deletion
+      if (!c.id) return;
       this.deletedReviews.push(c.id);
     });
   }
