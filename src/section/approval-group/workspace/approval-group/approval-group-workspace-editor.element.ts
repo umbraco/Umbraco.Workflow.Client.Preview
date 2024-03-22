@@ -36,7 +36,6 @@ export class ApprovalGroupWorkspaceEditorElement extends UmbElementMixin(
   private _iconColorAlias?: string;
 
   #workspaceContext?: typeof WORKFLOW_APPROVAL_GROUP_WORKSPACE_CONTEXT.TYPE;
-  #modalContext?: UmbModalManagerContext;
 
   constructor() {
     super();
@@ -48,10 +47,6 @@ export class ApprovalGroupWorkspaceEditorElement extends UmbElementMixin(
         this.#observeGroup();
       }
     );
-
-    this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (instance) => {
-      this.#modalContext = instance;
-    });
   }
 
   #observeGroup() {
@@ -68,25 +63,25 @@ export class ApprovalGroupWorkspaceEditorElement extends UmbElementMixin(
 
   // TODO. find a way where we don't have to do this for all workspaces.
   #onNameChange(event: UUIInputEvent) {
-    if (event instanceof UUIInputEvent) {
-      const target = event.composedPath()[0] as UUIInputElement;
+    if (event instanceof UUIInputEvent === false) return;
 
-      if (typeof target?.value !== "string") return;
+    const target = event.composedPath()[0] as UUIInputElement;
 
-      const oldName = this._group!.name;
-      const oldAlias = this._group!.alias;
-      const newName = event.target.value.toString();
+    if (typeof target?.value !== "string") return;
 
-      if (this._aliasLocked) {
-        const expectedOldAlias = generateAlias(oldName ?? "");
-        // Only update the alias if the alias matches a generated alias of the old name (otherwise the alias is considered one written by the user.)
-        if (expectedOldAlias === oldAlias) {
-          this.#workspaceContext?.setAlias(generateAlias(newName));
-        }
+    const oldName = this._group!.name;
+    const oldAlias = this._group!.alias;
+    const newName = event.target.value.toString();
+
+    if (this._aliasLocked) {
+      const expectedOldAlias = generateAlias(oldName ?? "");
+      // Only update the alias if the alias matches a generated alias of the old name (otherwise the alias is considered one written by the user.)
+      if (expectedOldAlias === oldAlias) {
+        this.#workspaceContext?.setAlias(generateAlias(newName));
       }
-
-      this.#workspaceContext?.setName(target.value);
     }
+
+    this.#workspaceContext?.setName(target.value);
   }
 
   // TODO. find a way where we don't have to do this for all workspaces.
@@ -103,20 +98,19 @@ export class ApprovalGroupWorkspaceEditorElement extends UmbElementMixin(
   }
 
   async #handleIconClick() {
-    if (!this.#modalContext) return;
-
-    const modalContext = this.#modalContext.open(this, UMB_ICON_PICKER_MODAL, {
+    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    const modalHandler = modalContext.open(this, UMB_ICON_PICKER_MODAL, {
       value: {
         icon: this._group!.icon ?? "users",
         color: this._iconColorAlias,
       },
     });
 
-    const { icon } = await modalContext.onSubmit();
-
-    if (icon) {
-      this.#workspaceContext?.setIcon(icon);
-      // TODO => save color
+    const icon = await modalHandler.onSubmit().catch(() => undefined);
+    if (icon?.icon && icon.color) {
+      this.#workspaceContext?.setIcon(`${icon.icon} color-${icon.color}`);
+    } else if (icon?.icon) {
+      this.#workspaceContext?.setIcon(icon.icon);
     }
   }
 
@@ -125,9 +119,7 @@ export class ApprovalGroupWorkspaceEditorElement extends UmbElementMixin(
   }
 
   render() {
-    return html`<umb-workspace-editor
-      alias="Workflow.Workspace.ApprovalGroup"
-    >
+    return html`<umb-workspace-editor alias="Workflow.Workspace.ApprovalGroup">
       <div id="header" slot="header">
         <uui-button
           id="back-button"
