@@ -11,7 +11,7 @@ import { ChartBase } from "./chart-base.element.js";
 import type { ChartHeaderCard } from "./chart-base.element.js";
 import {
   type ChartResponseModel,
-  ChartResource,
+  ChartService,
   WorkflowStatusModel,
 } from "@umbraco-workflow/generated";
 import { WorkflowStatus } from "@umbraco-workflow/enums";
@@ -42,7 +42,6 @@ export class WorkflowActivityChartElement extends ChartBase {
 
   // TODO => humanize
   humanize = (x: number) => x;
-  //moment.duration(x, 'seconds').humanize();
 
   buildChartSeries(chartData?: ChartResponseModel) {
     this.headerCards = [];
@@ -56,7 +55,7 @@ export class WorkflowActivityChartElement extends ChartBase {
         action: () => this.getActivity(s.key),
         label: s.key,
         value: this.numberFormat(
-          (chartData?.additionalData ?? {})[`${lower}Count`] ?? 0,
+          <number>(chartData?.additionalData ?? {})[`${lower}Count`] ?? 0,
           chartData?.currentUserLocale
         ),
       });
@@ -65,10 +64,10 @@ export class WorkflowActivityChartElement extends ChartBase {
     this.showStatsBox = chartData?.additionalData?.averageSeconds !== 0 || true;
 
     if (this.showStatsBox) {
-      this.minSeconds = this.humanize(chartData?.additionalData?.minSeconds);
-      this.maxSeconds = this.humanize(chartData?.additionalData?.maxSeconds);
+      this.minSeconds = this.humanize(<number>chartData?.additionalData?.minSeconds ?? 0);
+      this.maxSeconds = this.humanize(<number>chartData?.additionalData?.maxSeconds ?? 0);
       this.averageSeconds = this.humanize(
-        chartData?.additionalData?.averageSeconds
+        <number>chartData?.additionalData?.averageSeconds ?? 0
       );
     }
 
@@ -83,7 +82,7 @@ export class WorkflowActivityChartElement extends ChartBase {
 
     const { data, error } = await tryExecuteAndNotify(
       this,
-      ChartResource.getChartWorkflowChart({
+      ChartService.getChartWorkflowChart({
         range: this.range,
         groupId: this.groupId,
       })

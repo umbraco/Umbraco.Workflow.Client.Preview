@@ -1,5 +1,5 @@
-import type { UmbSaveableWorkspaceContextInterface } from "@umbraco-cms/backoffice/workspace";
-import { UmbEditableWorkspaceContextBase } from "@umbraco-cms/backoffice/workspace";
+import type { UmbRoutableWorkspaceContext, UmbSubmittableWorkspaceContext } from "@umbraco-cms/backoffice/workspace";
+import { UmbSubmittableWorkspaceContextBase } from "@umbraco-cms/backoffice/workspace";
 import {
   UmbArrayState,
   UmbObjectState,
@@ -12,7 +12,7 @@ import {
   type ContentReviewItem,
   type ContentReviewType,
 } from "../types.js";
-import { WORKFLOW_CONTENTREVIEWS_ENTITY_TYPE } from "../index.js";
+import { WORKFLOW_CONTENTREVIEWS_ENTITY_TYPE, WorkflowContentReviewsEditorElement } from "../index.js";
 import { WORKFLOW_CONTENTREVIEWS_WORKSPACE_ALIAS } from "./manifests.js";
 import type {
   ContentReviewsConfigModel,
@@ -23,11 +23,13 @@ import type {
 } from "@umbraco-workflow/generated";
 
 export class WorkflowContentReviewsWorkspaceContext
-  extends UmbEditableWorkspaceContextBase<ContentReviewsConfigModel>
-  implements UmbSaveableWorkspaceContextInterface
+  extends UmbSubmittableWorkspaceContextBase<ContentReviewsConfigModel>
+  implements UmbSubmittableWorkspaceContext, UmbRoutableWorkspaceContext
 {
   public readonly IS_CONTENT_REVIEWS_WORKSPACE_CONTEXT = true;
   public readonly repository = new WorkflowContentReviewsRepository(this);
+
+  readonly unique;
 
   #data = new UmbObjectState<ContentReviewsConfigModel | undefined>(undefined);
 
@@ -43,6 +45,16 @@ export class WorkflowContentReviewsWorkspaceContext
 
   constructor(host: UmbControllerHostElement) {
     super(host, WORKFLOW_CONTENTREVIEWS_WORKSPACE_ALIAS);
+
+    this.routes.setRoutes([
+      {
+        path: "",
+        component: WorkflowContentReviewsEditorElement,
+        setup: () => {
+          this.load();
+        },
+      },
+    ]);
   }
 
   async load() {
@@ -143,26 +155,30 @@ export class WorkflowContentReviewsWorkspaceContext
   }
 
   async saveAndRegenerate(force: boolean, relativeTo: 0 | 1) {
-    await this.save(true, force, relativeTo);
+    await this.submit(true, force, relativeTo);
   }
 
-  async save(regenerate = false, force = false, relativeTo: 0 | 1 = 0) {
+  async submit(regenerate = false, force = false, relativeTo: 0 | 1 = 0) {
     const data = this.#data.getValue();
     if (!data) return;
 
     const config: Array<ContentReviewsDetailedConfigModel> = [];
 
-    data.settings.contentItemReviews.value.forEach((x: ContentReviewItem) => {
-      x.configItems.forEach((r) =>
-        config.push(this.getSyncModel(r, "document", x.documentKey))
-      );
-    });
+    (<Array<ContentReviewItem>>data.settings.contentItemReviews.value).forEach(
+      (x: ContentReviewItem) => {
+        x.configItems.forEach((r) =>
+          config.push(this.getSyncModel(r, "document", x.documentKey))
+        );
+      }
+    );
 
-    data.settings.documentTypeReviews.value.forEach((x: ContentReviewItem) => {
-      x.configItems.forEach((r) =>
-        config.push(this.getSyncModel(r, "documentType", x.documentTypeKey))
-      );
-    });
+    (<Array<ContentReviewItem>>data.settings.documentTypeReviews.value).forEach(
+      (x: ContentReviewItem) => {
+        x.configItems.forEach((r) =>
+          config.push(this.getSyncModel(r, "documentType", x.documentTypeKey))
+        );
+      }
+    );
 
     await this.repository.save({
       config,
@@ -181,6 +197,9 @@ export class WorkflowContentReviewsWorkspaceContext
   }
 
   destroy(): void {
+    this.repository.destroy();
     super.destroy();
   }
 }
+
+export { WorkflowContentReviewsWorkspaceContext as api }

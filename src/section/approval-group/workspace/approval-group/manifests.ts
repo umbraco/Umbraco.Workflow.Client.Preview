@@ -1,20 +1,20 @@
 import { UmbSaveWorkspaceAction } from "@umbraco-cms/backoffice/workspace";
 import type {
-  ManifestWorkspace,
+  ManifestWorkspaces,
   ManifestWorkspaceAction,
-  ManifestWorkspaceView,
+  ManifestWorkspaceViews,
 } from "@umbraco-cms/backoffice/extension-registry";
-import { WorkflowDeleteGroupEntityAction } from "../../entity-actions/delete.action.js";
 import { WORKFLOW_APPROVALGROUP_ENTITY_TYPE } from "../../types.js";
 
 export const WORKFLOW_APPROVALGROUP_WORKSPACE_ALIAS =
   "Workflow.Workspace.ApprovalGroup";
 
-const workspace: ManifestWorkspace = {
+const workspace: ManifestWorkspaces = {
   type: "workspace",
+  kind: "routable",
   alias: WORKFLOW_APPROVALGROUP_WORKSPACE_ALIAS,
   name: "Approval Group Workspace",
-  js: () => import("./approval-group-workspace.element.js"),
+  api: () => import("./approval-group-workspace.context.js"),
   meta: {
     entityType: WORKFLOW_APPROVALGROUP_ENTITY_TYPE,
   },
@@ -24,34 +24,34 @@ const workspaceViewData = [
   {
     label: "Settings",
     icon: "settings",
-    js: () =>
+    element: () =>
       import("./views/approval-group-settings-workspace-view.element.js"),
   },
   {
     label: "Members",
     icon: "icon-users",
-    js: () =>
+    element: () =>
       import("./views/approval-group-members-workspace-view.element.js"),
   },
   {
     label: "Roles",
     icon: "icon-keychain",
-    js: () => import("./views/approval-group-roles-workspace-view.element.js"),
+    element: () => import("./views/approval-group-roles-workspace-view.element.js"),
   },
   {
     label: "History",
     icon: "icon-alarm-clock",
-    js: () =>
+    element: () =>
       import("./views/approval-group-history-workspace-view.element.js"),
   },
 ];
 
-const workspaceViews: Array<ManifestWorkspaceView> = workspaceViewData.map(
+const workspaceViews: Array<ManifestWorkspaceViews> = workspaceViewData.map(
   (d) => ({
     type: "workspaceView",
     alias: `Umb.WorkspaceView.Workflow.ApprovalGroup.${d.label}`,
     name: `Approval Group Workspace ${d.label} View`,
-    js: d.js,
+    element: d.element,
     weight: 90,
     meta: {
       label: d.label,

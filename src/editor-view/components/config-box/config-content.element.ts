@@ -11,7 +11,7 @@ import { WorkflowConfigBoxBase } from "./index.js";
 import type { WorkflowRefGroupPermissionElement } from "@umbraco-workflow/components";
 import { add, remove } from "@umbraco-workflow/components";
 import { PermissionType } from "@umbraco-workflow/enums";
-import { ConfigResource } from "@umbraco-workflow/generated";
+import { ConfigService } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-config-content";
 
@@ -56,7 +56,7 @@ export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
     // TODO => fix the model or ensure all properties do actually exist
     const { error } = await tryExecuteAndNotify(
       this,
-      ConfigResource.putConfig({
+      ConfigService.putConfig({
         requestBody: {
           key: this.workflowManagerContext.getEntityId()!,
           id: 1,

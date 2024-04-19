@@ -10,7 +10,7 @@ import type {
   WorkflowInstancesFilterModel,
 } from "../../../../../types.js";
 import { WorkflowApprovalGroupWorkspaceViewBase } from "./approval-group-workspace-view-base.element.js";
-import { InstanceResource } from "@umbraco-workflow/generated";
+import { InstanceService } from "@umbraco-workflow/generated";
 import { SortDirection } from "@umbraco-workflow/enums";
 import { BoxHeaderFlexStyles } from "@umbraco-workflow/css";
 import type { FilterPickerElement, WorkflowFilterValueSet } from "@umbraco-workflow/components";
@@ -46,7 +46,7 @@ export class ApprovalGroupMembersWorkspaceViewElement
       page: 1,
       count: this.perPage,
       filters: this.filters,
-      handler: InstanceResource.postInstanceAll,
+      handler: InstanceService.postInstanceAll,
       direction: SortDirection.DESC,
       meta: {
         groupId: this._group?.unique,

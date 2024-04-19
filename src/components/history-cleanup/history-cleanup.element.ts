@@ -7,10 +7,9 @@ import {
   property,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
-import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
 import { UMB_NOTIFICATION_CONTEXT } from "@umbraco-cms/backoffice/notification";
-import { HistoryCleanupResource } from "@umbraco-workflow/generated";
+import { HistoryCleanupService } from "@umbraco-workflow/generated";
 import { WORKFLOW_HISTORY_CLEANUP_MODAL } from "@umbraco-workflow/modal";
 
 const elementName = "workflow-history-cleanup";
@@ -18,7 +17,6 @@ const elementName = "workflow-history-cleanup";
 @customElement(elementName)
 export class WorkflowHistoryCleanupElement extends UmbElementMixin(LitElement) {
   #modalManagerContext?: typeof UMB_MODAL_MANAGER_CONTEXT.TYPE;
-  #workspaceContext?: typeof UMB_DOCUMENT_WORKSPACE_CONTEXT.TYPE;
   #notificationContext?: typeof UMB_NOTIFICATION_CONTEXT.TYPE;
 
   @property()
@@ -30,11 +28,6 @@ export class WorkflowHistoryCleanupElement extends UmbElementMixin(LitElement) {
     this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (instance) => {
       if (!instance) return;
       this.#modalManagerContext = instance;
-    });
-
-    this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (instance) => {
-      if (!instance) return;
-      this.#workspaceContext = instance;
     });
 
     this.consumeContext(UMB_NOTIFICATION_CONTEXT, (instance) => {
@@ -58,7 +51,7 @@ export class WorkflowHistoryCleanupElement extends UmbElementMixin(LitElement) {
 
     const { error } = await tryExecuteAndNotify(
       this,
-      HistoryCleanupResource.putHistoryCleanup({
+      HistoryCleanupService.putHistoryCleanup({
         requestBody: Object.assign({}, result.nodeRules, result.docTypeRules),
       })
     );

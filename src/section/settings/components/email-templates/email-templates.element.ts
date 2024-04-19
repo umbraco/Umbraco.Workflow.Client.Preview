@@ -10,13 +10,14 @@ import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "../../workspace/settings-wo
 import { WORKFLOW_EMAIL_SENDTO_MODAL } from "../../modal/index.js";
 import type {
   ConfigTypeModel,
-  WorkflowEmailConfigModel,
 } from "@umbraco-workflow/generated";
 
 export type ExtendedWorkflowEmailConfigModel = {
   sendTo: string;
   name: string;
-} & WorkflowEmailConfigModel;
+  to: Array<number>;
+  key: string;
+}
 
 const elementName = "workflow-email-templates";
 
@@ -52,7 +53,7 @@ export class WorkflowEmailTemplatesElement extends UmbElementMixin(LitElement) {
 
     this.observe(this.#workspaceContext.notificationsSettings, (instance) => {
       if (!instance) return;
-      this.value = instance?.emailTemplates?.value.map((v) => ({
+      this.value = (<any>instance?.emailTemplates?.value).map((v) => ({
         ...v,
         sendTo: "",
       }));

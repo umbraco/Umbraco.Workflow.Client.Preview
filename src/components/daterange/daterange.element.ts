@@ -7,13 +7,14 @@ import {
   property,
   state,
 } from "@umbraco-cms/backoffice/external/lit";
-import { FormControlMixin } from "@umbraco-cms/backoffice/external/uui";
+import { UUIFormControlMixin } from "@umbraco-cms/backoffice/external/uui";
 
 const elementName = "workflow-daterange";
 
 @customElement(elementName)
-export class WorkflowDateRangeElement extends FormControlMixin(
-  UmbElementMixin(LitElement)
+export class WorkflowDateRangeElement extends UUIFormControlMixin(
+  UmbElementMixin(LitElement),
+  undefined
 ) {
   getFormElement() {
     return undefined;
@@ -40,8 +41,12 @@ export class WorkflowDateRangeElement extends FormControlMixin(
     this.maxDateFrom = new Date().toString();
     this.minDateTo = new Date().toString();
 
-    this.labelFrom = this.localize.term(this.labelKeys[0]).replace(/\b\w/g, s => s.toUpperCase());
-    this.labelTo = this.localize.term(this.labelKeys[1]).replace(/\b\w/g, s => s.toUpperCase());
+    this.labelFrom = this.localize
+      .term(this.labelKeys[0])
+      .replace(/\b\w/g, (s) => s.toUpperCase());
+    this.labelTo = this.localize
+      .term(this.labelKeys[1])
+      .replace(/\b\w/g, (s) => s.toUpperCase());
 
     this.addValidator(
       "badInput",
@@ -105,7 +110,7 @@ export class WorkflowDateRangeElement extends FormControlMixin(
       }
 
       umb-property-layout {
-        padding:0;
+        padding: 0;
       }
     `,
   ];

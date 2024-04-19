@@ -1,5 +1,10 @@
-import type { UmbSaveableWorkspaceContextInterface } from "@umbraco-cms/backoffice/workspace";
-import { UmbEditableWorkspaceContextBase } from "@umbraco-cms/backoffice/workspace";
+import type {
+  UmbRoutableWorkspaceContext,
+  UmbSubmittableWorkspaceContext,
+} from "@umbraco-cms/backoffice/workspace";
+import {
+  UmbSubmittableWorkspaceContextBase,
+} from "@umbraco-cms/backoffice/workspace";
 import {
   UmbObjectState,
   appendToFrozenArray,
@@ -7,7 +12,10 @@ import {
 import type { UmbControllerHostElement } from "@umbraco-cms/backoffice/controller-api";
 import { WorkflowSettingsRepository } from "../repository/settings.repository.js";
 import type { SettingsAliasType, SettingsSectionType } from "../types.js";
-import { WORKFLOW_SETTINGS_ENTITY_TYPE } from "../index.js";
+import {
+  WORKFLOW_SETTINGS_ENTITY_TYPE,
+} from "../index.js";
+import { WorkflowSettingsEditorElement } from "./settings-editor.element.js";
 import {
   type GeneralSettingsModel,
   type NotificationsSettingsModel,
@@ -16,11 +24,13 @@ import {
 } from "@umbraco-workflow/generated";
 
 export class WorkflowSettingsWorkspaceContext
-  extends UmbEditableWorkspaceContextBase<WorkflowSettingsPropertiesModel>
-  implements UmbSaveableWorkspaceContextInterface
+  extends UmbSubmittableWorkspaceContextBase<WorkflowSettingsPropertiesModel>
+  implements UmbSubmittableWorkspaceContext, UmbRoutableWorkspaceContext
 {
-	public readonly IS_WORKFLOW_SETTINGS_WORKSPACE_CONTEXT = true;
+  public readonly IS_WORKFLOW_SETTINGS_WORKSPACE_CONTEXT = true;
   private readonly repository = new WorkflowSettingsRepository(this);
+
+  readonly unique;
 
   #data = new UmbObjectState<WorkflowSettingsPropertiesModel | undefined>(
     undefined
@@ -41,6 +51,16 @@ export class WorkflowSettingsWorkspaceContext
 
   constructor(host: UmbControllerHostElement) {
     super(host, "Workflow.Workspace.Settings");
+
+    this.routes.setRoutes([
+      {
+        path: "",
+        component: WorkflowSettingsEditorElement,
+        setup: () => {
+          this.load();
+        },
+      },
+    ]);
   }
 
   async load() {
@@ -141,7 +161,7 @@ export class WorkflowSettingsWorkspaceContext
     await this.repository.installEmailTemplates();
   }
 
-  async save() {
+  async submit() {
     const data = this.getData();
     if (!data) return;
     await this.repository.save(data);
@@ -151,3 +171,5 @@ export class WorkflowSettingsWorkspaceContext
     super.destroy();
   }
 }
+
+export { WorkflowSettingsWorkspaceContext as api };

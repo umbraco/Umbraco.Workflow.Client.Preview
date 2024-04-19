@@ -15,8 +15,8 @@ import {
 import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "../../workspace/settings-workspace.context-token.js";
 import { WORKFLOW_DOCUMENT_TYPE_FLOW_MODAL } from "../../modal/index.js";
 import {
-  ContentResource,
-  ApprovalGroupResource,
+  ContentService,
+  ApprovalGroupService,
 } from "@umbraco-workflow/generated";
 import type {
   WorkflowConfigUpdateRequestModel,
@@ -73,7 +73,7 @@ export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
       await this.#getContentTypes();
       await this.#getGroups();
 
-      this.value = settings?.documentTypeApprovalFlows?.value ?? [];
+      this.value = <Array<WorkflowConfigUpdateRequestModel>>settings?.documentTypeApprovalFlows?.value ?? [];
       this.#languages = this.#workspaceContext?.getData()?.availableLanguages;
     });
   }
@@ -81,7 +81,7 @@ export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
   async #getContentTypes() {
     const { data } = await tryExecuteAndNotify(
       this,
-      ContentResource.getContentContentTypes()
+      ContentService.getContentContentTypes()
     );
     this.#contentTypes = data;
   }
@@ -89,7 +89,7 @@ export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
   async #getGroups() {
     const { data } = await tryExecuteAndNotify(
       this,
-      ApprovalGroupResource.getApprovalGroup({ skip: 0, take: 1000 })
+      ApprovalGroupService.getApprovalGroup({ skip: 0, take: 1000 })
     );
     this.#groups = data?.items;
   }

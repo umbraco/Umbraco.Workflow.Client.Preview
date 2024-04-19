@@ -9,7 +9,7 @@ export function BaseFieldQueryGenerator(props: Array<Partial<PropertyDetailModel
         const v = ValueMap(x);
 
         if (x.propertyEditorUiAlias === "userpicker" && x.value) {
-          v[1] = x.value.id;
+          v[1] = (<any>x.value).id;
         }
 
         return v;

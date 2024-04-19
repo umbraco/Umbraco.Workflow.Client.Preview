@@ -1,5 +1,5 @@
 import type {
-  ManifestWorkspace,
+  ManifestWorkspaces,
   ManifestWorkspaceActions,
   ManifestWorkspaceView,
 } from "@umbraco-cms/backoffice/extension-registry";
@@ -8,11 +8,12 @@ import { WorkflowRegenerateContentReviewsWorkspaceAction } from "./actions/save-
 
 export const WORKFLOW_CONTENTREVIEWS_WORKSPACE_ALIAS = "Workflow.Workspace.ContentReviews";
 
-const workspace: ManifestWorkspace = {
+const workspace: ManifestWorkspaces = {
   type: "workspace",
+  kind: "routable",
   alias: WORKFLOW_CONTENTREVIEWS_WORKSPACE_ALIAS,
   name: "Content Reviews Root Workspace",
-  js: () => import("./content-reviews-root-workspace.element.js"),
+  api: () => import("./content-reviews-workspace.context.js"),
   meta: {
     entityType: "content-reviews",
   },
@@ -69,7 +70,7 @@ const workspaceActions: Array<ManifestWorkspaceActions> = [
     meta: {
       look: "primary",
       color: "positive",
-      label: "Save",
+      label: "#buttons_save",
     },
     weight: 100,
     conditions: [

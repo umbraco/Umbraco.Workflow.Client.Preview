@@ -9,7 +9,7 @@ import type { ChartHeaderCard } from "./chart-base.element.js";
 import { ChartBase } from "./chart-base.element.js";
 import { ChartBaseStyles } from "./chart-style.styles.js";
 import {
-  ChartResource,
+  ChartService,
   WorkflowStatusModel,
   type ChartResponseModel,
 } from "@umbraco-workflow/generated";
@@ -37,7 +37,7 @@ export class ContentReviewsChartElement extends ChartBase {
         status: k.value,
         label: k.key,
         value: this.numberFormat(
-          (chartData?.additionalData ?? {})[`${lower}Count`] ?? 0,
+          <number>(chartData?.additionalData ?? {})[`${lower}Count`] ?? 0,
           chartData?.currentUserLocale
         ),
       });
@@ -45,7 +45,9 @@ export class ContentReviewsChartElement extends ChartBase {
 
     this.series = chartData?.series ?? [];
     this.drawChart(
-      chartData?.additionalData?.expiringCount > 100 ? "logarithmic" : "linear"
+      <number>chartData?.additionalData?.expiringCount > 100
+        ? "logarithmic"
+        : "linear"
     );
   }
 
@@ -56,7 +58,7 @@ export class ContentReviewsChartElement extends ChartBase {
 
     const { data, error } = await tryExecuteAndNotify(
       this,
-      ChartResource.getChartContentReviewChart({
+      ChartService.getChartContentReviewChart({
         range: this.range,
       })
     );

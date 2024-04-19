@@ -6,7 +6,7 @@ import {
 import type { TableQueryModel } from "../../../types.js";
 import { SectionRootBase } from "../../section-root.base.element.js";
 import { BoxHeaderFlexStyles } from "@umbraco-workflow/css";
-import { InstanceResource } from "@umbraco-workflow/generated";
+import { InstanceService } from "@umbraco-workflow/generated";
 import { SortDirection } from "@umbraco-workflow/enums";
 import {
   InstanceFilters
@@ -53,7 +53,7 @@ export class WorkflowHistoryRootWorkspaceElement extends SectionRootBase {
       page: 1,
       count: this.perPage,
       filters: this.filters,
-      handler: InstanceResource.postInstanceAll,
+      handler: InstanceService.postInstanceAll,
       direction: SortDirection.DESC,
       meta: {
         historyOnly: true,

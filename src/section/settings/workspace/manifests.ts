@@ -1,29 +1,31 @@
 import type {
-  ManifestWorkspace,
+  ManifestWorkspaces,
   ManifestWorkspaceAction,
   ManifestWorkspaceView,
+  ManifestWorkspaceViews,
 } from "@umbraco-cms/backoffice/extension-registry";
 import { UmbSaveWorkspaceAction } from "@umbraco-cms/backoffice/workspace";
 import { WORKFLOW_SETTINGS_ENTITY_TYPE } from "../index.js";
 
-const workspaceAlias = "Workflow.Workspace.Settings";
+export const WORKFLOW_SETTINGS_WORKSPACE_ALIAS = "Workflow.Workspace.Settings";
 
-const workspace: ManifestWorkspace = {
+const workspace: ManifestWorkspaces = {
   type: "workspace",
-  alias: workspaceAlias,
-  name: "Workflow Settings Root Workspace",
-  js: () => import("./settings-root-workspace.element.js"),
+  kind: "routable",
+  alias: WORKFLOW_SETTINGS_WORKSPACE_ALIAS,
+  name: "Workflow Settings Workspace",
+  api: () => import("./settings-workspace.context.js"),
   meta: {
     entityType: WORKFLOW_SETTINGS_ENTITY_TYPE,
   },
 };
 
-const workspaceViews: Array<ManifestWorkspaceView> = [
+const workspaceViews: Array<ManifestWorkspaceViews> = [
   {
     type: "workspaceView",
     alias: `Umb.WorkspaceView.Workflow.Settings.General`,
     name: `Workflow Settings Workspace General Settings View`,
-    js: () => import("./views/settings-settings-workspace-view.element.js"),
+    element: () => import("./views/settings-settings-workspace-view.element.js"),
     weight: 90,
     meta: {
       label: "General",
@@ -33,7 +35,7 @@ const workspaceViews: Array<ManifestWorkspaceView> = [
     conditions: [
       {
         alias: "Umb.Condition.WorkspaceAlias",
-        match: workspaceAlias,
+        match: WORKFLOW_SETTINGS_WORKSPACE_ALIAS,
       },
     ],
   },
@@ -41,7 +43,7 @@ const workspaceViews: Array<ManifestWorkspaceView> = [
     type: "workspaceView",
     alias: `Umb.WorkspaceView.Workflow.Settings.Notifications`,
     name: `Workflow Settings Workspace Notifications Settings View`,
-    js: () =>
+    element: () =>
       import("./views/settings-notifications-workspace-view.element.js"),
     weight: 90,
     meta: {
@@ -52,7 +54,7 @@ const workspaceViews: Array<ManifestWorkspaceView> = [
     conditions: [
       {
         alias: "Umb.Condition.WorkspaceAlias",
-        match: workspaceAlias,
+        match: WORKFLOW_SETTINGS_WORKSPACE_ALIAS,
       },
     ],
   },
@@ -68,12 +70,12 @@ const workspaceActions: Array<ManifestWorkspaceAction> = [
     meta: {
       look: "primary",
       color: "positive",
-      label: "Save",
+      label: "#buttons_save",
     },
     conditions: [
       {
         alias: "Umb.Condition.WorkspaceAlias",
-        match: workspaceAlias,
+        match: WORKFLOW_SETTINGS_WORKSPACE_ALIAS,
       },
     ],
   },

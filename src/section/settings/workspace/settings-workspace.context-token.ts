@@ -1,9 +1,9 @@
 import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
-import type { UmbSaveableWorkspaceContextInterface } from "@umbraco-cms/backoffice/workspace";
+import type { UmbSubmittableWorkspaceContext } from "@umbraco-cms/backoffice/workspace";
 import type { WorkflowSettingsWorkspaceContext } from "./settings-workspace.context.js";
 
 export const WORKFLOW_SETTINGS_WORKSPACE_CONTEXT = new UmbContextToken<
-  UmbSaveableWorkspaceContextInterface,
+UmbSubmittableWorkspaceContext,
   WorkflowSettingsWorkspaceContext
 >(
   "UmbWorkspaceContext",

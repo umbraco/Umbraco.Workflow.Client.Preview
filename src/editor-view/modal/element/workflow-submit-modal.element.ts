@@ -5,12 +5,12 @@ import {
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import {
-  UMB_MEDIA_TREE_PICKER_MODAL,
   UMB_MODAL_MANAGER_CONTEXT,
   UmbModalBaseElement,
 } from "@umbraco-cms/backoffice/modal";
 import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
 import type { UmbDocumentDetailModel } from "node_modules/@umbraco-cms/backoffice/dist-cms/packages/documents/documents/types.js";
+import { UMB_MEDIA_TREE_PICKER_MODAL } from '@umbraco-cms/backoffice/media';
 import type { WorkflowAction, DatePickerData } from "../../types.js";
 import {
   type WorkflowState,

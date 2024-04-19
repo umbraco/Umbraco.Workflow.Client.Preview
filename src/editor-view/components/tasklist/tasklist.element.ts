@@ -15,7 +15,7 @@ import { WORKFLOW_MANAGER_CONTEXT } from "@umbraco-workflow/context";
 import {
   type WorkflowTaskCollectionItemModel,
   type WorkflowTaskCollectionModel,
-  TaskResource,
+  TaskService,
 } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-task-list";
@@ -60,7 +60,7 @@ export class WorkflowTaskListElement extends UmbElementMixin(LitElement) {
 
     const { data } = await tryExecuteAndNotify(
       this,
-      TaskResource.getTaskById({ id })
+      TaskService.getTaskById({ id })
     );
 
     this.tasks = data?.taskCollection ?? [];

@@ -15,7 +15,7 @@ import type {
 import {
   type HistoryCleanupConfigModel,
   type HistoryCleanupModel,
-  HistoryCleanupResource,
+  HistoryCleanupService,
 } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-history-cleanup-modal";
@@ -60,7 +60,7 @@ export class WorkflowHistoryCleanupModalElement extends UmbModalBaseElement<
   async #getHistoryCleanup() {
     const { data } = await tryExecuteAndNotify(
       this,
-      HistoryCleanupResource.getHistoryCleanup({
+      HistoryCleanupService.getHistoryCleanup({
         uniqueId: this.data?.unique,
         contentTypeId: this.data?.contentTypeUnique,
       })

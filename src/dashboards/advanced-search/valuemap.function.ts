@@ -1,7 +1,7 @@
 import type { PropertyDetailModel } from "@umbraco-workflow/generated";
 
 export function ValueMap(prop: Partial<PropertyDetailModel>) {
-    let value = prop.value;
+    let value = <any>prop.value;
 
     // offset js date back to c# ticks
     if (prop.propertyEditorUiAlias === "datepicker") {

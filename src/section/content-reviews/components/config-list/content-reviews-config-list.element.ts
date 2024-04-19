@@ -50,7 +50,7 @@ export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
       this.type === "document"
         ? this.settings?.contentItemReviews
         : this.settings?.documentTypeReviews
-    )?.value;
+    )?.value as Array<ContentReviewItem>;
   }
 
   constructor() {

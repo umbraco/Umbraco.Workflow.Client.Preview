@@ -39,12 +39,12 @@ export class WorkflowExcludeNodesElement extends UmbElementMixin(LitElement) {
   connectedCallback() {
     super.connectedCallback();
     this.selectedIds = splitStringToArray(
-      this._generalSettings?.excludeNodes?.value
+      this._generalSettings?.excludeNodes?.value as string
     );
   }
 
   #onSelectionChange(event: CustomEvent) {
-    this.selectedIds = (event.target as UmbInputDocumentElement).selectedIds;
+    this.selectedIds = (event.target as UmbInputDocumentElement).selection;
     this.workspaceContext?.setValue(
       this.selectedIds.join(","),
       "excludeNodes",

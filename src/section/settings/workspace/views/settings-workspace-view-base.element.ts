@@ -81,3 +81,5 @@ export class WorkflowSettingsWorkspaceViewBase extends WorkspaceWithSettingsView
     </umb-property-dataset>`;
   }
 }
+
+export default WorkflowSettingsWorkspaceViewBase;

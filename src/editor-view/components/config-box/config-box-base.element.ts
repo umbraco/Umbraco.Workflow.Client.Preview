@@ -1,3 +1,4 @@
+import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import {
   LitElement,
@@ -26,15 +27,13 @@ export class WorkflowConfigBoxBase extends UmbElementMixin(LitElement) {
 
     this.consumeContext(WORKFLOW_MANAGER_CONTEXT, (instance) => {
       if (!instance) return;
-
       this.workflowManagerContext = instance;
-      this.variant =
-        this.workflowManagerContext?.workspaceContext
-          ?.getData()
-          ?.variants?.at(0)?.culture ?? "en-us";
-
       this.#observeWorkflowState();
       this.#observePermissions();
+    });
+
+    this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (context) => {
+      this.variant = context?.getData()?.variants?.at(0)?.culture ?? "en-us";
     });
   }
 

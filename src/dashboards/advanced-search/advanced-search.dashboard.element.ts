@@ -27,7 +27,7 @@ import type {
   SelectableNameKeyPairModel,
 } from "@umbraco-workflow/generated";
 import {
-  AdvancedSearchResource,
+  AdvancedSearchService,
   AdvancedSearchTypeModel,
   WorkflowStatusModel,
 } from "@umbraco-workflow/generated";
@@ -71,7 +71,7 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
 
   @state()
   searchModel: TableQueryModel = {
-    handler: AdvancedSearchResource.postAdvancedSearchSearch,
+    handler: AdvancedSearchService.postAdvancedSearchSearch,
     meta: {
       fuzzy: false,
     },
@@ -170,7 +170,7 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
   async #getData() {
     const { data } = await tryExecuteAndNotify(
       this,
-      AdvancedSearchResource.getAdvancedSearchContentTypes()
+      AdvancedSearchService.getAdvancedSearchContentTypes()
     );
 
     data?.contentTypes!.forEach((x) => (x.selected = true));
@@ -399,7 +399,7 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
     status: Record<string, any>
   ) {
     status.selected = !status.selected;
-    const value = !property.value?.length ? [] : property.value.split(",");
+    const value = !(<any>property.value)?.length ? [] : (<string>property.value).split(",");
 
     if (status.selected) {
       value.push(status.value);
@@ -824,7 +824,7 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
                           ${when(
                             prop.propertyEditorUiAlias === "checkboxlist",
                             () =>
-                              html` ${prop.config?.items.map(
+                              html` ${(<any>prop.config)?.items.map(
                                 (status) => html`
                                   <uui-checkbox
                                     style="margin-right:var(--uui-size-5)"
@@ -845,7 +845,7 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
                               html`${when(
                                 prop.value,
                                 () => html`<uui-ref-list>
-                                  <uui-ref-node-user .name=${prop.value?.name}
+                                  <uui-ref-node-user .name=${(<any>prop.value)?.name}
                                     ><uui-action-bar slot="actions">
                                       <uui-button
                                         label="Remove"

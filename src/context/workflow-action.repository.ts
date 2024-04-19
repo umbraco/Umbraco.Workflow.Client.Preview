@@ -11,7 +11,7 @@ import {
 } from "@umbraco-cms/backoffice/class-api";
 import { UmbContextConsumerController } from "@umbraco-cms/backoffice/context-api";
 import {
-  ActionResource,
+  ActionService,
   WorkflowTypeModel,
 } from "@umbraco-workflow/generated";
 import type {
@@ -62,7 +62,7 @@ export class WorkflowActionRepository extends UmbControllerBase {
     // attachmentId should be a guid
     const { data, error } = await tryExecuteAndNotify(
       this.#host,
-      ActionResource.postActionInitiate({
+      ActionService.postActionInitiate({
         requestBody: {
           entityId: nodeUnique,          
           comment,
@@ -144,13 +144,13 @@ export class WorkflowActionRepository extends UmbControllerBase {
     | undefined {
     switch (action) {
       case ValidActionDescriptor.APPROVE:
-        return ActionResource.postActionApprove;
+        return ActionService.postActionApprove;
       case ValidActionDescriptor.CANCEL:
-        return ActionResource.postActionCancel;
+        return ActionService.postActionCancel;
       case ValidActionDescriptor.REJECT:
-        return ActionResource.postActionReject;
+        return ActionService.postActionReject;
       case ValidActionDescriptor.RESUBMIT:
-        return ActionResource.postActionResubmit;
+        return ActionService.postActionResubmit;
     }
   }
 }

@@ -6,7 +6,7 @@ import {
   type WorkflowApprovalGroupDetailModel,
 } from "../types.js";
 import {
-  ApprovalGroupResource,
+  ApprovalGroupService,
   type UserGroupModel,
 } from "@umbraco-workflow/generated";
 
@@ -35,7 +35,7 @@ export class WorkflowApprovalGroupsDetailServerDataSource
     if (!unique) throw new Error("Group ID is missing");
     const { data, error } = await tryExecuteAndNotify(
       this.#host,
-      ApprovalGroupResource.getApprovalGroupById({
+      ApprovalGroupService.getApprovalGroupById({
         id: unique,
       })
     );
@@ -69,7 +69,7 @@ export class WorkflowApprovalGroupsDetailServerDataSource
   list(skip = 0, take = 5, filter?) {
     return tryExecuteAndNotify(
       this.#host,
-      ApprovalGroupResource.getApprovalGroup({ skip, take, filter })
+      ApprovalGroupService.getApprovalGroup({ skip, take, filter })
     );
   }
 
@@ -83,7 +83,7 @@ export class WorkflowApprovalGroupsDetailServerDataSource
   listSlim(skip = 0, take = 5, filter?) {
     return tryExecuteAndNotify(
       this.#host,
-      ApprovalGroupResource.getApprovalGroupSlim({ skip, take, filter })
+      ApprovalGroupService.getApprovalGroupSlim({ skip, take, filter })
     );
   }
 
@@ -96,7 +96,7 @@ export class WorkflowApprovalGroupsDetailServerDataSource
   async createScaffold() {
     const { data, error } = await tryExecuteAndNotify(
       this.#host,
-      ApprovalGroupResource.getApprovalGroupScaffold()
+      ApprovalGroupService.getApprovalGroupScaffold()
     );
 
     if (error || !data) {
@@ -144,7 +144,7 @@ export class WorkflowApprovalGroupsDetailServerDataSource
 
     const { data, error } = await tryExecuteAndNotify(
       this.#host,
-      ApprovalGroupResource.postApprovalGroup({ requestBody: requestBody })
+      ApprovalGroupService.postApprovalGroup({ requestBody: requestBody })
     );
 
     if (data) {
@@ -184,7 +184,7 @@ export class WorkflowApprovalGroupsDetailServerDataSource
 
     const { data, error } = await tryExecuteAndNotify(
       this.#host,
-      ApprovalGroupResource.putApprovalGroupById({
+      ApprovalGroupService.putApprovalGroupById({
         id: group.unique,
         requestBody,
       })
@@ -207,7 +207,7 @@ export class WorkflowApprovalGroupsDetailServerDataSource
     if (!key) throw new Error("Group ID is missing");
     return tryExecuteAndNotify(
       this.#host,
-      ApprovalGroupResource.deleteApprovalGroupById({ id: key })
+      ApprovalGroupService.deleteApprovalGroupById({ id: key })
     );
   }
 }

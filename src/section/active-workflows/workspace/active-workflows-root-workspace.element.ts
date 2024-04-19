@@ -5,7 +5,7 @@ import {
 } from "@umbraco-cms/backoffice/external/lit";
 import type { TableQueryModel } from "../../../types.js";
 import { SectionRootBase } from "../../section-root.base.element.js";
-import { InstanceResource } from "@umbraco-workflow/generated";
+import { InstanceService } from "@umbraco-workflow/generated";
 import type {
   FilterPickerElement,
   PageSizeDropdownElement,
@@ -60,7 +60,7 @@ export class ActiveWorkflowsRootWorkspaceElement extends SectionRootBase {
       count: this.perPage,
       filters: this.filters,
       page: 1,
-      handler: InstanceResource.postInstanceActive,
+      handler: InstanceService.postInstanceActive,
       meta: this.#meta,
     };
   }

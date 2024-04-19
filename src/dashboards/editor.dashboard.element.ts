@@ -9,8 +9,8 @@ import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import type { TableQueryModel } from "../types.js";
 import type { PageSizeDropdownElement } from "@umbraco-workflow/components";
 import {
-  ContentReviewResource,
-  InstanceResource,
+  ContentReviewService,
+  InstanceService,
 } from "@umbraco-workflow/generated";
 import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
@@ -97,7 +97,7 @@ export class EditorDashboardElement extends UmbElementMixin(LitElement) {
     this._approvalsModel = {
       count: this._perPageApprovals,
       page: 1,
-      handler: InstanceResource.postInstanceAssignedTo,
+      handler: InstanceService.postInstanceAssignedTo,
       meta: this.#meta,
     };
   }
@@ -110,7 +110,7 @@ export class EditorDashboardElement extends UmbElementMixin(LitElement) {
     this._submissionsModel = {
       count: this._perPageSubmissions,
       page: 1,
-      handler: InstanceResource.postInstanceInitiatedBy,
+      handler: InstanceService.postInstanceInitiatedBy,
       meta: this.#meta,
     };
   }
@@ -123,7 +123,7 @@ export class EditorDashboardElement extends UmbElementMixin(LitElement) {
       count: this._perPageReviews,
       page: 1,
       hiddenColumns: ["period", "reviewGroup"],
-      handler: ContentReviewResource?.getContentReviewNodes,
+      handler: ContentReviewService?.getContentReviewNodes,
       meta: this.#meta,
     };
   }

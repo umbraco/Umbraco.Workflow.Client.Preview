@@ -4,7 +4,7 @@ import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
 import type { WorkflowApprovalGroupDetailModel } from "../types.js";
 import { WorkflowApprovalGroupsDetailServerDataSource } from "./approval-groups.detail.server.data.js";
 import { WORKFLOW_APPROVALGROUPS_STORE_CONTEXT } from "./approval-groups.store.js";
-import { ApprovalGroupResource } from "@umbraco-workflow/generated";
+import { ApprovalGroupService } from "@umbraco-workflow/generated";
 
 export class WorkflowApprovalGroupsRepository extends UmbDetailRepositoryBase<WorkflowApprovalGroupDetailModel> {
   constructor(host: UmbControllerHost) {
@@ -19,7 +19,7 @@ export class WorkflowApprovalGroupsRepository extends UmbDetailRepositoryBase<Wo
   async listSlim() {
     const { data, error } = await tryExecuteAndNotify(
       this,
-      ApprovalGroupResource.getApprovalGroupSlim({ skip: 0, take: 1000 })
+      ApprovalGroupService.getApprovalGroupSlim({ skip: 0, take: 1000 })
     );
 
     return { data, error };

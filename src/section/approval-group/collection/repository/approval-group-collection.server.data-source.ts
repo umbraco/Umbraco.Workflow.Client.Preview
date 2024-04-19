@@ -6,7 +6,7 @@ import type {
   WorkflowApprovalGroupCollectionModel,
 } from "../types.js";
 import { WORKFLOW_APPROVALGROUP_ENTITY_TYPE } from "../../types.js";
-import { ApprovalGroupResource } from "@umbraco-workflow/generated";
+import { ApprovalGroupService } from "@umbraco-workflow/generated";
 
 export class WorkflowApprovalGroupCollectionServerDataSource
   implements UmbCollectionDataSource<WorkflowApprovalGroupCollectionModel>
@@ -20,7 +20,7 @@ export class WorkflowApprovalGroupCollectionServerDataSource
   async getCollection(filter: WorkflowApprovalGroupCollectionFilterModel) {
     const { data, error } = await tryExecuteAndNotify(
       this.#host,
-      ApprovalGroupResource.getApprovalGroup(filter)
+      ApprovalGroupService.getApprovalGroup(filter)
     );
 
     if (data) {

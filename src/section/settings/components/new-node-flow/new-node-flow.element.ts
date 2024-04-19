@@ -58,17 +58,19 @@ export class WorkflowNewNodeFlowElement extends UmbElementMixin(LitElement) {
 
   get configureApprovalThreshold() {
     return (
-      this._generalSettings?.properties?.find(
+      <boolean>(this._generalSettings?.properties?.find(
         (x) => x.alias === this.#configureApprovalThreshold
-      )?.value ?? false
+      )?.value) ?? false
     );
   }
 
   get defaultApprovalThreshold() {
     return (
-      this._generalSettings?.properties?.find(
-        (x) => x.alias === this.#approvalThreshold
-      )?.value ?? 0
+      <number>(
+        this._generalSettings?.properties?.find(
+          (x) => x.alias === this.#approvalThreshold
+        )?.value
+      ) ?? 0
     );
   }
 

@@ -1,6 +1,7 @@
-import {
-  UmbEditableWorkspaceContextBase,
-  type UmbSaveableWorkspaceContextInterface,
+import { UmbSubmittableWorkspaceContextBase } from "@umbraco-cms/backoffice/workspace";
+import type {
+  UmbRoutableWorkspaceContext,
+  UmbSubmittableWorkspaceContext,
 } from "@umbraco-cms/backoffice/workspace";
 import {
   UmbObjectState,
@@ -13,13 +14,16 @@ import type {
   WorkflowPropertyModel,
   WorkflowApprovalGroupDetailModel,
 } from "../../types.js";
+import { ApprovalGroupWorkspaceEditorElement } from "./approval-group-workspace-editor.element.js";
 
 export class WorkflowApprovalGroupWorkspaceContext
-  extends UmbEditableWorkspaceContextBase<WorkflowApprovalGroupDetailModel>
-  implements UmbSaveableWorkspaceContextInterface
+  extends UmbSubmittableWorkspaceContextBase<WorkflowApprovalGroupDetailModel>
+  implements UmbSubmittableWorkspaceContext, UmbRoutableWorkspaceContext
 {
   public readonly IS_APPROVAL_GROUPS_WORKSPACE_CONTEXT = true;
   public readonly repository = new WorkflowApprovalGroupsRepository(this);
+
+  readonly unique;
 
   #data = new UmbObjectState<WorkflowApprovalGroupDetailModel | undefined>(
     undefined
@@ -29,6 +33,16 @@ export class WorkflowApprovalGroupWorkspaceContext
 
   constructor(host: UmbControllerHostElement) {
     super(host, "Workflow.Workspace.ApprovalGroup");
+
+    this.routes.setRoutes([
+      {
+        path: "edit/:id",
+        component: ApprovalGroupWorkspaceEditorElement,
+        setup: (_component, info) => {
+          this.load(info.match.params.id);
+        },
+      },
+    ]);
   }
 
   async load(unique: string) {
@@ -107,7 +121,7 @@ export class WorkflowApprovalGroupWorkspaceContext
   }
 
   // TODO => validation?
-  async save() {
+  async submit() {
     const data = this.getData();
     if (!data) return;
 
@@ -127,6 +141,9 @@ export class WorkflowApprovalGroupWorkspaceContext
   }
 
   destroy(): void {
+    this.repository.destroy();
     super.destroy();
   }
 }
+
+export { WorkflowApprovalGroupWorkspaceContext as api };

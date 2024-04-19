@@ -21,8 +21,8 @@ export class WorkflowEmailSendToModalElement extends UmbModalBaseElement<
 
     this.#items =
       this.data?.config.map((c) => ({
-        key: c.value,
-        checked: this.data?.emailType.to.includes(c.value) ?? false,
+        key: <string>c.value,
+        checked: this.data?.emailType.to.includes(<number>c.value) ?? false,
         value: this.localize.term(`workflow_${c.alias}`),
       })) ?? [];
 

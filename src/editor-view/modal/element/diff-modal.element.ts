@@ -14,7 +14,7 @@ import type {
   WorkflowContentDiffModel,
   WorkflowDiffPropertyModel,
 } from "@umbraco-workflow/generated";
-import { InstanceResource } from "@umbraco-workflow/generated";
+import { InstanceService } from "@umbraco-workflow/generated";
 
 interface WorkflowDiff {
   label: string;
@@ -46,7 +46,7 @@ export class WorkflowDiffModalElement extends UmbModalBaseElement<WorkflowDiffMo
   async #getDiff() {
     const { data } = await tryExecuteAndNotify(
       this,
-      InstanceResource.getInstanceDiff({ guid: this.data?.instanceKey })
+      InstanceService.getInstanceDiff({ guid: this.data?.instanceKey })
     );
 
     if (!data) {
@@ -97,6 +97,7 @@ export class WorkflowDiffModalElement extends UmbModalBaseElement<WorkflowDiffMo
     };
 
     // extract all properties from the tabs and create new object for the diff
+    // TODO => diff json if data is object
     this.workflowVersion?.tabs?.forEach((tab, tabIndex) => {
       tab.properties?.forEach((workflowProperty, propertyIndex) => {
         const currentProperty = this.currentVersion?.tabs
@@ -115,7 +116,7 @@ export class WorkflowDiffModalElement extends UmbModalBaseElement<WorkflowDiffMo
 
         this.diffs.push({
           label: workflowProperty.label ?? "",
-          diff: Diff.diffWords(currentProperty.value, workflowProperty.value),
+          diff: Diff.diffWords(<string>currentProperty.value, <string>workflowProperty.value),
           isObject,
         });
       });

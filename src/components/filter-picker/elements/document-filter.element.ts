@@ -11,7 +11,7 @@ export class WorkflowDocumentFilterElement extends WorkflowBaseFilterElement<str
 
   #onSelectionChange(event: CustomEvent) {
     this.setValue(
-      (event.target as UmbInputDocumentElement).selectedIds.join(",")
+      (event.target as UmbInputDocumentElement).selection.join(",")
     );
   }
 

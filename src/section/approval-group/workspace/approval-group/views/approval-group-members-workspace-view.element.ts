@@ -2,14 +2,14 @@ import { css, html, customElement } from "@umbraco-cms/backoffice/external/lit";
 import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/extension-registry";
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
 import {
-  UserGroupResource,
+  UserGroupService,
   type UserGroupResponseModel,
 } from "@umbraco-cms/backoffice/external/backend-api";
 import { WorkflowApprovalGroupWorkspaceViewBase } from "./approval-group-workspace-view-base.element.js";
 import {
   type User2UserGroupModel,
   type WorkflowLicenseModel,
-  ApprovalGroupResource,
+  ApprovalGroupService,
 } from "@umbraco-workflow/generated";
 import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
@@ -53,7 +53,7 @@ export class ApprovalGroupHistoryWorkspaceViewElement
   async #getInheritedGroups() {
     const { data, error } = await tryExecuteAndNotify(
       this,
-      UserGroupResource.getUserGroup({ skip: 0, take: 1000 })
+      UserGroupService.getUserGroup({ skip: 0, take: 1000 })
     );
     if (error || !data) {
       return;
@@ -73,7 +73,7 @@ export class ApprovalGroupHistoryWorkspaceViewElement
 
     const { data } = await tryExecuteAndNotify(
       this,
-      ApprovalGroupResource.getApprovalGroupInheritedMembers({
+      ApprovalGroupService.getApprovalGroupInheritedMembers({
         ids: this._group.inheritMembers,
       })
     );

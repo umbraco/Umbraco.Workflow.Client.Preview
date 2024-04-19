@@ -4,10 +4,10 @@ import {
   state,
 } from "@umbraco-cms/backoffice/external/lit";
 import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/extension-registry";
-import { WorkflowSettingsWorkspaceViewBase } from "../../../settings/index.js";
 import type { TableQueryModel } from "../../../../types.js";
 import { WorkspaceWithSettingsViewBase } from "../../../../section/workspace-with-settings-view-base.element.js";
-import { ContentReviewResource } from "@umbraco-workflow/generated";
+import { WorkflowSettingsWorkspaceViewBase } from "../../../settings/workspace/views/settings-workspace-view-base.element.js";
+import { ContentReviewService } from "@umbraco-workflow/generated";
 import type {
   FilterPickerElement,
   PageSizeDropdownElement,
@@ -35,10 +35,10 @@ export class WorkflowContentReviewsOverviewWorkspaceViewElement
     "status",
     "completedDate",
   ]);
- 
+
   async connectedCallback() {
     super.connectedCallback();
-    
+
     this.#fetch();
   }
 
@@ -50,7 +50,7 @@ export class WorkflowContentReviewsOverviewWorkspaceViewElement
       count: this.perPage,
       page: 1,
       filters: this.filters,
-      handler: ContentReviewResource.getContentReviewNodes,
+      handler: ContentReviewService.getContentReviewNodes,
     };
   }
 

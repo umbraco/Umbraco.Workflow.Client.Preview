@@ -9,7 +9,7 @@ import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document
 import type { TableQueryModel } from "../../../types.js";
 import { BoxHeaderFlexStyles } from "@umbraco-workflow/css";
 import { SortDirection } from "@umbraco-workflow/enums";
-import { InstanceResource } from "@umbraco-workflow/generated";
+import { InstanceService } from "@umbraco-workflow/generated";
 import { InstanceFilters } from "@umbraco-workflow/components";
 import type {
   FilterPickerElement,
@@ -29,8 +29,6 @@ export class WorkflowWorkspaceHistoryElement extends UmbElementMixin(
   #perPage = 5;
   #init: Promise<unknown>;
   #unique?: string;
-  #nodeName?: string;
-  #contentTypeUnique?: string;
 
   filters?: WorkflowFilterValueSet;
   #filterConfig = new InstanceFilters(undefined, ["nodeId"]);
@@ -42,8 +40,6 @@ export class WorkflowWorkspaceHistoryElement extends UmbElementMixin(
       this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (instance) => {
         if (!instance) return;
         this.#unique = instance.getUnique();
-        this.#contentTypeUnique = instance.getContentTypeId();
-        this.#nodeName = instance.getName();
       }).asPromise(),
     ]);
   }
@@ -62,7 +58,7 @@ export class WorkflowWorkspaceHistoryElement extends UmbElementMixin(
     this.model = {
       page: 1,
       count: this.#perPage,
-      handler: InstanceResource.postInstanceAll,
+      handler: InstanceService.postInstanceAll,
       filters: this.filters,
       direction: SortDirection.DESC,
       meta: {
@@ -96,8 +92,6 @@ export class WorkflowWorkspaceHistoryElement extends UmbElementMixin(
       <workflow-instances-table .model=${this.model}></workflow-instances-table>
       <workflow-history-cleanup
         .unique=${this.#unique}
-        .nodeName=${this.#nodeName}
-        .contentTypeUnique=${this.#contentTypeUnique}
       ></workflow-history-cleanup>
     </uui-box>`;
   }

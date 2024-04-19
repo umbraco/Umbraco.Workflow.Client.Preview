@@ -15,9 +15,9 @@ import type {
   WorkflowScaffoldResponseModel,
 } from "@umbraco-workflow/generated";
 import {
-  GlobalVariablesResource,
-  LicenseResource,
-  ScaffoldResource,
+  GlobalVariablesService,
+  LicenseService,
+  ScaffoldService,
 } from "@umbraco-workflow/generated";
 
 /** TODO => how do we handle new nodes? Currently creating a node won't trigger the change detection
@@ -97,7 +97,7 @@ export class WorkflowContext extends UmbControllerBase {
   async scaffoldNode(nodeKey = this.#currentDocument) {
     const { data } = await tryExecuteAndNotify(
       this,
-      ScaffoldResource.getScaffold({
+      ScaffoldService.getScaffold({
         nodeKey,
       })
     );
@@ -109,7 +109,7 @@ export class WorkflowContext extends UmbControllerBase {
   async #getLicense() {
     const { data } = await tryExecuteAndNotify(
       this,
-      LicenseResource.getLicense()
+      LicenseService.getLicense()
     );
 
     this.#license.setValue(data);
@@ -118,7 +118,7 @@ export class WorkflowContext extends UmbControllerBase {
   async #getGlobals() {
     const { data } = await tryExecuteAndNotify(
       this,
-      GlobalVariablesResource.getGlobal()
+      GlobalVariablesService.getGlobal()
     );
 
     this.#globalVariables.setValue(data);

@@ -3,7 +3,7 @@ import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
 import { WorkflowRepositoryBase } from "../../workflow-repository.base.js";
 import { WorkflowSettingsServerDataSource } from "./settings.server.data.js";
 import { WORKFLOW_SETTINGS_STORE_CONTEXT } from "./settings.store.js";
-import { EmailTemplateResource, type WorkflowSettingsPropertiesModel } from "@umbraco-workflow/generated";
+import { EmailTemplateService, type WorkflowSettingsPropertiesModel } from "@umbraco-workflow/generated";
 
 export class WorkflowSettingsRepository extends WorkflowRepositoryBase<WorkflowSettingsPropertiesModel> {
   constructor(host: UmbControllerHost) {
@@ -11,7 +11,7 @@ export class WorkflowSettingsRepository extends WorkflowRepositoryBase<WorkflowS
   }
 
   async installEmailTemplates() {
-    const { data, error } = await tryExecuteAndNotify(this, EmailTemplateResource.getEmailTemplateInstall());
+    const { data, error } = await tryExecuteAndNotify(this, EmailTemplateService.getEmailTemplateInstall());
 
     if (!data || error) {
       const notification = { data: { message: "Unable to install email templates"}};
