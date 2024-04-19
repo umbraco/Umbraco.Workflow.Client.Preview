@@ -51,7 +51,7 @@ export class WorkflowEmailSendToModalElement extends UmbModalBaseElement<
   render() {
     return html`<umb-body-layout
       headline="Send to: ${this.data?.emailType.name}"
-    > ${this.#items.length} ${this.#valueString}
+    >
       <div id="main">
         <umb-input-checkbox-list
           @change=${this.#handleChange}
