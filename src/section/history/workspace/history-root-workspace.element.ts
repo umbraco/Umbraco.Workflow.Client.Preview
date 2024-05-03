@@ -6,17 +6,14 @@ import {
 import type { TableQueryModel } from "../../../types.js";
 import { SectionRootBase } from "../../section-root.base.element.js";
 import { BoxHeaderFlexStyles } from "@umbraco-workflow/css";
+import type { FilterModel } from "@umbraco-workflow/generated";
 import { InstanceService } from "@umbraco-workflow/generated";
 import { SortDirection } from "@umbraco-workflow/enums";
-import {
-  InstanceFilters
-} from "@umbraco-workflow/components";
+import { InstanceFilters } from "@umbraco-workflow/components";
 import type {
   FilterPickerElement,
   PageSizeDropdownElement,
-  WorkflowFilterValueSet,
 } from "@umbraco-workflow/components";
-
 
 const elementName = "workflow-history-root-workspace";
 
@@ -29,7 +26,7 @@ export class WorkflowHistoryRootWorkspaceElement extends SectionRootBase {
 
   headline = this.localize.term("treeHeaders_history");
 
-  filters?: WorkflowFilterValueSet;
+  filters?: FilterModel;
   filterConfig = new InstanceFilters();
 
   connectedCallback() {
@@ -52,12 +49,9 @@ export class WorkflowHistoryRootWorkspaceElement extends SectionRootBase {
     this.model = {
       page: 1,
       count: this.perPage,
-      filters: this.filters,
+      filters: { ...this.filters, ...{ historyOnly: true } },
       handler: InstanceService.postInstanceAll,
       direction: SortDirection.DESC,
-      meta: {
-        historyOnly: true,
-      },
     };
   }
 

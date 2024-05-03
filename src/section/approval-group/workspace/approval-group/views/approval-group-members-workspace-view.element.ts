@@ -127,7 +127,7 @@ export class ApprovalGroupHistoryWorkspaceViewElement
 
   // TODO => wny no users?
   #onUserSelectionChange(e: Event) {
-    const selection = (e.target as any).selectedIds;
+    const selection = (e.target as any).selection;
 
     selection.forEach((user) => {
       // if user is in group already, make sure they're not inherited
@@ -152,7 +152,7 @@ export class ApprovalGroupHistoryWorkspaceViewElement
   }
 
   async #onGroupSelectionChange(e: Event) {
-    const selection = (e.target as any).selectedIds;
+    const selection = (e.target as any).selection;
 
     this.workspaceContext?.set({ inheritMembers: selection.join(",") });
     this.inheritedGroups = this.allGroups.filter((x) =>

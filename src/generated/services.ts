@@ -403,16 +403,13 @@ export class ConfigService {
 	public static getConfig(data: ConfigData['payloads']['GetConfig'] = {}): CancelablePromise<ConfigData['responses']['GetConfig']> {
 		const {
                     
-                    nodeId,
-contentTypeId,
-variant
+                    requestBody
                 } = data;
 		return __request(OpenAPI, {
 			method: 'GET',
 			url: '/umbraco/workflow/api/v1/config',
-			query: {
-				NodeId: nodeId, ContentTypeId: contentTypeId, Variant: variant
-			},
+			body: requestBody,
+			mediaType: 'application/json',
 			errors: {
 				400: `Bad Request`,
 				401: `The resource is protected and requires an authentication token`,
@@ -516,27 +513,16 @@ variant
 	 * @returns unknown Success
 	 * @throws ApiError
 	 */
-	public static getContentReviewNodes(data: ContentReviewData['payloads']['GetContentReviewNodes'] = {}): CancelablePromise<ContentReviewData['responses']['GetContentReviewNodes']> {
+	public static postContentReviewNodes(data: ContentReviewData['payloads']['PostContentReviewNodes'] = {}): CancelablePromise<ContentReviewData['responses']['PostContentReviewNodes']> {
 		const {
                     
-                    userId,
-groupId,
-skip,
-take,
-variant,
-filters,
-sortBy,
-sortDirection,
-historyOnly,
-isDescending,
-orderByClause
+                    requestBody
                 } = data;
 		return __request(OpenAPI, {
-			method: 'GET',
+			method: 'POST',
 			url: '/umbraco/workflow/api/v1/content-review/nodes',
-			query: {
-				UserId: userId, GroupId: groupId, Skip: skip, Take: take, Variant: variant, Filters: filters, SortBy: sortBy, SortDirection: sortDirection, HistoryOnly: historyOnly, IsDescending: isDescending, OrderByClause: orderByClause
-			},
+			body: requestBody,
+			mediaType: 'application/json',
 			errors: {
 				400: `Bad Request`,
 				401: `The resource is protected and requires an authentication token`,

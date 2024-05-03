@@ -65,7 +65,7 @@ export class WorkflowCommentsElement extends UmbElementMixin(LitElement) {
    */
   #limitChars(e?: InputEvent) {
     this.comment =
-      ((e?.target as UUITextareaElement)?.value as string) ?? this.comment;
+      (e?.target as HTMLInputElement)?.value ?? this.comment;
     const length = this.comment?.length ?? 0;
 
     if (length > this.#maxLength) {

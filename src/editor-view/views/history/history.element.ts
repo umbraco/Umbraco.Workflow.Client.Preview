@@ -14,7 +14,6 @@ import { InstanceFilters } from "@umbraco-workflow/components";
 import type {
   FilterPickerElement,
   PageSizeDropdownElement,
-  WorkflowFilterValueSet,
 } from "@umbraco-workflow/components";
 
 const elementName = "workflow-workspace-history";
@@ -30,7 +29,7 @@ export class WorkflowWorkspaceHistoryElement extends UmbElementMixin(
   #init: Promise<unknown>;
   #unique?: string;
 
-  filters?: WorkflowFilterValueSet;
+  filters?;
   #filterConfig = new InstanceFilters(undefined, ["nodeId"]);
 
   constructor() {

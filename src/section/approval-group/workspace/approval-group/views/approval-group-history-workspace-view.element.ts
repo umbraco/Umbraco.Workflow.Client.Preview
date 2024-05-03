@@ -5,15 +5,16 @@ import {
   state,
 } from "@umbraco-cms/backoffice/external/lit";
 import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/extension-registry";
+import { WorkflowApprovalGroupWorkspaceViewBase } from "./approval-group-workspace-view-base.element.js";
 import type {
   TableQueryModel,
   WorkflowInstancesFilterModel,
-} from "../../../../../types.js";
-import { WorkflowApprovalGroupWorkspaceViewBase } from "./approval-group-workspace-view-base.element.js";
+} from "@umbraco-workflow/types";
+import type { FilterModel} from "@umbraco-workflow/generated";
 import { InstanceService } from "@umbraco-workflow/generated";
 import { SortDirection } from "@umbraco-workflow/enums";
 import { BoxHeaderFlexStyles } from "@umbraco-workflow/css";
-import type { FilterPickerElement, WorkflowFilterValueSet } from "@umbraco-workflow/components";
+import type { FilterPickerElement } from "@umbraco-workflow/components";
 import { InstanceFilters } from "@umbraco-workflow/components";
 
 const elementName = "workflow-approval-group-members-workspace-view";
@@ -30,7 +31,7 @@ export class ApprovalGroupMembersWorkspaceViewElement
 
   activityFilter!: WorkflowInstancesFilterModel;
 
-  filters?: WorkflowFilterValueSet;
+  filters?: FilterModel;
   #filterConfig = new InstanceFilters();
 
   async connectedCallback() {

@@ -19,11 +19,6 @@ export interface FilterValue<T> {
   value?: T;
 }
 
-export type WorkflowFilterValueSet = Record<
-  string,
-  { value: any; type: number }
->;
-
 export enum FilterType {
   NULL = "null",
   BOOLEAN = "workflow-boolean-filter",

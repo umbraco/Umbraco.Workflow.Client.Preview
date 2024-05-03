@@ -7,11 +7,11 @@ import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/extension-
 import type { TableQueryModel } from "../../../../types.js";
 import { WorkspaceWithSettingsViewBase } from "../../../../section/workspace-with-settings-view-base.element.js";
 import { WorkflowSettingsWorkspaceViewBase } from "../../../settings/workspace/views/settings-workspace-view-base.element.js";
+import type { FilterModel } from "@umbraco-workflow/generated";
 import { ContentReviewService } from "@umbraco-workflow/generated";
 import type {
   FilterPickerElement,
   PageSizeDropdownElement,
-  WorkflowFilterValueSet,
 } from "@umbraco-workflow/components";
 import { ContentReviewFilters } from "@umbraco-workflow/components";
 import { BoxHeaderFlexStyles } from "@umbraco-workflow/css";
@@ -30,7 +30,7 @@ export class WorkflowContentReviewsOverviewWorkspaceViewElement
 
   perPage = 10;
 
-  filters?: WorkflowFilterValueSet;
+  filters?: FilterModel;
   #filterConfig = new ContentReviewFilters(undefined, [
     "status",
     "completedDate",
@@ -50,7 +50,7 @@ export class WorkflowContentReviewsOverviewWorkspaceViewElement
       count: this.perPage,
       page: 1,
       filters: this.filters,
-      handler: ContentReviewService.getContentReviewNodes,
+      handler: ContentReviewService.postContentReviewNodes,
     };
   }
 

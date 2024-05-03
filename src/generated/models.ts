@@ -173,6 +173,11 @@ properties: Array<PropertyModel>
 permissions: Array<UserGroupPermissionsModel>
     };
 
+export type DateRangeModel = {
+        from?: string | null
+to?: string | null
+    };
+
 export enum EventMessageTypeModel {
     DEFAULT = 'Default',
     INFO = 'Info',
@@ -181,17 +186,19 @@ export enum EventMessageTypeModel {
     WARNING = 'Warning'
 }
 
-export enum FilterTypeModel {
-    NULL = 'NULL',
-    BOOLEAN = 'BOOLEAN',
-    DOCUMENT = 'DOCUMENT',
-    DATERANGE = 'DATERANGE',
-    GROUP = 'GROUP',
-    STATUS = 'STATUS',
-    SELECT = 'SELECT',
-    USER = 'USER',
-    VARIANT = 'VARIANT'
-}
+export type FilterModel = {
+        unique?: string | null
+groupId?: string | null
+authorUserId?: string | null
+variant?: string | null
+type?: number | null
+expired?: boolean | null
+status?: Array<number> | null
+createdDate?: DateRangeModel | null
+completedDate?: DateRangeModel | null
+reviewedOn?: DateRangeModel | null
+dueOn?: DateRangeModel | null
+    };
 
 export type GeneralSettingsModel = {
         properties: Array<SettingsPropertyDisplayModel>
@@ -485,6 +492,12 @@ export enum WorkflowActionModel {
     ERROR = 'Error'
 }
 
+export type WorkflowConfigRequestModel = {
+        nodeId: number
+contentTypeId: number
+variant: string
+    };
+
 export type WorkflowConfigResponseModel = {
         id: number
 key?: string | null
@@ -517,11 +530,6 @@ export type WorkflowDiffTabModel = {
 export type WorkflowDiffsModel = {
         currentVariants: Array<WorkflowContentDiffModel>
 workflowVariants: Array<WorkflowContentDiffModel>
-    };
-
-export type WorkflowFilterModel = {
-        value?: unknown
-type: FilterTypeModel
     };
 
 export type WorkflowInstanceResponseModel = {
@@ -557,9 +565,9 @@ groupId?: string | null
 skip?: number | null
 take: number
 variant?: string | null
-filters: Record<string, WorkflowFilterModel>
 sortBy: string
 sortDirection: string
+filters: FilterModel
     };
 
 export type WorkflowSettingsBaseModel = {
@@ -794,9 +802,7 @@ export type ConfigData = {
         
         payloads: {
             GetConfig: {
-                        contentTypeId?: number
-nodeId?: number
-variant?: string
+                        requestBody?: WorkflowConfigRequestModel
                         
                     };
 PutConfig: {
@@ -828,18 +834,8 @@ PutContentReviewConfig: {
                         requestBody?: ContentReviewsSaveSettingsModel
                         
                     };
-GetContentReviewNodes: {
-                        filters?: Record<string, WorkflowFilterModel>
-groupId?: string
-historyOnly?: boolean
-isDescending?: boolean
-orderByClause?: string
-skip?: number
-sortBy?: string
-sortDirection?: string
-take?: number
-userId?: string
-variant?: string
+PostContentReviewNodes: {
+                        requestBody?: WorkflowSearchRequestModel
                         
                     };
 PutContentReviewReview: {
@@ -853,7 +849,7 @@ PutContentReviewReview: {
             GetContentReviewCheck: ContentReviewsNodeQueryResponseModel
                 ,GetContentReviewConfig: ContentReviewsConfigModel
                 ,PutContentReviewConfig: ContentReviewsConfigModel
-                ,GetContentReviewNodes: PagedContentReviewsDetailedConfigModel
+                ,PostContentReviewNodes: PagedContentReviewsDetailedConfigModel
                 ,PutContentReviewReview: string
                 ,GetContentReviewSeed: any
                 

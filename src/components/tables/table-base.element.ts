@@ -55,13 +55,12 @@ export abstract class WorkflowTableBase extends UmbElementMixin(LitElement) {
         this.availableLanguages = variables?.availableLanguages ?? [];
       });
     });
-
-    this.doFetch();
   }
 
   updated(
     _changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>
   ): void {
+    console.log('updated', _changedProperties);
     if (_changedProperties.get("model")) {
       this.doFetch();
     }
@@ -93,7 +92,7 @@ export abstract class WorkflowTableBase extends UmbElementMixin(LitElement) {
     // TODO => get rid of meta
     Object.assign(query, this.model.meta);
 
-    const handlerResult = await this.model?.handler({ requestBody: query });
+    const handlerResult = await this.model.handler({ requestBody: query });
     this.tableItems = this.map(handlerResult);
     this.pagination.totalItems = handlerResult.totalItems;
   }

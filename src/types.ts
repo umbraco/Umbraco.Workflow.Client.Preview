@@ -1,4 +1,5 @@
 import type { UmbCollectionConfiguration } from "@umbraco-cms/backoffice/collection";
+import type { FilterModel } from '@umbraco-workflow/generated';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface FilterModelBase {
@@ -33,7 +34,7 @@ export interface ContentReviewsFilterModel extends FilterModelBase {
 
 export interface TableQueryModel extends UmbCollectionConfiguration {
   handler: (o: object) => any;
-  filters?: Record<string, any>;
+  filters?: FilterModel;
   count?: number;
   page?: number;
   hiddenColumns?: Array<string>;

@@ -8,7 +8,7 @@ export class InstanceFilters extends BaseFilters implements WorkflowFilterConfig
 
     this.filters = [
       {
-        alias: "nodeId",
+        alias: "unique",
         ui: FilterType.DOCUMENT,
         labelKey: "workflow_document",
       },
@@ -21,13 +21,13 @@ export class InstanceFilters extends BaseFilters implements WorkflowFilterConfig
         alias: "createdDate",
         ui: FilterType.DATERANGE,
         labelKey: "workflow_createdDate",
-        default: ["", ""],
+        default: { from: null, to: null},
       },
       {
         alias: "completedDate",
         ui: FilterType.DATERANGE,
         labelKey: "workflow_completedDate",
-        default: ["", ""],
+        default: { from: null, to: null},
       },
       {
         alias: "variant",

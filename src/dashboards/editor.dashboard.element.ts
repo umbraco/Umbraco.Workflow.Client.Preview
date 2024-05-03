@@ -12,25 +12,34 @@ import {
   ContentReviewService,
   InstanceService,
 } from "@umbraco-workflow/generated";
-import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
 const elementName = "workflow-editor-dashboard";
 
 @customElement(elementName)
 export class EditorDashboardElement extends UmbElementMixin(LitElement) {
   #defaultPerPage = 5;
-  #workflowContext?: typeof WORKFLOW_CONTEXT.TYPE;
-  #meta?: {
-    userId: string,
-    isAdmin: boolean,
-  }
 
   @state()
-  _approvalsModel!: TableQueryModel;
+  _approvalsModel: TableQueryModel = {
+    count: this.#defaultPerPage,
+    page: 1,
+    handler: InstanceService.postInstanceAssignedTo,
+  };
+
   @state()
-  _submissionsModel!: TableQueryModel;
+  _submissionsModel: TableQueryModel = {
+    count: this.#defaultPerPage,
+    page: 1,
+    handler: InstanceService.postInstanceInitiatedBy,
+  };
+
   @state()
-  _contentReviewsModel!: TableQueryModel;
+  _contentReviewsModel: TableQueryModel = {
+    count: this.#defaultPerPage,
+    page: 1,
+    hiddenColumns: ["period", "reviewGroup"],
+    handler: ContentReviewService?.postContentReviewNodes,
+  };
 
   @state()
   _perPageApprovals = this.#defaultPerPage;
@@ -42,10 +51,9 @@ export class EditorDashboardElement extends UmbElementMixin(LitElement) {
   constructor() {
     super();
 
-    this.consumeContext(WORKFLOW_CONTEXT, (instance) => {
-      this.#workflowContext = instance;
-      this.#observeWorkflowVariables();
-    });
+    this.#fetchApprovals();
+    this.#fetchSubmissions();
+    this.#fetchReviews();
   }
 
   //async connectedCallback() {
@@ -74,32 +82,12 @@ export class EditorDashboardElement extends UmbElementMixin(LitElement) {
   // this.#fetch();
   //}
 
-  #observeWorkflowVariables() {
-    if (!this.#workflowContext) return;
-
-    this.observe(this.#workflowContext.globalVariables, (variables) => {
-      if (!variables) return;
-      this.#meta = {
-        isAdmin: variables?.currentUserIsAdmin ?? false,
-        userId: variables?.currentUserUnique ?? "",
-      }
-      this.#fetchApprovals();
-      this.#fetchSubmissions();
-      this.#fetchReviews();
-    });
-  }
-
   #fetchApprovals(event?: CustomEvent) {
     this._perPageApprovals =
       (event?.target as PageSizeDropdownElement)?.value ??
       this._perPageApprovals;
 
-    this._approvalsModel = {
-      count: this._perPageApprovals,
-      page: 1,
-      handler: InstanceService.postInstanceAssignedTo,
-      meta: this.#meta,
-    };
+    this._approvalsModel.count = this._perPageApprovals;
   }
 
   #fetchSubmissions(event?: CustomEvent) {
@@ -107,30 +95,18 @@ export class EditorDashboardElement extends UmbElementMixin(LitElement) {
       (event?.target as PageSizeDropdownElement)?.value ??
       this._perPageSubmissions;
 
-    this._submissionsModel = {
-      count: this._perPageSubmissions,
-      page: 1,
-      handler: InstanceService.postInstanceInitiatedBy,
-      meta: this.#meta,
-    };
+    this._submissionsModel.count = this._perPageSubmissions;
   }
 
   #fetchReviews(event?: CustomEvent) {
     this._perPageReviews =
       (event?.target as PageSizeDropdownElement)?.value ?? this._perPageReviews;
 
-    this._contentReviewsModel = {
-      count: this._perPageReviews,
-      page: 1,
-      hiddenColumns: ["period", "reviewGroup"],
-      handler: ContentReviewService?.getContentReviewNodes,
-      meta: this.#meta,
-    };
+    this._contentReviewsModel.count = this._perPageReviews;
   }
 
   render() {
-    return html` <uui-box>
-        <div slot="headline">${this.localize.term("workflow_myTasks")}</div>
+    return html` <uui-box .headline=${this.localize.term("workflow_myTasks")}>
         <workflow-page-size
           slot="header-actions"
           @change=${this.#fetchApprovals}

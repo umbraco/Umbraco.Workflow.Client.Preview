@@ -2,15 +2,15 @@ import type { UmbControllerHostElement } from "@umbraco-cms/backoffice/controlle
 import { UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
 import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
-import { FilterTypeModel } from "@umbraco-workflow/generated";
-import type { WorkflowFilterConfig, WorkflowFilterValueSet } from "@umbraco-workflow/components";
+import type { WorkflowFilterConfig } from "@umbraco-workflow/components";
 import { WORKFLOW_FILTER_PICKER_MODAL } from "@umbraco-workflow/modal";
+import type { FilterModel } from "@umbraco-workflow/generated";
 
 export class WorkflowFilterPickerContext extends UmbControllerBase {
   #config = new UmbObjectState<WorkflowFilterConfig | undefined>(undefined);
   config = this.#config.asObservable();
 
-  #filters = new UmbObjectState<WorkflowFilterValueSet | undefined>(undefined);
+  #filters = new UmbObjectState<FilterModel | undefined>(undefined);
   filters = this.#filters.asObservable();
 
   #activeCount = new UmbObjectState<number>(0);
@@ -33,11 +33,15 @@ export class WorkflowFilterPickerContext extends UmbControllerBase {
   async openPicker() {
     if (!this.#modalManager) return;
 
-    const modalContext = this.#modalManager.open(this, WORKFLOW_FILTER_PICKER_MODAL, {
-      data: {
-        config: this.getConfig(),
-      },
-    });
+    const modalContext = this.#modalManager.open(
+      this,
+      WORKFLOW_FILTER_PICKER_MODAL,
+      {
+        data: {
+          config: this.getConfig(),
+        },
+      }
+    );
 
     const { config } = await modalContext.onSubmit();
     this.setConfig(config);
@@ -53,15 +57,7 @@ export class WorkflowFilterPickerContext extends UmbControllerBase {
     if (!config?.filters.length) return;
 
     const filterModel = Object.fromEntries(
-      config.filters.map((f) => [
-        f.alias,
-        {
-          value: f.value,
-          type: Object.keys(FilterTypeModel).indexOf(
-            f.ui.split("-").at(1)!.toUpperCase() as FilterTypeModel
-          ),
-        },
-      ])
+      config.filters.map((f) => [f.alias, f.value])
     );
 
     this.#filters.setValue(filterModel);
@@ -70,13 +66,21 @@ export class WorkflowFilterPickerContext extends UmbControllerBase {
 
   getActive() {
     return (
-      this.getConfig()?.filters?.filter(
-        (f) =>
-          (!Array.isArray(f.value) &&
-            f.value !== undefined &&
-            f.value.toString() != "") ||
-          (Array.isArray(f.value) && f.value.some((x) => x.length))
-      ) ?? []
+      this.getConfig()?.filters?.filter((f) => {
+        if (f.value === undefined) return false;
+        
+        // value is a daterange
+        if (Object.prototype.hasOwnProperty.call(f.value, "from")) {
+          return f.value.from || f.value.to;
+        }
+
+        // handle array
+        if (Array.isArray(f.value) && f.value.some((x) => x.length)) {
+          return true;
+        }
+
+        return f.value !== undefined && f.value.toString() != "";
+      }) ?? []
     );
   }
 }

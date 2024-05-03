@@ -1,8 +1,6 @@
 import type { Filter, WorkflowFilterConfig } from '../types.js';
 
 export class BaseFilters implements WorkflowFilterConfig {
-  keys?: string = undefined;
-  values?: string = undefined;
   count = 0;
   changed = false;
   filters: Array<Filter<any>> = [];

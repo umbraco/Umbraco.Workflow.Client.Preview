@@ -5,14 +5,13 @@ import {
 } from "@umbraco-cms/backoffice/external/lit";
 import type { TableQueryModel } from "../../../types.js";
 import { SectionRootBase } from "../../section-root.base.element.js";
+import type { FilterModel } from "@umbraco-workflow/generated";
 import { InstanceService } from "@umbraco-workflow/generated";
 import type {
   FilterPickerElement,
   PageSizeDropdownElement,
-  WorkflowFilterValueSet} from "@umbraco-workflow/components";
-import {
-  InstanceFilters
 } from "@umbraco-workflow/components";
+import { InstanceFilters } from "@umbraco-workflow/components";
 import { BoxHeaderFlexStyles } from "@umbraco-workflow/css";
 import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
@@ -27,32 +26,15 @@ export class ActiveWorkflowsRootWorkspaceElement extends SectionRootBase {
 
   headline = this.localize.term("treeHeaders_active");
 
-  filters?: WorkflowFilterValueSet;
-  #filterConfig = new InstanceFilters(undefined, ["status", "completedDate"]);  
-
-  #meta?: {
-    userId: string,
-    isAdmin: boolean,
-  }
+  filters?: FilterModel;
+  #filterConfig = new InstanceFilters(undefined, ["status", "completedDate"]);
 
   constructor() {
     super();
-
-    this.consumeContext(WORKFLOW_CONTEXT, (instance) => {
-      if (!instance) return;
-      this.observe(instance.globalVariables, (variables) => {
-        this.#meta = {
-          isAdmin: variables?.currentUserIsAdmin ?? false,
-          userId: variables?.currentUserUnique ?? "",
-        }
-        this.#fetch();
-      });
-    });
+    this.#fetch();
   }
 
   #fetch(event?: CustomEvent) {
-    if (!this.#meta?.userId) return;
-    
     this.perPage =
       (event?.target as PageSizeDropdownElement)?.value ?? this.perPage;
 
@@ -61,7 +43,6 @@ export class ActiveWorkflowsRootWorkspaceElement extends SectionRootBase {
       filters: this.filters,
       page: 1,
       handler: InstanceService.postInstanceActive,
-      meta: this.#meta,
     };
   }
 
@@ -70,13 +51,16 @@ export class ActiveWorkflowsRootWorkspaceElement extends SectionRootBase {
     if (!filters) return;
 
     this.filters = filters;
-    this.#fetch();    
+    this.#fetch();
   }
-  
+
   renderSectionRoot() {
     return html`<uui-box>
       <div slot="header-actions">
-        <workflow-filter-picker @change=${this.#handleFilterChange} .config=${this.#filterConfig}>
+        <workflow-filter-picker
+          @change=${this.#handleFilterChange}
+          .config=${this.#filterConfig}
+        >
         </workflow-filter-picker>
         <workflow-page-size
           @change=${this.#fetch}

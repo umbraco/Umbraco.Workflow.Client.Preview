@@ -4,9 +4,9 @@ import {
   property,
 } from "@umbraco-cms/backoffice/external/lit";
 
-export class WorkflowBaseFilterElement<T> extends UmbElementMixin(LitElement) {
-  @property()
-  value: any;
+export class WorkflowBaseFilterElement<FilterValueType> extends UmbElementMixin(LitElement) {
+  @property({ attribute: false})
+  value?: FilterValueType;
 
   @property()
   alias?: string;
@@ -17,7 +17,7 @@ export class WorkflowBaseFilterElement<T> extends UmbElementMixin(LitElement) {
   @property({ type: Boolean, reflect: true })
   disabled = false;
 
-  setValue(value: T) {
+  setValue(value: FilterValueType) {
     this.value = value;
     this.dispatchEvent(new CustomEvent("change"));
   }

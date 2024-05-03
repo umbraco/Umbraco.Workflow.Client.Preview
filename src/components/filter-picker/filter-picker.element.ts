@@ -6,8 +6,9 @@ import {
   property,
   state,
 } from "@umbraco-cms/backoffice/external/lit";
-import type { WorkflowFilterConfig, WorkflowFilterValueSet } from "./types.js";
+import type { WorkflowFilterConfig } from "./types.js";
 import { WorkflowFilterPickerContext } from "@umbraco-workflow/context";
+import type { FilterModel } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-filter-picker";
 
@@ -19,7 +20,7 @@ export class FilterPickerElement extends UmbElementMixin(LitElement) {
   @state()
   filterCount?: number;
 
-  value?: WorkflowFilterValueSet;
+  value?: FilterModel;
   #filterPickerContext = new WorkflowFilterPickerContext(this);
 
   constructor() {

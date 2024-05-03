@@ -8,7 +8,7 @@ export class ContentReviewFilters extends BaseFilters implements WorkflowFilterC
 
     this.filters = [
       {
-        alias: "nodeId",
+        alias: "unique",
         ui: FilterType.DOCUMENT,
         labelKey: "workflow_document",
       },
@@ -18,16 +18,16 @@ export class ContentReviewFilters extends BaseFilters implements WorkflowFilterC
         labelKey: "contentReviews_reviewGroup",
       },
       {
-        alias: "nextReview",
+        alias: "dueOn",
         labelKey: "contentReviews_nextReviewDue",
         ui: FilterType.DATERANGE,
-        default: ["", ""],
+        default: { from: null, to: null},
       },
       {
         alias: "lastReview",
         labelKey: "contentReviews_lastReviewed",
         ui: FilterType.DATERANGE,
-        default: ["", ""],
+        default: { from: null, to: null},
       },
       {
         alias: "expired",
