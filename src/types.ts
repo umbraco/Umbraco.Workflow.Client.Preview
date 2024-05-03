@@ -1,6 +1,12 @@
 import type { UmbCollectionConfiguration } from "@umbraco-cms/backoffice/collection";
 import type { FilterModel } from '@umbraco-workflow/generated';
 
+export interface SettingsStatusModel {
+  someDisabled: boolean;
+  allDisabled: boolean;
+  allHidden: boolean;
+}
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface FilterModelBase {
   nodeId?: string;

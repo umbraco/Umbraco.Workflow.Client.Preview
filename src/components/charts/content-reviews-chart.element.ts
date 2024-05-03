@@ -6,7 +6,7 @@ import {
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import type { ChartHeaderCard } from "./chart-base.element.js";
-import { ChartBase } from "./chart-base.element.js";
+import { ChartBaseElement } from "./chart-base.element.js";
 import { ChartBaseStyles } from "./chart-style.styles.js";
 import {
   ChartService,
@@ -17,7 +17,7 @@ import {
 const elementName = "content-reviews-chart";
 
 @customElement(elementName)
-export class ContentReviewsChartElement extends ChartBase {
+export class ContentReviewsChartElement extends ChartBaseElement {
   #headerCardKeys = [
     { key: "Reviewed", value: WorkflowStatusModel.APPROVED.toLowerCase() },
     { key: "Overdue", value: WorkflowStatusModel.ERRORED.toLowerCase() },

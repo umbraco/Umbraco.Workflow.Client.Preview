@@ -4,12 +4,8 @@ import type {
   NotificationsSettingsModel,
   SettingsPropertyDisplayModel,
 } from "@umbraco-workflow/generated";
+import type { SettingsStatusModel } from "@umbraco-workflow/types";
 
-export type SettingsStatusModel = {
-  someDisabled: boolean;
-  allDisabled: boolean;
-  allHidden: boolean;
-};
 
 /**
  * Determine if some, all or none of the provided items are hidden or readonly

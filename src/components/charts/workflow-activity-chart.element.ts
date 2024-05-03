@@ -7,7 +7,7 @@ import {
 } from "@umbraco-cms/backoffice/external/lit";
 import type { WorkflowInstancesFilterModel } from "../../types.js";
 import { ChartBaseStyles } from "./chart-style.styles.js";
-import { ChartBase } from "./chart-base.element.js";
+import { ChartBaseElement } from "./chart-base.element.js";
 import type { ChartHeaderCard } from "./chart-base.element.js";
 import {
   type ChartResponseModel,
@@ -19,7 +19,7 @@ import { WorkflowStatus } from "@umbraco-workflow/enums";
 const elementName = "workflow-activity-chart";
 
 @customElement(elementName)
-export class WorkflowActivityChartElement extends ChartBase {
+export class WorkflowActivityChartElement extends ChartBaseElement {
   averageSeconds!: number;
   minSeconds!: number;
   maxSeconds!: number;

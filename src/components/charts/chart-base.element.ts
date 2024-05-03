@@ -34,7 +34,7 @@ export type ChartHeaderCard = {
   static?: boolean;
 }
 
-export class ChartBase extends UmbElementMixin(LitElement) {
+export class ChartBaseElement extends UmbElementMixin(LitElement) {
   @property()
   groupId?: string;
 
