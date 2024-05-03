@@ -24,7 +24,7 @@
   <!-- Build client assets using NPM -->
   <Import Project="build\Microsoft.AspNetCore.ClientAssets.targets" />
 
-  <Target Name="ClientAssetsBuildOutputPath" AfterTargets="ClientAssetsBuild">
+  <Target Name="ClientAssetsBuildOutputPath" BeforeTargets="ClientAssetsBuild">
     <WriteLinesToFile File="config.outputPath.js" Lines="export const outputPath = '$(IntermediateOutputPath.Replace('\', '/'))clientassets';" Overwrite="true" />
   </Target>
 
