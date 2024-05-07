@@ -13,7 +13,10 @@ export class ApprovalGroupRootWorkspaceElement extends UmbElementMixin(
   LitElement
 ) {
   render() {
-    return html`<umb-body-layout main-no-padding headline="Approval groups">
+    return html`<umb-body-layout
+      main-no-padding
+      .headline=${this.localize.term("workflow_approvalGroups")}
+    >
       <umb-collection
         alias=${WORKFLOW_APPROVALGROUP_COLLECTION_ALIAS}
       ></umb-collection>

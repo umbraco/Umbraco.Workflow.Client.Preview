@@ -36,7 +36,8 @@ export class WorkflowContentReviewsWorkspaceContext
   public readonly IS_CONTENT_REVIEWS_WORKSPACE_CONTEXT = true;
   public readonly repository = new WorkflowContentReviewsRepository(this);
 
-  readonly unique;
+  #unique = new UmbObjectState<string>(WORKFLOW_CONTENTREVIEWS_ENTITY_TYPE.toString());
+  unique = this.#unique.asObservable();
 
   #data = new UmbObjectState<ContentReviewsConfigModel | undefined>(undefined);
 
@@ -82,7 +83,7 @@ export class WorkflowContentReviewsWorkspaceContext
   }
 
   getUnique() {
-    return "";
+    return this.#unique.getValue();
   }
 
   setPropertyValue<ValueType>(value: ValueType, alias: string) {

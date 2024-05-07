@@ -12,10 +12,10 @@ export class WorkflowContentReviewsEditorElement extends UmbElementMixin(
   LitElement
 ) {
   render() {
-    return html`<umb-workspace-editor alias="Workflow.Workspace.ContentReviews"
-      ><div id="header" slot="header">
-        <h3>${this.localize.term("treeHeaders_contentReviews")}</h3>
-      </div>
+    return html`<umb-workspace-editor
+      alias="Workflow.Workspace.ContentReviews"
+      .headline=${this.localize.term("treeHeaders_contentReviews")}
+    >
     </umb-workspace-editor>`;
   }
 }

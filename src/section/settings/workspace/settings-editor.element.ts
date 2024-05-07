@@ -85,10 +85,10 @@ export class WorkflowSettingsEditorElement extends UmbElementMixin(LitElement) {
   }
 
   render() {
-    return html`<umb-workspace-editor alias="Workflow.Workspace.Settings"
-      ><div id="header" slot="header">
-        <h3>${this.localize.term("general_settings")}</h3>
-      </div>
+    return html`<umb-workspace-editor
+      alias="Workflow.Workspace.Settings"
+      .headline=${this.localize.term("general_settings")}
+    >
       ${when(
         this.generalSettingsHidden && this.notificationsSettingsHidden,
         () =>
