@@ -1,7 +1,7 @@
 import { css, customElement, html } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
-import type { Filter, WorkflowFilterConfig } from "../../index.js";
-import type { WorkflowBaseFilterElement } from "../../components/filter-picker/elements/base-filter.element.js";
+import type { Filter, WorkflowFilterConfig } from "../../../index.js";
+import type { WorkflowBaseFilterElement } from "../../../components/filter-picker/elements/base-filter.element.js";
 import type {
   WorkflowFilterPickerModalData,
   WorkflowFilterPickerModalResult,

@@ -7,12 +7,12 @@ import {
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbSelectionManager } from "@umbraco-cms/backoffice/utils";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
-import { WorkflowApprovalGroupsRepository } from "../../section/approval-group/repository/approval-groups.repository.js";
 import type { UserGroupBaseModel } from "@umbraco-workflow/generated";
 import type {
   WorkflowGroupPickerModalData,
   WorkflowGroupPickerModalResult,
 } from "@umbraco-workflow/modal";
+import { WorkflowApprovalGroupsRepository } from "@umbraco-workflow/approval-group";
 
 const elementName = "workflow-group-picker-modal-element";
 
@@ -33,7 +33,7 @@ export class WorkflowGroupPickerModalElement extends UmbModalBaseElement<
     const { data } = await this.#approvalGroupsRepository.listSlim();
     this.groups = data?.items ?? [];
 
-    if (!this.groups.length) {
+    if (!this.groups?.length) {
       return;
     }
 

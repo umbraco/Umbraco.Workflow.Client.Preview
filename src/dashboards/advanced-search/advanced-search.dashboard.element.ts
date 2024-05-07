@@ -14,11 +14,10 @@ import type {
 } from "@umbraco-cms/backoffice/property";
 import { UMB_DOCUMENT_TYPE_PICKER_MODAL } from "@umbraco-cms/backoffice/document-type";
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
-import type { TableQueryModel } from "../../core/entities.js";
-import { UmbUserPickerContext } from "../../temp/user-input.context.js";
 import { SomeFilter } from "./somefilter.function.js";
 import { BaseFieldQueryGenerator } from "./basefield-query-generator.function.js";
 import { FieldQueryGenerator } from "./field-query-generator.function.js";
+import type { TableQueryModel } from "@umbraco-workflow/core";
 import {
   AdvancedSearchService,
   AdvancedSearchTypeModel,
@@ -32,6 +31,7 @@ import {
 
 import { WORKFLOW_ITEM_PICKER_MODAL } from "@umbraco-workflow/modal";
 import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
+import { UmbUserPickerContext } from "src/temp/user-input.context.js";
 
 export type SelectableLanguageModel = LanguageModel & { selected: boolean };
 
@@ -83,7 +83,7 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
   baseProperties: Array<Partial<PropertyDetailModel>> = [
     {
       alias: "workflowStatus",
-      propertyEditorUiAlias: "checkboxlist",
+      propertyEditorUiAlias: "Umb.PropertyEditorUi.CheckboxList",
       name: "Workflow status",
       config: {
         items: Object.values(WorkflowStatusModel)
@@ -103,32 +103,32 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
     {
       alias: "creatorID",
       name: "Created by",
-      propertyEditorUiAlias: "userpicker",
+      propertyEditorUiAlias: "Umb.PropertyEditorUi.UserPicker",
     },
     {
       alias: "writerID",
       name: "Updated by",
-      propertyEditorUiAlias: "userpicker",
+      propertyEditorUiAlias: "Umb.PropertyEditorUi.UserPicker",
     },
     {
       alias: "createDate_before",
       name: "Created before",
-      propertyEditorUiAlias: "datepicker",
+      propertyEditorUiAlias: "Umb.PropertyEditorUi.DatePicker",
     },
     {
       alias: "createDate_after",
       name: "Created after",
-      propertyEditorUiAlias: "datepicker",
+      propertyEditorUiAlias: "Umb.PropertyEditorUi.DatePicker",
     },
     {
       alias: "updateDate_before",
       name: "Updated before",
-      propertyEditorUiAlias: "datepicker",
+      propertyEditorUiAlias: "Umb.PropertyEditorUi.DatePicker",
     },
     {
       alias: "updateDate_after",
       name: "Updated after",
-      propertyEditorUiAlias: "datepicker",
+      propertyEditorUiAlias: "Umb.PropertyEditorUi.DatePicker",
     },
   ];
 
@@ -791,6 +791,7 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
                   </div>`
                 )}`
             )}
+            <!-- TODO => use property-dataset -->
             ${when(
               this.showBaseProperties,
               () => html` <hr />
