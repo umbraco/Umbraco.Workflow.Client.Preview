@@ -6,6 +6,7 @@ import {
   state,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import type { UUIInputElement } from "@umbraco-cms/backoffice/external/uui";
 import type { PackageVersionModel } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-admin-dashboard";
@@ -22,11 +23,11 @@ export class AdminDashboardElement extends UmbElementMixin(LitElement) {
   reviewsChartRange = 28;
 
   #updateChartRange($event: CustomEvent) {
-    this.chartRange = $event.detail.value;
+    this.chartRange = Number(($event.target as UUIInputElement).value);
   }
 
   #updateReviewsChartRange($event: CustomEvent) {
-    this.reviewsChartRange = $event.detail.value;
+    this.reviewsChartRange = Number(($event.target as UUIInputElement).value);
   }
 
   #packageModal = () => {
