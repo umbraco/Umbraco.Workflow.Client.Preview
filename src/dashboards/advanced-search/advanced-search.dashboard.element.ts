@@ -15,7 +15,6 @@ import type {
 import { UMB_DOCUMENT_TYPE_PICKER_MODAL } from "@umbraco-cms/backoffice/document-type";
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import { SomeFilter } from "./somefilter.function.js";
-import { BaseFieldQueryGenerator } from "./basefield-query-generator.function.js";
 import { FieldQueryGenerator } from "./field-query-generator.function.js";
 import type { TableQueryModel } from "@umbraco-workflow/core";
 import {
@@ -31,7 +30,6 @@ import {
 
 import { WORKFLOW_ITEM_PICKER_MODAL } from "@umbraco-workflow/modal";
 import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
-import { UmbUserPickerContext } from "src/temp/user-input.context.js";
 
 export type SelectableLanguageModel = LanguageModel & { selected: boolean };
 
@@ -64,6 +62,8 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
 
   availableLanguages: Array<SelectableLanguageModel> = [];
 
+  #basePropertiesValue: Array<UmbPropertyValueData> = [];
+
   #workflowGlobalContext?: typeof WORKFLOW_CONTEXT.TYPE;
 
   @state()
@@ -80,25 +80,30 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
     value: "",
   };
 
-  baseProperties: Array<Partial<PropertyDetailModel>> = [
+  baseProperties: Array<
+    UmbPropertyValueData & {
+      propertyEditorUiAlias: string;
+      name: string;
+      config?: Array<{ alias: string; value: any }>;
+    }
+  > = [
     {
       alias: "workflowStatus",
-      propertyEditorUiAlias: "Umb.PropertyEditorUi.CheckboxList",
+      propertyEditorUiAlias: "Umb.PropertyEditorUi.CheckBoxList",
       name: "Workflow status",
-      config: {
-        items: Object.values(WorkflowStatusModel)
-          .filter(
-            (x: string) =>
-              x === WorkflowStatusModel.PENDING_APPROVAL ||
-              x === WorkflowStatusModel.REJECTED
-          )
-          .map((x) => ({
-            value: x,
-            label: x[0].toLowerCase() + x.substring(1),
-            selected: false,
-          }))
-          .sort((a, b) => (a.label < b.label ? -1 : 1)),
-      },
+      config: [
+        {
+          alias: "items",
+          value: Object.values(WorkflowStatusModel)
+            .filter(
+              (x: string) =>
+                x === WorkflowStatusModel.PENDING_APPROVAL ||
+                x === WorkflowStatusModel.REJECTED
+            )
+            .map((x) => x.toString())
+            .sort((a, b) => (a < b ? -1 : 1)),
+        },
+      ],
     },
     {
       alias: "creatorID",
@@ -202,7 +207,7 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
         selectedTypeKey: this.selectedType?.key,
         availablePropertiesForType: this.availablePropertiesForType,
       }),
-      baseFields: BaseFieldQueryGenerator(this.baseProperties),
+      baseFields: this.#basePropertiesValue,
       cultures: this.selectedContentTypesVary
         ? this.#mapSelected(
             this.availableLanguages,
@@ -300,6 +305,10 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
     this.requestUpdate();
   }
 
+  #onBasePropertyValueChange(e: Event) {
+    this.#basePropertiesValue = (e.target as UmbPropertyDatasetElement).value;
+  }
+
   #onPropertyValueChange(e: Event) {
     const newValue = (e.target as UmbPropertyDatasetElement).value;
     this.availableProperties = this.availableProperties.map((p) => ({
@@ -351,61 +360,8 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
     this.selectedType = undefined;
   }
 
-  #addUser(property) {
-    const pickerContext = new UmbUserPickerContext(this);
-
-    this.observe(pickerContext.selection, (selection) => {
-      if (!selection?.[0]) {
-        this.#removeUser(property);
-        return;
-      }
-
-      property.value = {
-        name: selection[0],
-        id: selection[0],
-      };
-
-      this.requestUpdate();
-    });
-
-    pickerContext.openPicker({
-      multiple: false,
-    });
-  }
-
-  #removeUser(property) {
-    property.value = undefined;
-    this.requestUpdate();
-  }
-
   #openContentItem(id) {
     alert("open content item " + id);
-  }
-
-  #workflowStatusChange(
-    property: Partial<PropertyDetailModel>,
-    status: Record<string, any>
-  ) {
-    status.selected = !status.selected;
-    const value = !(<any>property.value)?.length
-      ? []
-      : (<string>property.value).split(",");
-
-    if (status.selected) {
-      value.push(status.value);
-    } else {
-      const idx = value.indexOf(status.value);
-      if (idx !== -1) {
-        value.splice(idx, 1);
-      }
-    }
-
-    property.value = value.join(",");
-    this.requestUpdate();
-  }
-
-  #basePropertyDateChange(e, prop) {
-    prop.value = (e.target as HTMLInputElement).value;
   }
 
   #getAvailableProperties() {
@@ -581,13 +537,12 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
           <workflow-add-button
             @click=${this.#addContentType}
             labelkey="workflowSearch_addContentTypes"
-          >
-          </workflow-add-button>
+          ></workflow-add-button>
           ${when(
             this.hasSelectedContentTypes,
             () => html` <uui-button label="Remove all" @click=${this.#clear}>
-              <uui-icon name="icon-trash"></uui-icon>
-            </uui-button>`
+              <uui-icon name="icon-trash"></uui-icon
+            ></uui-button>`
           )}
         </div>
       </uui-box>
@@ -791,70 +746,25 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
                   </div>`
                 )}`
             )}
-            <!-- TODO => use property-dataset -->
             ${when(
               this.showBaseProperties,
               () => html` <hr />
                 <div id="baseProperties">
-                  ${this.baseProperties.map(
-                    (prop) =>
-                      html`<umb-property-layout
-                        .label=${prop.name!}
-                        orientation="vertical"
-                      >
-                        <div slot="editor">
-                          ${when(
-                            prop.propertyEditorUiAlias === "datepicker",
-                            () => html`<umb-input-date
-                              type="datetime-local"
-                              .value=${prop.value ?? ""}
-                              @change=${(e) =>
-                                this.#basePropertyDateChange(e, prop)}
-                            ></umb-input-date>`
-                          )}
-                          ${when(
-                            prop.propertyEditorUiAlias === "checkboxlist",
-                            () =>
-                              html` ${(<any>prop.config)?.items.map(
-                                (status) => html`
-                                  <uui-checkbox
-                                    style="margin-right:var(--uui-size-5)"
-                                    value=${status.value}
-                                    .label=${this.localize.term(
-                                      `workflow_${status.label}`
-                                    )}
-                                    ?checked=${status.selected}
-                                    @change=${() =>
-                                      this.#workflowStatusChange(prop, status)}
-                                  ></uui-checkbox>
-                                `
-                              )}`
-                          )}
-                          ${when(
-                            prop.propertyEditorUiAlias === "userpicker",
-                            () =>
-                              html`${when(
-                                prop.value,
-                                () => html`<uui-ref-list>
-                                  <uui-ref-node-user
-                                    .name=${(<any>prop.value)?.name}
-                                    ><uui-action-bar slot="actions">
-                                      <uui-button
-                                        label="Remove"
-                                        @click=${() => this.#removeUser(prop)}
-                                        >Remove</uui-button
-                                      >
-                                    </uui-action-bar></uui-ref-node-user
-                                  >
-                                </uui-ref-list>`,
-                                () => html` <workflow-add-button
-                                  @click=${() => this.#addUser(prop)}
-                                ></workflow-add-button>`
-                              )}`
-                          )}
-                        </div>
-                      </umb-property-layout>`
-                  )}
+                  <umb-property-dataset
+                    .value=${this.baseProperties as Array<UmbPropertyValueData>}
+                    @change=${this.#onBasePropertyValueChange}
+                  >
+                    ${this.baseProperties.map(
+                      (prop) =>
+                        html`<umb-property
+                          orientation="vertical"
+                          alias=${prop.alias!}
+                          label=${prop.name!}
+                          property-editor-ui-alias=${prop.propertyEditorUiAlias!}
+                          .config=${prop.config}
+                        ></umb-property>`
+                    )}
+                  </umb-property-dataset>
                 </div>`
             )}
           </uui-box>
@@ -941,39 +851,39 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
       }
 
       @container (min-width: 500px) {
-        #baseProperties {
+        #baseProperties umb-property-dataset {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
           grid-column-gap: 20px;
         }
 
-        #baseProperties > *:nth-child(1) {
+        #baseProperties umb-property-dataset > *:nth-child(1) {
           grid-column: 1 / 3;
         }
 
-        #baseProperties > *:nth-child(2) {
+        #baseProperties umb-property-dataset > *:nth-child(2) {
           grid-column: 1 / 2;
         }
 
-        #baseProperties > *:nth-child(3) {
+        #baseProperties umb-property-dataset > *:nth-child(3) {
           grid-column: 2 / 3;
         }
       }
 
       @container (min-width: 950px) {
-        #baseProperties {
+        #baseProperties umb-property-dataset {
           grid-template-columns: repeat(4, minmax(0, 1fr));
         }
 
-        #baseProperties > *:nth-child(1) {
+        #baseProperties umb-property-dataset > *:nth-child(1) {
           grid-column: 1 / 5;
         }
 
-        #baseProperties > *:nth-child(2) {
+        #baseProperties umb-property-dataset > *:nth-child(2) {
           grid-column: 1 / 3;
         }
 
-        #baseProperties > *:nth-child(3) {
+        #baseProperties umb-property-dataset > *:nth-child(3) {
           grid-column: 3 / 5;
         }
       }
