@@ -15,15 +15,15 @@ const elementName = "workflow-approval-group-roles-workspace-view";
 export class ApprovalGroupRolesWorkspaceViewElement
   extends WorkflowApprovalGroupWorkspaceViewBase
   implements UmbWorkspaceViewElement
-{  
+{
   async connectedCallback() {
     super.connectedCallback();
     await this.init;
   }
-  
+
   #edit() {
     alert("edit");
-  }  
+  }
 
   #renderList(items: Array<WorkflowPermissionModel>) {
     return html` <uui-ref-list>
@@ -63,7 +63,9 @@ export class ApprovalGroupRolesWorkspaceViewElement
           () => this.localize.term("content_noItemsToShow")
         )}
       </uui-box>
-      <uui-box headline=${this.localize.term("workflow_documentTypeWorkflowRoles")}>
+      <uui-box
+        headline=${this.localize.term("workflow_documentTypeWorkflowRoles")}
+      >
         ${when(
           typePermissions.length,
           () => this.#renderList(typePermissions),

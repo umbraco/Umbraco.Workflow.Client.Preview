@@ -1,5 +1,5 @@
 import type { UmbCollectionConfiguration } from "@umbraco-cms/backoffice/collection";
-import type { FilterModel } from '@umbraco-workflow/generated';
+import type { FilterModel } from "@umbraco-workflow/generated";
 
 export interface SettingsStatusModel {
   someDisabled: boolean;

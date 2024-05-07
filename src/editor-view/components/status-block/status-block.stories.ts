@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
-import "./status-block.element.js";
-import type { WorkflowStatusBlockElement } from "./status-block.element.js";
+import { type WorkflowStatusBlockElement } from "./status-block.element.js";
 
 const meta: Meta<WorkflowStatusBlockElement> = {
   title: "Editor View/Components/Status Block",
@@ -14,7 +13,7 @@ export const Overview: Story = {
   args: {
     task: {
       status: 1,
-      requestedOn: 'Yesterday',
+      requestedOn: "Yesterday",
       approvedByIds: [],
       currentStep: 1,
       id: 1,
@@ -28,7 +27,7 @@ export const Rejected: Story = {
   args: {
     task: {
       status: 2,
-      requestedOn: 'Yesterday',
+      requestedOn: "Yesterday",
       approvedByIds: [],
       currentStep: 1,
       id: 1,
@@ -42,7 +41,7 @@ export const PendingApproval: Story = {
   args: {
     task: {
       status: 3,
-      requestedOn: 'Yesterday',
+      requestedOn: "Yesterday",
       approvedByIds: [],
       currentStep: 1,
       id: 1,

@@ -1,5 +1,11 @@
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
-import { LitElement, customElement, html, nothing, property } from "@umbraco-cms/backoffice/external/lit";
+import {
+  LitElement,
+  customElement,
+  html,
+  nothing,
+  property,
+} from "@umbraco-cms/backoffice/external/lit";
 
 const elementName = "approval-groups-table-name-column-layout";
 
@@ -17,8 +23,7 @@ export class ApprovalGroupsTableNameColumnLayoutElement extends UmbElementMixin(
     if (!this.value) return nothing;
 
     return html`<a
-      href="section/workflow/workspace/approval-group/edit/${this.value
-        .key}"
+      href="section/workflow/workspace/approval-group/edit/${this.value.key}"
       >${this.value.name}</a
     >`;
   }

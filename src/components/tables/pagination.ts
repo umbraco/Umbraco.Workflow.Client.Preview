@@ -4,38 +4,38 @@
  * goToPage manages setting the page number before executing the callback
  * */
 export class Pagination {
-    current = 1;
-    totalItems = 0;
+  current = 1;
+  totalItems = 0;
 
-    #defaultTake = 10;
-    #take = this.#defaultTake;
+  #defaultTake = 10;
+  #take = this.#defaultTake;
 
-    get take(): number {
-        return this.#take;
-    }
+  get take(): number {
+    return this.#take;
+  }
 
-    set take(value: number | undefined) {
-        this.#take = value ?? this.#defaultTake;
-    }
+  set take(value: number | undefined) {
+    this.#take = value ?? this.#defaultTake;
+  }
 
-    change: (page: number) => void;
+  change: (page: number) => void;
 
-    constructor(cb: VoidFunction, perPage?: number) {
-        this.take = perPage ?? this.#defaultTake;
+  constructor(cb: VoidFunction, perPage?: number) {
+    this.take = perPage ?? this.#defaultTake;
 
-        this.change = (page: number) => {
-            if (this.current === page) return;
+    this.change = (page: number) => {
+      if (this.current === page) return;
 
-            this.current = page;
-            cb();
-        }
-    }
+      this.current = page;
+      cb();
+    };
+  }
 
-    get skip() {
-        return (this.current - 1) * this.take;
-    }
+  get skip() {
+    return (this.current - 1) * this.take;
+  }
 
-    get totalPages() {
-        return Math.ceil(this.totalItems / this.take);
-    }
+  get totalPages() {
+    return Math.ceil(this.totalItems / this.take);
+  }
 }

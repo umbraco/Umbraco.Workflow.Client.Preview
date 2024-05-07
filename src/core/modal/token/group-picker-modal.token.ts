@@ -1,9 +1,11 @@
-import type { UmbPickerModalData } from "@umbraco-cms/backoffice/modal";
-import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
+import {
+  UmbModalToken,
+  type UmbPickerModalData,
+} from "@umbraco-cms/backoffice/modal";
+
 import type { UserGroupBaseModel } from "@umbraco-workflow/generated";
 
-export const WORKFLOW_GROUP_PICKER_MODAL_ALIAS =
-  "Workflow.Modal.GroupPicker";
+export const WORKFLOW_GROUP_PICKER_MODAL_ALIAS = "Workflow.Modal.GroupPicker";
 
 export interface WorkflowGroupPickerModalData {
   selection: Array<string | null>;

@@ -4,17 +4,15 @@ import {
   html,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import {
-  UmbModalBaseElement,
-} from "@umbraco-cms/backoffice/modal";
+import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
 import * as Diff from "diff";
 import type { WorkflowDiffModalData } from "../token/index.js";
-import type {
-  WorkflowContentDiffModel,
-  WorkflowDiffPropertyModel,
+import {
+  InstanceService,
+  type WorkflowContentDiffModel,
+  type WorkflowDiffPropertyModel,
 } from "@umbraco-workflow/generated";
-import { InstanceService } from "@umbraco-workflow/generated";
 
 interface WorkflowDiff {
   label: string;
@@ -116,7 +114,10 @@ export class WorkflowDiffModalElement extends UmbModalBaseElement<WorkflowDiffMo
 
         this.diffs.push({
           label: workflowProperty.label ?? "",
-          diff: Diff.diffWords(<string>currentProperty.value, <string>workflowProperty.value),
+          diff: Diff.diffWords(
+            <string>currentProperty.value,
+            <string>workflowProperty.value
+          ),
           isObject,
         });
       });

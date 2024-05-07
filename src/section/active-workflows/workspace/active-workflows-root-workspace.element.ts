@@ -5,15 +5,13 @@ import {
 } from "@umbraco-cms/backoffice/external/lit";
 import type { TableQueryModel } from "../../../core/entities.js";
 import { SectionRootBase } from "../../section-root.base.element.js";
-import type { FilterModel } from "@umbraco-workflow/generated";
-import { InstanceService } from "@umbraco-workflow/generated";
-import type {
-  FilterPickerElement,
-  PageSizeDropdownElement,
+import { InstanceService, type FilterModel } from "@umbraco-workflow/generated";
+import {
+  InstanceFilters,
+  type FilterPickerElement,
+  type PageSizeDropdownElement,
 } from "@umbraco-workflow/components";
-import { InstanceFilters } from "@umbraco-workflow/components";
 import { BoxHeaderFlexStyles } from "@umbraco-workflow/css";
-import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
 const elementName = "active-workflows-root-workspace";
 

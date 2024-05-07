@@ -10,7 +10,7 @@ import {
   type WorkflowState,
   WORKFLOW_MANAGER_CONTEXT,
 } from "@umbraco-workflow/context";
-import type { PermissionType } from "src/core/enums";
+import type { PermissionType } from "@umbraco-workflow/core";
 import type { NodePermissionsResponseModel } from "@umbraco-workflow/generated";
 
 export class WorkflowConfigBoxBase extends UmbElementMixin(LitElement) {

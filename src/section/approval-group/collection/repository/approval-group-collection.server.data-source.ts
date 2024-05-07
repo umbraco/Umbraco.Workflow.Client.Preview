@@ -33,7 +33,11 @@ export class WorkflowApprovalGroupCollectionServerDataSource
           icon: item.icon ?? "icon-users",
           users: item.users
             .filter((u) => !!u.username)
-            .map((u) => ({ name: u.username!, inherited: u.inherited, email: u.email ?? undefined })),
+            .map((u) => ({
+              name: u.username!,
+              inherited: u.inherited,
+              email: u.email ?? undefined,
+            })),
           permissions: item.permissions,
           languageCount: Object.keys(item.availableLanguages).length,
         };

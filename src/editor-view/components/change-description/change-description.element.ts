@@ -12,11 +12,12 @@ import { UmbHistoryItemElement } from "@umbraco-cms/backoffice/components";
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
 import { getCommentParts } from "@umbraco-workflow/core";
 import { WORKFLOW_DIFF_MODAL } from "@umbraco-workflow/editor-view";
-import type {
-  WorkflowInstanceResponseModel,
-  WorkflowTaskModel,
+import {
+  WorkflowStatusModel,
+  type WorkflowInstanceResponseModel,
+  type WorkflowTaskModel,
 } from "@umbraco-workflow/generated";
-import { WorkflowStatusModel } from "@umbraco-workflow/generated";
+
 import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
 const elementName = "workflow-change-description";

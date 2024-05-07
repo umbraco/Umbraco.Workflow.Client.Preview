@@ -6,7 +6,6 @@ const elementName = "workflow-detail-readonly-modal";
 
 @customElement(elementName)
 export class WorkflowDetailReadonlyModalElement extends UmbModalBaseElement<WorkflowDetailReadonlyModalData> {
-
   #close() {
     this.modalContext?.reject();
   }
@@ -45,7 +44,9 @@ export class WorkflowDetailReadonlyModalElement extends UmbModalBaseElement<Work
             .status=${this.data?.item.instance?.status ?? undefined}
           ></workflow-status-block>
           <workflow-scheduling .item=${this.data?.item}></workflow-scheduling>
-          <workflow-task-list .unique=${this.data?.item.instance?.key}></workflow-task-list>
+          <workflow-task-list
+            .unique=${this.data?.item.instance?.key}
+          ></workflow-task-list>
         </div>
         <div slot="actions">
           <uui-button id="close" label="Close" @click="${this.#close}"

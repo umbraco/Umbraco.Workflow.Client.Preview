@@ -1,19 +1,21 @@
-import { UmbSubmittableWorkspaceContextBase } from "@umbraco-cms/backoffice/workspace";
-import type {
-  UmbRoutableWorkspaceContext,
-  UmbSubmittableWorkspaceContext,
+import {
+  UmbSubmittableWorkspaceContextBase,
+  type UmbRoutableWorkspaceContext,
+  type UmbSubmittableWorkspaceContext,
 } from "@umbraco-cms/backoffice/workspace";
+
 import {
   UmbObjectState,
   appendToFrozenArray,
 } from "@umbraco-cms/backoffice/observable-api";
 import type { UmbControllerHostElement } from "@umbraco-cms/backoffice/controller-api";
 import { WorkflowApprovalGroupsRepository } from "../../repository/approval-groups.repository.js";
-import { WORKFLOW_APPROVALGROUP_ENTITY_TYPE } from "../../types.js";
-import type {
-  WorkflowPropertyModel,
-  WorkflowApprovalGroupDetailModel,
+import {
+  WORKFLOW_APPROVALGROUP_ENTITY_TYPE,
+  type WorkflowPropertyModel,
+  type WorkflowApprovalGroupDetailModel,
 } from "../../types.js";
+
 import { ApprovalGroupWorkspaceEditorElement } from "./approval-group-workspace-editor.element.js";
 
 export class WorkflowApprovalGroupWorkspaceContext

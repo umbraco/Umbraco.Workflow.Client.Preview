@@ -23,9 +23,7 @@ export class TimelineTableProgressColumnLayoutElement extends UmbElementMixin(
   render() {
     if (!this.value) return nothing;
 
-    return html`<workflow-timeline
-      .item=${this.value}
-    ></workflow-timeline>`;
+    return html`<workflow-timeline .item=${this.value}></workflow-timeline>`;
   }
 
   static styles = [

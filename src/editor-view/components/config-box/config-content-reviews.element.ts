@@ -3,7 +3,7 @@ import {
   html,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import { WorkflowConfigBoxBase } from './config-box-base.element.js';
+import { WorkflowConfigBoxBase } from "./config-box-base.element.js";
 
 const elementName = "workflow-config-content-reviews";
 
@@ -36,9 +36,7 @@ export class WorkflowConfigContentReviewsElement extends WorkflowConfigBoxBase {
           <uui-ref-list>
             ${this.reviewConfig!.groups!.map(
               (permission) =>
-                html`<workflow-ref-group-permission
-                  .name=${permission.name!}
-                >
+                html`<workflow-ref-group-permission .name=${permission.name!}>
                 </workflow-ref-group-permission>`
             )}
           </uui-ref-list>

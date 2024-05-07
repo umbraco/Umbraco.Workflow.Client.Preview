@@ -6,7 +6,10 @@ import {
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 import type { UUIInputEvent } from "@umbraco-cms/backoffice/external/uui";
-import type { WorkflowRejectTaskModalData, WorkflowRejectTaskModalResult } from "../token/index.js";
+import type {
+  WorkflowRejectTaskModalData,
+  WorkflowRejectTaskModalResult,
+} from "../token/index.js";
 
 const elementName = "workflow-reject-task-modal";
 

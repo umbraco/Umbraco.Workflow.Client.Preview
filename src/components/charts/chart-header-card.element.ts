@@ -7,8 +7,8 @@ import {
   property,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import { WorkflowColorStyles } from '../../css/workflow-color.styles.js';
-import type { ChartHeaderCard } from './chart-base.element.js';
+import { WorkflowColorStyles } from "../../css/workflow-color.styles.js";
+import type { ChartHeaderCard } from "./chart-base.element.js";
 
 const elementName = "workflow-chart-header-card";
 
@@ -17,7 +17,7 @@ export class ChartHeaderCardElement extends UmbElementMixin(LitElement) {
   @property({ type: Object })
   card!: ChartHeaderCard;
 
-  cardClick(event: Event) { 
+  cardClick(event: Event) {
     if (this.card.action) {
       this.card.action({ $event: event });
     }

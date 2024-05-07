@@ -18,7 +18,7 @@ import {
   WORKFLOW_MANAGER_CONTEXT,
   WorkflowManagerContext,
 } from "@umbraco-workflow/context";
-import { SubView } from "src/core/enums";
+import { SubView } from "@umbraco-workflow/core";
 
 const elementName = "workflow-document-workspace-view";
 
@@ -63,7 +63,7 @@ export class WorkflowDocumentWorkspaceViewElement extends UmbElementMixin(
       this.#workflowManagerContext.init(
         undefined,
         data?.unique,
-        data?.documentType.unique        
+        data?.documentType.unique
       );
 
       this.provideContext(

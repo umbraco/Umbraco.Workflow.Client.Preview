@@ -8,7 +8,7 @@ import {
   state,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import { WorkflowStatus } from "src/core/enums";
+import { WorkflowStatus } from "@umbraco-workflow/core";
 import type { WorkflowTaskModel } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-scheduling-block";
@@ -32,20 +32,26 @@ export class WorkflowSchedulingBlockElement extends UmbElementMixin(
   connectedCallback(): void {
     super.connectedCallback();
 
-    if (!this.item?.instance?.releaseDate && !this.item?.instance?.expireDate) return;
+    if (!this.item?.instance?.releaseDate && !this.item?.instance?.expireDate)
+      return;
 
-    this.releaseDate = this.item?.instance?.releaseDate ? new Date(this.item?.instance?.releaseDate) : undefined;
-    this.expireDate = this.item?.instance?.expireDate ? new Date(this.item?.instance?.expireDate) : undefined;
+    this.releaseDate = this.item?.instance?.releaseDate
+      ? new Date(this.item?.instance?.releaseDate)
+      : undefined;
+    this.expireDate = this.item?.instance?.expireDate
+      ? new Date(this.item?.instance?.expireDate)
+      : undefined;
     const now = new Date();
 
     this.scheduledDatePassed =
-      (this.releaseDate && this.releaseDate < now || this.expireDate && this.expireDate < now) &&
+      ((this.releaseDate && this.releaseDate < now) ||
+        (this.expireDate && this.expireDate < now)) &&
       this.item.status === WorkflowStatus.PENDING_APPROVAL;
   }
 
   #getScheduledMessage() {
     const action = this.item?.type?.toLowerCase();
-    
+
     return this.localize.term("workflow_scheduledForAt", action);
   }
 
@@ -71,7 +77,7 @@ export class WorkflowSchedulingBlockElement extends UmbElementMixin(
       }
 
       p {
-        margin:0;
+        margin: 0;
       }
     `,
   ];

@@ -34,7 +34,9 @@ export class WorkflowSettingsSettingsViewElement
       <div slot="headline">
         ${this.localize.term("workflow_newNodeApprovalFlow")}
         <small slot="header"
-          >${this.localize.term("workflow_newNodeApprovalFlowDescription")}</small
+          >${this.localize.term(
+            "workflow_newNodeApprovalFlowDescription"
+          )}</small
         >
       </div>
       <workflow-new-node-flow></workflow-new-node-flow>

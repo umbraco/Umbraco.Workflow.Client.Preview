@@ -23,7 +23,7 @@ export class WorkflowStatusFilterElement extends WorkflowBaseFilterElement<
   }
 
   #addStatus() {
-    this.value = [...this.value ?? [], ""];
+    this.value = [...(this.value ?? []), ""];
     this.requestUpdate("value");
   }
 

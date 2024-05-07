@@ -10,7 +10,7 @@ import {
   UmbModalBaseElement,
 } from "@umbraco-cms/backoffice/modal";
 import type { UUISelectEvent } from "@umbraco-cms/backoffice/external/uui";
-import type { UmbControllerHost} from "@umbraco-cms/backoffice/controller-api";
+import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import type {
   WorkflowDocumentTypeFlowModalData,
   WorkflowDocumentTypeFlowModalResult,

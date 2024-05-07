@@ -6,7 +6,7 @@ import {
   html,
   property,
 } from "@umbraco-cms/backoffice/external/lit";
-import type { SettingsStatusModel } from "src/core/entities";
+import type { SettingsStatusModel } from "@umbraco-workflow/core";
 
 const elementName = "workflow-settings-disabled-alert";
 

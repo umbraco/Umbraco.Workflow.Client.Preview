@@ -5,16 +5,20 @@ import {
   html,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import type { WorkflowInstancesFilterModel } from "../../core/entities.js";
 import { ChartBaseStyles } from "./chart-style.styles.js";
-import { ChartBaseElement } from "./chart-base.element.js";
-import type { ChartHeaderCard } from "./chart-base.element.js";
+import {
+  ChartBaseElement,
+  type ChartHeaderCard,
+} from "./chart-base.element.js";
+import {
+  type WorkflowInstancesFilterModel,
+  WorkflowStatus,
+} from "@umbraco-workflow/core";
 import {
   type ChartResponseModel,
   ChartService,
   WorkflowStatusModel,
 } from "@umbraco-workflow/generated";
-import { WorkflowStatus } from "src/core/enums.js";
 
 const elementName = "workflow-activity-chart";
 
@@ -64,8 +68,12 @@ export class WorkflowActivityChartElement extends ChartBaseElement {
     this.showStatsBox = chartData?.additionalData?.averageSeconds !== 0 || true;
 
     if (this.showStatsBox) {
-      this.minSeconds = this.humanize(<number>chartData?.additionalData?.minSeconds ?? 0);
-      this.maxSeconds = this.humanize(<number>chartData?.additionalData?.maxSeconds ?? 0);
+      this.minSeconds = this.humanize(
+        <number>chartData?.additionalData?.minSeconds ?? 0
+      );
+      this.maxSeconds = this.humanize(
+        <number>chartData?.additionalData?.maxSeconds ?? 0
+      );
       this.averageSeconds = this.humanize(
         <number>chartData?.additionalData?.averageSeconds ?? 0
       );

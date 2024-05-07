@@ -3,11 +3,12 @@ import type { UmbSubmittableWorkspaceContext } from "@umbraco-cms/backoffice/wor
 import type { WorkflowSettingsWorkspaceContext } from "./settings-workspace.context.js";
 
 export const WORKFLOW_SETTINGS_WORKSPACE_CONTEXT = new UmbContextToken<
-UmbSubmittableWorkspaceContext,
+  UmbSubmittableWorkspaceContext,
   WorkflowSettingsWorkspaceContext
 >(
   "UmbWorkspaceContext",
   undefined,
   (context): context is WorkflowSettingsWorkspaceContext =>
-    (context as WorkflowSettingsWorkspaceContext).IS_WORKFLOW_SETTINGS_WORKSPACE_CONTEXT
+    (context as WorkflowSettingsWorkspaceContext)
+      .IS_WORKFLOW_SETTINGS_WORKSPACE_CONTEXT
 );

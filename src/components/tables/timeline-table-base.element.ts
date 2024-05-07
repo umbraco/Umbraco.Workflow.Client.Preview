@@ -1,8 +1,7 @@
-import type {
-  UmbTableColumn,
-  UmbTableItem} from "@umbraco-cms/backoffice/components";
 import {
   UmbTableOrderedEvent,
+  type UmbTableColumn,
+  type UmbTableItem,
 } from "@umbraco-cms/backoffice/components";
 import {
   css,
@@ -139,7 +138,7 @@ export class WorkflowTimelineTableBase extends WorkflowTableBase {
 
       uui-pagination {
         margin-top: var(--uui-size-space-5);
-        display:block;
+        display: block;
       }
 
       uui-table-head {
@@ -164,7 +163,7 @@ export class WorkflowTimelineTableBase extends WorkflowTableBase {
         right: 0;
         bottom: 0;
         height: 30px;
-        z-index:1;
+        z-index: 1;
       }
     `,
   ];

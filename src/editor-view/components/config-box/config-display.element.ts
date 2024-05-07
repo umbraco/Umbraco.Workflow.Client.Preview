@@ -6,7 +6,7 @@ import {
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import { WorkflowConfigBoxBase } from "./index.js";
-import { PermissionType } from "src/core/enums.js";
+import { PermissionType } from "@umbraco-workflow/core";
 
 const elementName = "workflow-config-display";
 

@@ -1,9 +1,7 @@
-import type {
-  UmbRoutableWorkspaceContext,
-  UmbSubmittableWorkspaceContext,
-} from "@umbraco-cms/backoffice/workspace";
 import {
   UmbSubmittableWorkspaceContextBase,
+  type UmbRoutableWorkspaceContext,
+  type UmbSubmittableWorkspaceContext,
 } from "@umbraco-cms/backoffice/workspace";
 import {
   UmbObjectState,
@@ -12,9 +10,7 @@ import {
 import type { UmbControllerHostElement } from "@umbraco-cms/backoffice/controller-api";
 import { WorkflowSettingsRepository } from "../repository/settings.repository.js";
 import type { SettingsAliasType, SettingsSectionType } from "../types.js";
-import {
-  WORKFLOW_SETTINGS_ENTITY_TYPE,
-} from "../index.js";
+import { WORKFLOW_SETTINGS_ENTITY_TYPE } from "../index.js";
 import { WorkflowSettingsEditorElement } from "./settings-editor.element.js";
 import {
   type GeneralSettingsModel,

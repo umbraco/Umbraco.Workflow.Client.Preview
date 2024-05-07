@@ -1,8 +1,11 @@
 import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import type { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
-import type { UmbNotificationContext } from "@umbraco-cms/backoffice/notification";
-import { UMB_NOTIFICATION_CONTEXT } from "@umbraco-cms/backoffice/notification";
+import {
+  UMB_NOTIFICATION_CONTEXT,
+  type UmbNotificationContext,
+} from "@umbraco-cms/backoffice/notification";
+
 import type {
   WorkflowServerDataSource,
   WorkflowServerDataSourceConstructor,

@@ -7,13 +7,17 @@ import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/extension-
 import type { TableQueryModel } from "../../../../core/entities.js";
 import { WorkspaceWithSettingsViewBase } from "../../../../section/workspace-with-settings-view-base.element.js";
 import { WorkflowSettingsWorkspaceViewBase } from "../../../settings/workspace/views/settings-workspace-view-base.element.js";
-import type { FilterModel } from "@umbraco-workflow/generated";
-import { ContentReviewService } from "@umbraco-workflow/generated";
-import type {
-  FilterPickerElement,
-  PageSizeDropdownElement,
+import {
+  ContentReviewService,
+  type FilterModel,
+} from "@umbraco-workflow/generated";
+
+import {
+  ContentReviewFilters,
+  type FilterPickerElement,
+  type PageSizeDropdownElement,
 } from "@umbraco-workflow/components";
-import { ContentReviewFilters } from "@umbraco-workflow/components";
+
 import { BoxHeaderFlexStyles } from "@umbraco-workflow/css";
 
 const elementName = "workflow-content-reviews-overview-workspace-view";

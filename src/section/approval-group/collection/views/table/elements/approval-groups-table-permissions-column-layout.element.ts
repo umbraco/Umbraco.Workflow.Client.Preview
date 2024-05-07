@@ -29,7 +29,6 @@ export class ApprovalGroupsTablePermissionsColumnLayoutElement extends UmbElemen
   #setLabels(
     permissions: Array<UserGroupPermissionsModel>
   ): Array<LabeledUserGroupPermissionModel> | undefined {
-
     return permissions.map((p) => {
       const type = p.contentTypeName ?? p.nodeName;
       let label = `${type} - stage ${p.permission! + 1}`;

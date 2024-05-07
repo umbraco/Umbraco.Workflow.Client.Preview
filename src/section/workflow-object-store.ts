@@ -3,12 +3,13 @@ import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import type { ManifestApi } from "@umbraco-cms/backoffice/extension-api";
 import type { UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
 
-export interface ManifestWorkflowObjectStore extends ManifestApi<WorkflowObjectStore> {
-  type: 'workflowObjectStore';
+export interface ManifestWorkflowObjectStore
+  extends ManifestApi<WorkflowObjectStore> {
+  type: "workflowObjectStore";
 }
 
 export abstract class WorkflowObjectStore<
-  StoreItemType = any,
+  StoreItemType = any
 > extends UmbContextBase<any> {
   protected _data?: UmbObjectState<StoreItemType>;
 

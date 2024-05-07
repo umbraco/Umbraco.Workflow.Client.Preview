@@ -164,11 +164,13 @@ export class ApprovalGroupHistoryWorkspaceViewElement
 
   render() {
     return html`<div class="flex">
-      <uui-box .headline=${this.localize.term("workflow_membership")}>        
+      <uui-box .headline=${this.localize.term("workflow_membership")}>
         <umb-user-input @change=${this.#onUserSelectionChange}></umb-user-input>
       </uui-box>
       <uui-box .headline=${this.localize.term("workflow_inheritedMembership")}>
-        <umb-user-group-input @change=${this.#onGroupSelectionChange}></umb-user-group-input>
+        <umb-user-group-input
+          @change=${this.#onGroupSelectionChange}
+        ></umb-user-group-input>
       </uui-box>
     </div>`;
   }

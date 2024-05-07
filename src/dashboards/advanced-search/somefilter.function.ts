@@ -8,7 +8,7 @@ export function SomeFilter(p) {
     p.value !== null &&
     p.value !== undefined &&
     p.value !== "" &&
-    p.value !== "0" 
+    p.value !== "0"
     // &&
     // typeof p.value !== "object"
   );

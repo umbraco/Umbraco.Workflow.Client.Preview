@@ -2,22 +2,20 @@ import type { UmbControllerHostElement } from "@umbraco-cms/backoffice/controlle
 import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
 import { UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
-import { umbExtensionsRegistry } from "@umbraco-cms/backoffice/extension-registry";
-import type {
-  MetaWorkspaceActionMenuItem,
-  ManifestWorkspaceActionMenuItem,
-  ManifestWorkspaceAction,
+import {
+  umbExtensionsRegistry,
+  type MetaWorkspaceActionMenuItem,
+  type ManifestWorkspaceActionMenuItem,
+  type ManifestWorkspaceAction,
 } from "@umbraco-cms/backoffice/extension-registry";
 import { WORKFLOW_DOCUMENT_WORKSPACE_VARIANT_SHOW_WORKFLOW_DETAIL_CONDITION } from "../../editor-view/conditions/manifests.js";
-import type {
-  GlobalVariablesResponseModel,
-  WorkflowLicenseModel,
-  WorkflowScaffoldResponseModel,
-} from "@umbraco-workflow/generated";
 import {
   GlobalVariablesService,
   LicenseService,
   ScaffoldService,
+  type GlobalVariablesResponseModel,
+  type WorkflowLicenseModel,
+  type WorkflowScaffoldResponseModel,
 } from "@umbraco-workflow/generated";
 
 /** TODO => how do we handle new nodes? Currently creating a node won't trigger the change detection

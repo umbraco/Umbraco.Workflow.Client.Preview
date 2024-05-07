@@ -1,7 +1,4 @@
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
-
-import type {
-  ChartTypeRegistry} from "chart.js";
 import {
   Chart,
   LineController,
@@ -14,16 +11,19 @@ import {
   CategoryScale,
   LogarithmicScale,
   Tooltip,
+  type ChartTypeRegistry,
 } from "chart.js";
-import type {
-  PropertyValueMap} from "@umbraco-cms/backoffice/external/lit";
 import {
   LitElement,
   property,
   query,
   state,
+  type PropertyValueMap,
 } from "@umbraco-cms/backoffice/external/lit";
-import type { ChartDataPointModel, ChartSeriesModel } from "@umbraco-workflow/generated";
+import type {
+  ChartDataPointModel,
+  ChartSeriesModel,
+} from "@umbraco-workflow/generated";
 
 export type ChartHeaderCard = {
   action?: ({ $event }: { $event: Event }) => void;
@@ -32,7 +32,7 @@ export type ChartHeaderCard = {
   status?: string;
   background?: string;
   static?: boolean;
-}
+};
 
 export class ChartBaseElement extends UmbElementMixin(LitElement) {
   @property()
@@ -141,7 +141,7 @@ export class ChartBaseElement extends UmbElementMixin(LitElement) {
       return date === this.now ? "𝗧𝗼𝗱𝗮𝘆" : x.x!; // unicode bold
     });
 
-    this.series.forEach(s => {
+    this.series.forEach((s) => {
       s.label = this.localize.term(`workflow_${s.key}`);
     });
 
@@ -153,7 +153,7 @@ export class ChartBaseElement extends UmbElementMixin(LitElement) {
       options: {
         interaction: {
           intersect: false,
-          mode: 'index',
+          mode: "index",
         },
         responsive: true,
         scales: {
@@ -167,7 +167,7 @@ export class ChartBaseElement extends UmbElementMixin(LitElement) {
             },
           },
           x: {
-            beginAtZero: true,            
+            beginAtZero: true,
           },
         },
       },

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
-import "./scheduling-block.element.js";
-import type { WorkflowSchedulingBlockElement } from "./scheduling-block.element.js";
+import { type WorkflowSchedulingBlockElement } from "./scheduling-block.element.js";
+
 import { WorkflowStatusModel } from "@umbraco-workflow/generated";
 
 const meta: Meta<WorkflowSchedulingBlockElement> = {

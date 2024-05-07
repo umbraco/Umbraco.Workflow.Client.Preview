@@ -6,7 +6,8 @@ import type {
 import { UmbSaveWorkspaceAction } from "@umbraco-cms/backoffice/workspace";
 import { WorkflowRegenerateContentReviewsWorkspaceAction } from "./actions/save-and-regenerate.action.js";
 
-export const WORKFLOW_CONTENTREVIEWS_WORKSPACE_ALIAS = "Workflow.Workspace.ContentReviews";
+export const WORKFLOW_CONTENTREVIEWS_WORKSPACE_ALIAS =
+  "Workflow.Workspace.ContentReviews";
 
 const workspace: ManifestWorkspaces = {
   type: "workspace",

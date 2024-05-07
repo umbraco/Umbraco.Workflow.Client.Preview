@@ -6,7 +6,10 @@ import {
   state,
 } from "@umbraco-cms/backoffice/external/lit";
 import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/extension-registry";
-import type { UmbPropertyValueData , UmbPropertyDatasetElement } from "@umbraco-cms/backoffice/property";
+import type {
+  UmbPropertyValueData,
+  UmbPropertyDatasetElement,
+} from "@umbraco-cms/backoffice/property";
 import { WorkflowApprovalGroupWorkspaceViewBase } from "./approval-group-workspace-view-base.element.js";
 import { BoxHeaderFlexStyles } from "@umbraco-workflow/css";
 import type { DayRangeDropdownElement } from "@umbraco-workflow/components";
@@ -45,7 +48,6 @@ export class ApprovalGroupSettingsWorkspaceViewElement
       ></workflow-activity-chart>
     </uui-box>`;
   }
-
 
   #onDataChange(e: Event) {
     const newValue = (e.target as UmbPropertyDatasetElement).value;

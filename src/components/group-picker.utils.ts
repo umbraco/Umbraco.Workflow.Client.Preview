@@ -17,11 +17,15 @@ export async function add(
   modalManagerContext?: UmbModalManagerContext,
   additionalProps?: Record<string, any>
 ) {
-  const modalHandler = modalManagerContext?.open(host, WORKFLOW_GROUP_PICKER_MODAL, {
-    data: {
-      selection: [...(arr.map((p) => p.groupKey ?? null) ?? [])],
-    },
-  });
+  const modalHandler = modalManagerContext?.open(
+    host,
+    WORKFLOW_GROUP_PICKER_MODAL,
+    {
+      data: {
+        selection: [...(arr.map((p) => p.groupKey ?? null) ?? [])],
+      },
+    }
+  );
 
   const { groups } = await modalHandler!.onSubmit();
 

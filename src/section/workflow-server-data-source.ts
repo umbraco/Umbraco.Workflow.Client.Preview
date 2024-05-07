@@ -16,5 +16,7 @@ export interface WorkflowServerDataSource<
   DataSaveType = DataSourceType
 > {
   read: () => Promise<UmbDataSourceResponse<DataSourceType>>;
-  update: (data: DataSaveType) => Promise<UmbDataSourceResponse<DataSourceType>>;
+  update: (
+    data: DataSaveType
+  ) => Promise<UmbDataSourceResponse<DataSourceType>>;
 }

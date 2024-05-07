@@ -129,16 +129,12 @@ export class WorkflowActionsElement extends UmbElementMixin(LitElement) {
     }
 
     const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-    const modalHandler = modalContext.open( 
-      this,
-      WORKFLOW_REJECT_TASK_MODAL,
-      {
-        data: {
-          groups: activePermissions.slice(0, activeIndex),
-          requestedBy: this.currentTask?.instance?.requestedBy,
-        },
-      }
-    );
+    const modalHandler = modalContext.open(this, WORKFLOW_REJECT_TASK_MODAL, {
+      data: {
+        groups: activePermissions.slice(0, activeIndex),
+        requestedBy: this.currentTask?.instance?.requestedBy,
+      },
+    });
 
     const { assignTo } = await modalHandler.onSubmit();
     if (!assignTo) return;

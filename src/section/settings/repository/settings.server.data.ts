@@ -1,8 +1,10 @@
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
 import type { WorkflowServerDataSource } from "../../workflow-server-data-source.js";
-import type { WorkflowSettingsPropertiesModel } from "@umbraco-workflow/generated";
-import { SettingsService } from "@umbraco-workflow/generated";
+import {
+  SettingsService,
+  type WorkflowSettingsPropertiesModel,
+} from "@umbraco-workflow/generated";
 
 /**
  * A data source for Settings that fetches data from the server
@@ -10,7 +12,9 @@ import { SettingsService } from "@umbraco-workflow/generated";
  * @class WorkflowSettingsServerDataSource
  * @implements {WorkflowDetailDataSource}
  */
-export class WorkflowSettingsServerDataSource implements WorkflowServerDataSource<WorkflowSettingsPropertiesModel> {
+export class WorkflowSettingsServerDataSource
+  implements WorkflowServerDataSource<WorkflowSettingsPropertiesModel>
+{
   #host: UmbControllerHost;
 
   constructor(host: UmbControllerHost) {
@@ -23,10 +27,7 @@ export class WorkflowSettingsServerDataSource implements WorkflowServerDataSourc
    * @memberof WorkflowSettingsServerDataSource
    */
   async read() {
-    return await tryExecuteAndNotify(
-      this.#host,
-      SettingsService.getSettings()
-    );
+    return await tryExecuteAndNotify(this.#host, SettingsService.getSettings());
   }
 
   /**

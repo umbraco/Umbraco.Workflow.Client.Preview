@@ -17,14 +17,13 @@ import { WORKFLOW_DOCUMENT_TYPE_FLOW_MODAL } from "../../modal/index.js";
 import {
   ContentService,
   ApprovalGroupService,
+  type WorkflowConfigUpdateRequestModel,
+  type LanguageModel,
+  type UserGroupModel,
+  type ContentTypePropertyModel,
+  type WorkflowLicenseModel,
 } from "@umbraco-workflow/generated";
-import type {
-  WorkflowConfigUpdateRequestModel,
-  LanguageModel,
-  UserGroupModel,
-  ContentTypePropertyModel,
-  WorkflowLicenseModel,
-} from "@umbraco-workflow/generated";
+
 import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
 const elementName = "workflow-document-type-flow";
@@ -68,7 +67,10 @@ export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
       await this.#getContentTypes();
       await this.#getGroups();
 
-      this.value = <Array<WorkflowConfigUpdateRequestModel>>settings?.documentTypeApprovalFlows?.value ?? [];
+      this.value =
+        <Array<WorkflowConfigUpdateRequestModel>>(
+          settings?.documentTypeApprovalFlows?.value
+        ) ?? [];
       this.#languages = this.#workspaceContext?.getData()?.availableLanguages;
     });
   }

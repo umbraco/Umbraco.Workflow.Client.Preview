@@ -9,5 +9,6 @@ export const WORKFLOW_APPROVAL_GROUP_WORKSPACE_CONTEXT = new UmbContextToken<
   "UmbWorkspaceContext",
   undefined,
   (context): context is WorkflowApprovalGroupWorkspaceContext =>
-    (context as WorkflowApprovalGroupWorkspaceContext).IS_APPROVAL_GROUPS_WORKSPACE_CONTEXT
+    (context as WorkflowApprovalGroupWorkspaceContext)
+      .IS_APPROVAL_GROUPS_WORKSPACE_CONTEXT
 );

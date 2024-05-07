@@ -63,7 +63,12 @@ export class VariantDropdownElement extends DropdownBaseElement<
   }
 
   render() {
-    return html` <umb-dropdown id="dropdown" compact label="select variant" placement="bottom-end">
+    return html` <umb-dropdown
+      id="dropdown"
+      compact
+      label="select variant"
+      placement="bottom-end"
+    >
       <span slot="label"
         >${this.localize.term("workflow_variant")}:
         <span>${this.label}</span>
@@ -84,8 +89,8 @@ export class VariantDropdownElement extends DropdownBaseElement<
       }
 
       div {
-        display:flex;
-        flex-direction:column;
+        display: flex;
+        flex-direction: column;
         padding: var(--uui-size-2);
       }
     `,

@@ -4,7 +4,10 @@ import {
   ifDefined,
   property,
 } from "@umbraco-cms/backoffice/external/lit";
-import type { UUIInputElement, UUIInputEvent } from "@umbraco-cms/backoffice/external/uui";
+import type {
+  UUIInputElement,
+  UUIInputEvent,
+} from "@umbraco-cms/backoffice/external/uui";
 import { DropdownBaseElement } from "../dropdown.base.element.js";
 
 const elementName = "workflow-day-range";

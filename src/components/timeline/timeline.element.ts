@@ -7,12 +7,11 @@ import {
   property,
   state,
 } from "@umbraco-cms/backoffice/external/lit";
-import type {
-  WorkflowInstanceResponseModel,
-  WorkflowPermissionResponseModel,
-  WorkflowTaskResponseModel} from "@umbraco-workflow/generated";
 import {
-  TaskStatusModel
+  TaskStatusModel,
+  type WorkflowInstanceResponseModel,
+  type WorkflowPermissionResponseModel,
+  type WorkflowTaskResponseModel,
 } from "@umbraco-workflow/generated";
 
 export type WorkflowTaskModelWithCss = {
@@ -84,7 +83,7 @@ export class WorkflowTimelineElement extends UmbElementMixin(LitElement) {
         this.tasks.push({
           currentStep: i,
           groupName: this.permissions[i]?.groupName ?? "",
-          completedBy: ""
+          completedBy: "",
         });
       }
     }
@@ -180,7 +179,7 @@ export class WorkflowTimelineElement extends UmbElementMixin(LitElement) {
       }
 
       .status-cancelled ~ workflow-progress-marker {
-        --tooltip-display: none!important;
+        --tooltip-display: none !important;
       }
     `,
   ];

@@ -9,8 +9,12 @@ import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { WorkflowConfigBoxBase } from "./index.js";
 import { PermissionType } from "@umbraco-workflow/core";
-import type { WorkflowRefGroupPermissionElement } from "@umbraco-workflow/components";
-import { add, remove } from "@umbraco-workflow/components";
+import {
+  add,
+  remove,
+  type WorkflowRefGroupPermissionElement,
+} from "@umbraco-workflow/components";
+
 import { ConfigService } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-config-content";

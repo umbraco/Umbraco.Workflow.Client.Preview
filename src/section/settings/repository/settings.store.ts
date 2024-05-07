@@ -5,10 +5,7 @@ import type { WorkflowSettingsPropertiesModel } from "@umbraco-workflow/generate
 
 export class WorkflowSettingsStore extends WorkflowObjectStore<WorkflowSettingsPropertiesModel> {
   constructor(host: UmbControllerHostElement) {
-    super(
-      host,
-      WORKFLOW_SETTINGS_STORE_CONTEXT.toString(),
-    );
+    super(host, WORKFLOW_SETTINGS_STORE_CONTEXT.toString());
   }
 }
 

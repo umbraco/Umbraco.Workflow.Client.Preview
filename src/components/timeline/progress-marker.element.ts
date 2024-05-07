@@ -7,8 +7,8 @@ import {
   ifDefined,
   property,
 } from "@umbraco-cms/backoffice/external/lit";
-import { getStatusFromString } from '@umbraco-workflow/core';
-import type { WorkflowTaskModelWithCss } from './timeline.element.js';
+import type { WorkflowTaskModelWithCss } from "./timeline.element.js";
+import { getStatusFromString } from "@umbraco-workflow/core";
 import { TaskStatusModel } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-progress-marker";

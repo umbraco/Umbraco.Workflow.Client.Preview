@@ -3,16 +3,16 @@ import {
   html,
   state,
 } from "@umbraco-cms/backoffice/external/lit";
-import type { TableQueryModel } from "../../../core/entities.js";
 import { SectionRootBase } from "../../section-root.base.element.js";
+import { SortDirection, type TableQueryModel } from "@umbraco-workflow/core";
+
 import { BoxHeaderFlexStyles } from "@umbraco-workflow/css";
-import type { FilterModel } from "@umbraco-workflow/generated";
-import { InstanceService } from "@umbraco-workflow/generated";
-import { SortDirection } from "src/core/enums.js";
-import { InstanceFilters } from "@umbraco-workflow/components";
-import type {
-  FilterPickerElement,
-  PageSizeDropdownElement,
+import { InstanceService, type FilterModel } from "@umbraco-workflow/generated";
+
+import {
+  InstanceFilters,
+  type FilterPickerElement,
+  type PageSizeDropdownElement,
 } from "@umbraco-workflow/components";
 
 const elementName = "workflow-history-root-workspace";

@@ -104,7 +104,8 @@ export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
 
     const itemToConfigure: ContentReviewItem = {
       documentKey: this.type === "document" ? result.selection[0]! : undefined,
-      documentTypeKey: this.type === "documentType" ? result.selection[0]! : undefined,
+      documentTypeKey:
+        this.type === "documentType" ? result.selection[0]! : undefined,
       type: this.type!,
       configItems: [],
     };
@@ -131,7 +132,10 @@ export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
     const result = await modalHandler.onSubmit().catch(() => undefined);
     if (!result?.configItems) return;
 
-    const newItem = { ...itemToConfigure, ...{ configItems: result?.configItems } };
+    const newItem = {
+      ...itemToConfigure,
+      ...{ configItems: result?.configItems },
+    };
 
     if (isAdd) {
       this.#setValue([...this.value, newItem]);

@@ -1,24 +1,19 @@
-import type {
-  UmbNotificationContext} from "@umbraco-cms/backoffice/notification";
 import {
-  UMB_NOTIFICATION_CONTEXT
+  UMB_NOTIFICATION_CONTEXT,
+  type UmbNotificationContext,
 } from "@umbraco-cms/backoffice/notification";
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
-import type {
-  UmbControllerHostElement} from "@umbraco-cms/backoffice/controller-api";
-import {
-  UmbControllerBase
-} from "@umbraco-cms/backoffice/class-api";
+import type { UmbControllerHostElement } from "@umbraco-cms/backoffice/controller-api";
+import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
 import { UmbContextConsumerController } from "@umbraco-cms/backoffice/context-api";
-import { ValidActionDescriptor } from './enums.js';
+import { ValidActionDescriptor } from "./enums.js";
 import {
   ActionService,
   WorkflowTypeModel,
+  type ActionWorkflowRequestModel,
+  type ActionWorkflowResponseModel,
+  type CancelablePromise,
 } from "@umbraco-workflow/generated";
-import type {
-  ActionWorkflowRequestModel,
-  ActionWorkflowResponseModel,
-  CancelablePromise} from "@umbraco-workflow/generated";
 
 export class WorkflowActionRepository extends UmbControllerBase {
   #notificationContext?: UmbNotificationContext;
@@ -58,28 +53,32 @@ export class WorkflowActionRepository extends UmbControllerBase {
       this.#host,
       ActionService.postActionInitiate({
         requestBody: {
-          entityId: nodeUnique,          
+          entityId: nodeUnique,
           comment,
           releaseDate,
           expireDate,
           publish,
           variant: variants,
           attachmentId: attachmentId ? +attachmentId : 0,
-          variantToInitiate: '',
-          type: WorkflowTypeModel.BOTH
+          variantToInitiate: "",
+          type: WorkflowTypeModel.BOTH,
         },
       })
     );
 
     if (error) {
       const notification = {
-        data: { message: `Unable to initiate workflow on node '${nodeUnique}'` },
+        data: {
+          message: `Unable to initiate workflow on node '${nodeUnique}'`,
+        },
       };
       this.#notificationContext?.peek("danger", notification);
       return;
     }
 
-    const notification = { data: { message: `Message about new workflow being created` } };
+    const notification = {
+      data: { message: `Message about new workflow being created` },
+    };
     this.#notificationContext?.peek("positive", notification);
 
     return data;
@@ -93,7 +92,7 @@ export class WorkflowActionRepository extends UmbControllerBase {
     assignTo?: string
   ) {
     await this.#init;
-    
+
     const actionMethod = this.#workflowActionSelector(action);
 
     if (!actionMethod) {
@@ -101,7 +100,7 @@ export class WorkflowActionRepository extends UmbControllerBase {
     }
 
     const requestBody = {
-      comment: comment ?? '',
+      comment: comment ?? "",
       instanceGuid,
       offline,
       assignTo,
@@ -121,7 +120,9 @@ export class WorkflowActionRepository extends UmbControllerBase {
       return;
     }
 
-    const notification = { data: { message: `Message about workflow being actioned` } };
+    const notification = {
+      data: { message: `Message about workflow being actioned` },
+    };
     this.#notificationContext?.peek("positive", notification);
 
     return data;

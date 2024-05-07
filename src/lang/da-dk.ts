@@ -97,7 +97,7 @@ export default {
     overdue: "Overdue",
     pending: "Pending",
     expired: "Expired",
-	approved: "Godkendt",
+    approved: "Godkendt",
     rejected: "Afvist",
     pendingapproval: "Afventer godkendelse",
     notrequired: "Ikke påkrævet",
@@ -157,7 +157,7 @@ export default {
     status8: "Annulleret af tredjepart",
     status9: `Excluded`,
     status10: `Awaiting resubmission`,
-    
+
     changeDescriptionDetail: "%0% efterspurgt af %1% på %2%",
 
     sendTo: "Send til",

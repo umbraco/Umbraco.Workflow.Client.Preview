@@ -1,8 +1,10 @@
-import type { WorkflowFilterConfig } from '../types.js';
-import { FilterType } from '../types.js';
-import { BaseFilters } from './base.filter-collection.js';
+import { FilterType, type WorkflowFilterConfig } from "../types.js";
+import { BaseFilters } from "./base.filter-collection.js";
 
-export class InstanceFilters extends BaseFilters implements WorkflowFilterConfig {
+export class InstanceFilters
+  extends BaseFilters
+  implements WorkflowFilterConfig
+{
   constructor(args?: object, disabled?: Array<string>) {
     super();
 
@@ -21,13 +23,13 @@ export class InstanceFilters extends BaseFilters implements WorkflowFilterConfig
         alias: "createdDate",
         ui: FilterType.DATERANGE,
         labelKey: "workflow_createdDate",
-        default: { from: null, to: null},
+        default: { from: null, to: null },
       },
       {
         alias: "completedDate",
         ui: FilterType.DATERANGE,
         labelKey: "workflow_completedDate",
-        default: { from: null, to: null},
+        default: { from: null, to: null },
       },
       {
         alias: "variant",

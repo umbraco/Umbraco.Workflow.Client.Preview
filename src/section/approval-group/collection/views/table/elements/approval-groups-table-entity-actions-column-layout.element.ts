@@ -7,7 +7,7 @@ import {
   ifDefined,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
-import type { WorkflowApprovalGroupCollectionModel } from '../../../types.js';
+import type { WorkflowApprovalGroupCollectionModel } from "../../../types.js";
 
 const elementName = "approval-groups-table-entity-actions-column-layout";
 

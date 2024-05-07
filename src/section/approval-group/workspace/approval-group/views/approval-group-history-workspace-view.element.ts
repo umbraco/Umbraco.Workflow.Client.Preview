@@ -6,16 +6,19 @@ import {
 } from "@umbraco-cms/backoffice/external/lit";
 import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/extension-registry";
 import { WorkflowApprovalGroupWorkspaceViewBase } from "./approval-group-workspace-view-base.element.js";
-import type {
-  TableQueryModel,
-  WorkflowInstancesFilterModel,
-} from "src/core/entities.js";
-import type { FilterModel} from "@umbraco-workflow/generated";
-import { InstanceService } from "@umbraco-workflow/generated";
-import { SortDirection } from "src/core/enums.js";
+import {
+  SortDirection,
+  type TableQueryModel,
+  type WorkflowInstancesFilterModel,
+} from "@umbraco-workflow/core";
+
+import { InstanceService, type FilterModel } from "@umbraco-workflow/generated";
+
 import { BoxHeaderFlexStyles } from "@umbraco-workflow/css";
-import type { FilterPickerElement } from "@umbraco-workflow/components";
-import { InstanceFilters } from "@umbraco-workflow/components";
+import {
+  InstanceFilters,
+  type FilterPickerElement,
+} from "@umbraco-workflow/components";
 
 const elementName = "workflow-approval-group-members-workspace-view";
 

@@ -14,7 +14,10 @@ import "../timeline-table-progress-column-layout.element.js";
 const elementName = "workflow-instances-table";
 
 @customElement(elementName)
-export class WorkflowInstancesTableElement extends WorkflowTimelineTableBase implements WorkflowTable {
+export class WorkflowInstancesTableElement
+  extends WorkflowTimelineTableBase
+  implements WorkflowTable
+{
   connectedCallback() {
     super.connectedCallback();
     this.buildTable();

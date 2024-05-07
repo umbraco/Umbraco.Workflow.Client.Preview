@@ -5,10 +5,7 @@ import type { ContentReviewsConfigModel } from "@umbraco-workflow/generated";
 
 export class ContentReviewsStore extends WorkflowObjectStore<ContentReviewsConfigModel> {
   constructor(host: UmbControllerHostElement) {
-    super(
-      host,
-      WORKFLOW_CONTENTREVIEWS_STORE_CONTEXT.toString(),
-    );
+    super(host, WORKFLOW_CONTENTREVIEWS_STORE_CONTEXT.toString());
   }
 }
 

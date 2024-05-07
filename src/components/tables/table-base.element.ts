@@ -5,7 +5,6 @@ import type {
   UmbTableItem,
 } from "@umbraco-cms/backoffice/components";
 import type { UUIPaginationEvent } from "@umbraco-ui/uui-pagination";
-import type { PropertyValueMap } from "@umbraco-cms/backoffice/external/lit";
 import {
   LitElement,
   html,
@@ -13,19 +12,18 @@ import {
   property,
   state,
   when,
+  type PropertyValueMap,
 } from "@umbraco-cms/backoffice/external/lit";
 import { Sorter } from "../sorter.js";
-import type { TableQueryModel } from "../../core/entities.js";
 import { Pagination } from "./pagination.js";
+import { type TableQueryModel, SortDirection } from "@umbraco-workflow/core";
 import type {
   LanguageModel,
   WorkflowSearchRequestModel,
 } from "@umbraco-workflow/generated";
-import { SortDirection } from "src/core/enums.js";
 import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
 export abstract class WorkflowTableBase extends UmbElementMixin(LitElement) {
-
   @property({ type: Object })
   model?: TableQueryModel;
 
@@ -60,7 +58,6 @@ export abstract class WorkflowTableBase extends UmbElementMixin(LitElement) {
   updated(
     _changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>
   ): void {
-    console.log('updated', _changedProperties);
     if (_changedProperties.get("model")) {
       this.doFetch();
     }

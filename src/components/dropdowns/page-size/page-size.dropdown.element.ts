@@ -3,7 +3,10 @@ import {
   html,
   property,
 } from "@umbraco-cms/backoffice/external/lit";
-import type { UUIMenuItemElement, UUIMenuItemEvent } from "@umbraco-cms/backoffice/external/uui";
+import type {
+  UUIMenuItemElement,
+  UUIMenuItemEvent,
+} from "@umbraco-cms/backoffice/external/uui";
 import { DropdownBaseElement } from "../dropdown.base.element.js";
 
 const elementName = "workflow-page-size";
@@ -16,7 +19,7 @@ export class PageSizeDropdownElement extends DropdownBaseElement<number> {
   value = this.#options[0];
 
   #onClick(event: UUIMenuItemEvent) {
-    this.select(+(event.target as UUIMenuItemElement)?.label)
+    this.select(+(event.target as UUIMenuItemElement)?.label);
   }
 
   #renderContent() {

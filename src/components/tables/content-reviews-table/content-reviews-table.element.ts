@@ -13,8 +13,10 @@ import "./content-reviews-table-groups-column-layout.element.js";
 const elementName = "content-reviews-table";
 
 @customElement(elementName)
-export class ContentReviewsTableElement extends WorkflowTableBase implements WorkflowTable {
-
+export class ContentReviewsTableElement
+  extends WorkflowTableBase
+  implements WorkflowTable
+{
   connectedCallback() {
     super.connectedCallback();
     this.buildTable();
@@ -76,7 +78,10 @@ export class ContentReviewsTableElement extends WorkflowTableBase implements Wor
             },
           },
           { columnAlias: "dueOn", value: this.localize.date(item.dueOn!) },
-          { columnAlias: "lastReviewed", value: this.localize.date(item.reviewedOn!) },
+          {
+            columnAlias: "lastReviewed",
+            value: this.localize.date(item.reviewedOn!),
+          },
           { columnAlias: "reviewPeriod", value: item.period },
           {
             columnAlias: "reviewGroup",

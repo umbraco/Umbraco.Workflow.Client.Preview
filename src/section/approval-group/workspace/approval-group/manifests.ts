@@ -36,7 +36,8 @@ const workspaceViewData = [
   {
     label: "Roles",
     icon: "icon-keychain",
-    element: () => import("./views/approval-group-roles-workspace-view.element.js"),
+    element: () =>
+      import("./views/approval-group-roles-workspace-view.element.js"),
   },
   {
     label: "History",

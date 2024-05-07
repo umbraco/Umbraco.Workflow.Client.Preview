@@ -1,9 +1,10 @@
-import {
-  UMB_DOCUMENT_WORKSPACE_CONTEXT,
-} from "@umbraco-cms/backoffice/document";
+import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
-import type { UmbWorkspaceActionArgs} from "@umbraco-cms/backoffice/workspace";
-import { UmbWorkspaceActionBase } from "@umbraco-cms/backoffice/workspace";
+import {
+  UmbWorkspaceActionBase,
+  type UmbWorkspaceActionArgs,
+} from "@umbraco-cms/backoffice/workspace";
+
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { WORKFLOW_DETAIL_MODAL } from "../modal/index.js";
 

@@ -172,7 +172,10 @@ export class WorkflowApprovalGroupsDetailServerDataSource
       icon: group.icon,
       inheritMembers: group.inheritMembers,
       permissions: group.permissions,
-      properties: group.properties.map(p => ({ alias: p.alias, value: p.value })),
+      properties: group.properties.map((p) => ({
+        alias: p.alias,
+        value: p.value,
+      })),
       name: group.name,
       users: group.users.map((u) => ({
         userId: u.userId,

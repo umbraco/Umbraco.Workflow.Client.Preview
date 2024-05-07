@@ -1,8 +1,10 @@
-import type { WorkflowFilterConfig } from '../types.js';
-import { FilterType } from '../types.js';
-import { BaseFilters } from './base.filter-collection.js';
+import { FilterType, type WorkflowFilterConfig } from "../types.js";
+import { BaseFilters } from "./base.filter-collection.js";
 
-export class ContentReviewFilters extends BaseFilters implements WorkflowFilterConfig {
+export class ContentReviewFilters
+  extends BaseFilters
+  implements WorkflowFilterConfig
+{
   constructor(args?: object, disabled?: Array<string>) {
     super();
 
@@ -21,13 +23,13 @@ export class ContentReviewFilters extends BaseFilters implements WorkflowFilterC
         alias: "dueOn",
         labelKey: "contentReviews_nextReviewDue",
         ui: FilterType.DATERANGE,
-        default: { from: null, to: null},
+        default: { from: null, to: null },
       },
       {
         alias: "lastReview",
         labelKey: "contentReviews_lastReviewed",
         ui: FilterType.DATERANGE,
-        default: { from: null, to: null},
+        default: { from: null, to: null },
       },
       {
         alias: "expired",

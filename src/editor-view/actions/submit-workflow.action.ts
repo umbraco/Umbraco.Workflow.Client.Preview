@@ -1,14 +1,17 @@
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import type { ManifestWorkspaceAction } from "@umbraco-cms/backoffice/extension-registry";
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
-import type { UmbWorkspaceActionArgs } from "@umbraco-cms/backoffice/workspace";
-import { UmbWorkspaceActionBase } from "@umbraco-cms/backoffice/workspace";
+import {
+  UmbWorkspaceActionBase,
+  type UmbWorkspaceActionArgs,
+} from "@umbraco-cms/backoffice/workspace";
+
 import { WORKFLOW_SUBMIT_MODAL } from "@umbraco-workflow/editor-view";
 import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
 export class WorkflowSubmitWorkflowWorkspaceAction extends UmbWorkspaceActionBase {
   constructor(host: UmbControllerHost, args: UmbWorkspaceActionArgs<never>) {
-    super(host, args);   
+    super(host, args);
   }
 
   // async conn() {
@@ -60,7 +63,7 @@ export class WorkflowSubmitWorkflowWorkspaceAction extends UmbWorkspaceActionBas
     const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
     const workflowContext = await this.getContext(WORKFLOW_CONTEXT);
 
- // TODO => user permissions will determine which buttons to display
+    // TODO => user permissions will determine which buttons to display
     // for now, just removes save+publish and replaces with workflow init
     // refer to state.factory in workflow 13 for button logic examples
 

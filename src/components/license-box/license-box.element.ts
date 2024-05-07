@@ -53,7 +53,10 @@ export class WorkflowLicenseBoxElement extends UmbElementMixin(LitElement) {
 
   #renderUnlicensed() {
     return html` <div id="wrapper">
-      <workflow-alert key="workflow_buyLicensePrompt" icon="license"></workflow-alert>
+      <workflow-alert
+        key="workflow_buyLicensePrompt"
+        icon="license"
+      ></workflow-alert>
       <uui-button
         href="https://umbraco.com/products/umbraco-workflow"
         target="_blank"

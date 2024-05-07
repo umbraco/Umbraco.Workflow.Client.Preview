@@ -33,10 +33,7 @@ export class WorkflowGroupFilterElement extends WorkflowBaseFilterElement<
 
   async #openGroupPicker() {
     const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-    const modalHandler = modalContext.open(
-      this,
-      WORKFLOW_GROUP_PICKER_MODAL
-    );
+    const modalHandler = modalContext.open(this, WORKFLOW_GROUP_PICKER_MODAL);
 
     const { groups } = await modalHandler!.onSubmit();
     if (!groups?.length) return;

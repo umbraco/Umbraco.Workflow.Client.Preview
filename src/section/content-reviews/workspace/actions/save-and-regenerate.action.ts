@@ -1,10 +1,12 @@
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
-import type { UmbWorkspaceActionArgs } from "@umbraco-cms/backoffice/workspace";
-import { UmbWorkspaceActionBase } from "@umbraco-cms/backoffice/workspace";
+import {
+  UmbWorkspaceActionBase,
+  type UmbWorkspaceActionArgs,
+} from "@umbraco-cms/backoffice/workspace";
 import { WORKFLOW_CONTENTREVIEWS_WORKSPACE_CONTEXT } from "../content-reviews-workspace.context-token.js";
-import type { WorkflowContentReviewsRegenerateModalResult } from "../../modal/index.js";
 import { WORKFLOW_CONTENTREVIEWS_REGENERATE_MODAL } from "../../modal/index.js";
+
 import type { WorkflowContentReviewsWorkspaceContext } from "../content-reviews-workspace.context.js";
 
 export class WorkflowRegenerateContentReviewsWorkspaceAction extends UmbWorkspaceActionBase<WorkflowContentReviewsWorkspaceContext> {

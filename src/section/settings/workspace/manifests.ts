@@ -1,7 +1,6 @@
 import type {
   ManifestWorkspaces,
   ManifestWorkspaceAction,
-  ManifestWorkspaceView,
   ManifestWorkspaceViews,
 } from "@umbraco-cms/backoffice/extension-registry";
 import { UmbSaveWorkspaceAction } from "@umbraco-cms/backoffice/workspace";
@@ -25,7 +24,8 @@ const workspaceViews: Array<ManifestWorkspaceViews> = [
     type: "workspaceView",
     alias: `Umb.WorkspaceView.Workflow.Settings.General`,
     name: `Workflow Settings Workspace General Settings View`,
-    element: () => import("./views/settings-settings-workspace-view.element.js"),
+    element: () =>
+      import("./views/settings-settings-workspace-view.element.js"),
     weight: 90,
     meta: {
       label: "General",

@@ -24,7 +24,9 @@ export class FilterPickerModalElement extends UmbModalBaseElement<
 
   #handleClear() {
     this.config?.filters.forEach((f) => {
-      const original = this.data?.config?.filters.find((x) => x.alias === f.alias);
+      const original = this.data?.config?.filters.find(
+        (x) => x.alias === f.alias
+      );
       f.value = original?.default;
     });
     this.requestUpdate();

@@ -6,14 +6,13 @@ import {
   state,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
-import type { TableQueryModel } from "../../../core/entities.js";
+import { SortDirection, type TableQueryModel } from "@umbraco-workflow/core";
 import { BoxHeaderFlexStyles } from "@umbraco-workflow/css";
-import { SortDirection } from "src/core/enums.js";
 import { InstanceService } from "@umbraco-workflow/generated";
-import { InstanceFilters } from "@umbraco-workflow/components";
-import type {
-  FilterPickerElement,
-  PageSizeDropdownElement,
+import {
+  InstanceFilters,
+  type FilterPickerElement,
+  type PageSizeDropdownElement,
 } from "@umbraco-workflow/components";
 
 const elementName = "workflow-workspace-history";

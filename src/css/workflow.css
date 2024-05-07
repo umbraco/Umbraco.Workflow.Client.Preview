@@ -1,10 +1,10 @@
 :root {
-    --workflow-pending: var(--uui-color-interactive);
-    --workflow-cancelled: var(--uui-color-warning);
-    --workflow-resubmitted: var(--uui-color-interactive);
-    --workflow-rejected: var(--uui-color-warning);
-    --workflow-notreq: var(--uui-color-disabled-contrast);
-    --workflow-approved: var(--uui-color-positive);
-    --workflow-errored: var(--uui-color-danger);
-    --workflow-default: var(--uui-color-border-emphasis);
+  --workflow-pending: var(--uui-color-interactive);
+  --workflow-cancelled: var(--uui-color-warning);
+  --workflow-resubmitted: var(--uui-color-interactive);
+  --workflow-rejected: var(--uui-color-warning);
+  --workflow-notreq: var(--uui-color-disabled-contrast);
+  --workflow-approved: var(--uui-color-positive);
+  --workflow-errored: var(--uui-color-danger);
+  --workflow-default: var(--uui-color-border-emphasis);
 }

@@ -40,8 +40,7 @@ export const WorkflowColorStyles = css`
   .color-status-pendingapproval,
   .color-status-awaitingresubmission,
   .background-status-cancelled,
-  .background-status-cancelledbythirdparty 
-  .background-status-notrequired,
+  .background-status-cancelledbythirdparty .background-status-notrequired,
   .background-status-excluded {
     color: var(--workflow-pending);
   }

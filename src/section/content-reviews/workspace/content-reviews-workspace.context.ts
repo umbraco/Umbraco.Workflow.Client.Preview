@@ -1,5 +1,9 @@
-import type { UmbRoutableWorkspaceContext, UmbSubmittableWorkspaceContext } from "@umbraco-cms/backoffice/workspace";
-import { UmbSubmittableWorkspaceContextBase } from "@umbraco-cms/backoffice/workspace";
+import {
+  UmbSubmittableWorkspaceContextBase,
+  type UmbRoutableWorkspaceContext,
+  type UmbSubmittableWorkspaceContext,
+} from "@umbraco-cms/backoffice/workspace";
+
 import {
   UmbArrayState,
   UmbObjectState,
@@ -12,7 +16,10 @@ import {
   type ContentReviewItem,
   type ContentReviewType,
 } from "../types.js";
-import { WORKFLOW_CONTENTREVIEWS_ENTITY_TYPE, WorkflowContentReviewsEditorElement } from "../index.js";
+import {
+  WORKFLOW_CONTENTREVIEWS_ENTITY_TYPE,
+  WorkflowContentReviewsEditorElement,
+} from "../index.js";
 import { WORKFLOW_CONTENTREVIEWS_WORKSPACE_ALIAS } from "./manifests.js";
 import type {
   ContentReviewsConfigModel,
@@ -202,4 +209,4 @@ export class WorkflowContentReviewsWorkspaceContext
   }
 }
 
-export { WorkflowContentReviewsWorkspaceContext as api }
+export { WorkflowContentReviewsWorkspaceContext as api };

@@ -32,7 +32,8 @@ export class WorkflowHistoryCleanupElement extends UmbElementMixin(LitElement) {
 
   async #handleClick() {
     const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-    const modalHandler = modalContext.open(this, 
+    const modalHandler = modalContext.open(
+      this,
       WORKFLOW_HISTORY_CLEANUP_MODAL,
       {
         data: {

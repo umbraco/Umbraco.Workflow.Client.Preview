@@ -9,8 +9,12 @@ import {
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "../../workspace/settings-workspace.context-token.js";
-import type { WorkflowRefGroupPermissionElement } from "@umbraco-workflow/components";
-import { add, remove } from "@umbraco-workflow/components";
+import {
+  add,
+  remove,
+  type WorkflowRefGroupPermissionElement,
+} from "@umbraco-workflow/components";
+
 import type {
   GeneralSettingsModel,
   UserGroupPermissionsModel,
@@ -53,9 +57,11 @@ export class WorkflowNewNodeFlowElement extends UmbElementMixin(LitElement) {
 
   get configureApprovalThreshold() {
     return (
-      <boolean>(this._generalSettings?.properties?.find(
-        (x) => x.alias === this.#configureApprovalThreshold
-      )?.value) ?? false
+      <boolean>(
+        this._generalSettings?.properties?.find(
+          (x) => x.alias === this.#configureApprovalThreshold
+        )?.value
+      ) ?? false
     );
   }
 

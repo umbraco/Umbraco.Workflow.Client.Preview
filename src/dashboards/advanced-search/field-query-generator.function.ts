@@ -1,7 +1,9 @@
 import { SomeFilter } from "./somefilter.function.js";
 import { ValueMap } from "./valuemap.function.js";
-import type { PropertyDetailModel } from "@umbraco-workflow/generated";
-import { AdvancedSearchTypeModel } from "@umbraco-workflow/generated";
+import {
+  AdvancedSearchTypeModel,
+  type PropertyDetailModel,
+} from "@umbraco-workflow/generated";
 
 export type TypeSearchKey = "dataTypeKey" | "propertyEditorAlias" | undefined;
 

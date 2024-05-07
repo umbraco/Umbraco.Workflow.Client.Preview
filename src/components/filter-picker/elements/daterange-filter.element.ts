@@ -7,7 +7,6 @@ const elementName = "workflow-daterange-filter";
 
 @customElement(elementName)
 export class WorkflowDateRangeFilterElement extends WorkflowBaseFilterElement<DateRangeModel> {
-
   #setValue(e: CustomEvent) {
     const value = (e.target as WorkflowDateRangeElement).dates;
     this.setValue({ from: value[0], to: value[1] });

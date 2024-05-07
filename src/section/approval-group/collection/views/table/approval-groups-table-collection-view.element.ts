@@ -11,8 +11,11 @@ import {
   state,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import { UMB_DEFAULT_COLLECTION_CONTEXT } from "@umbraco-cms/backoffice/collection";
-import type { UmbDefaultCollectionContext } from "@umbraco-cms/backoffice/collection";
+import {
+  UMB_DEFAULT_COLLECTION_CONTEXT,
+  type UmbDefaultCollectionContext,
+} from "@umbraco-cms/backoffice/collection";
+
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import type { WorkflowApprovalGroupCollectionModel } from "../../types.js";
 

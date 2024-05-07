@@ -19,18 +19,17 @@ import { UmbUserPickerContext } from "../../temp/user-input.context.js";
 import { SomeFilter } from "./somefilter.function.js";
 import { BaseFieldQueryGenerator } from "./basefield-query-generator.function.js";
 import { FieldQueryGenerator } from "./field-query-generator.function.js";
-import type {
-  AdvancedSearchScaffoldResponseModel,
-  LanguageModel,
-  PropertyDetailModel,
-  SelectableContentTypePropertyDetailModel,
-  SelectableNameKeyPairModel,
-} from "@umbraco-workflow/generated";
 import {
   AdvancedSearchService,
   AdvancedSearchTypeModel,
   WorkflowStatusModel,
+  type AdvancedSearchScaffoldResponseModel,
+  type LanguageModel,
+  type PropertyDetailModel,
+  type SelectableContentTypePropertyDetailModel,
+  type SelectableNameKeyPairModel,
 } from "@umbraco-workflow/generated";
+
 import { WORKFLOW_ITEM_PICKER_MODAL } from "@umbraco-workflow/modal";
 import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 

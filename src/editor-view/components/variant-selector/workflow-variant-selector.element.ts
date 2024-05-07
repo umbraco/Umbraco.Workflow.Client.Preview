@@ -18,7 +18,7 @@ import type { LanguageModel } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-variant-selector";
 
-@customElement(elementName) 
+@customElement(elementName)
 export class WorkflowVariantSelectorElement extends UmbElementMixin(
   LitElement
 ) {

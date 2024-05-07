@@ -64,8 +64,7 @@ export class WorkflowCommentsElement extends UmbElementMixin(LitElement) {
    * until it is modified, but does have a length
    */
   #limitChars(e?: InputEvent) {
-    this.comment =
-      (e?.target as HTMLInputElement)?.value ?? this.comment;
+    this.comment = (e?.target as HTMLInputElement)?.value ?? this.comment;
     const length = this.comment?.length ?? 0;
 
     if (length > this.#maxLength) {
@@ -106,11 +105,13 @@ export class WorkflowCommentsElement extends UmbElementMixin(LitElement) {
     </umb-property-layout>`;
   }
 
-  static styles = [css`
-    umb-property-layout {
-      padding:0;
-    }
-  `]
+  static styles = [
+    css`
+      umb-property-layout {
+        padding: 0;
+      }
+    `,
+  ];
 }
 
 declare global {

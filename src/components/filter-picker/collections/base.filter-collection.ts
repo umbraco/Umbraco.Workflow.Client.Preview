@@ -1,4 +1,4 @@
-import type { Filter, WorkflowFilterConfig } from '../types.js';
+import type { Filter, WorkflowFilterConfig } from "../types.js";
 
 export class BaseFilters implements WorkflowFilterConfig {
   count = 0;

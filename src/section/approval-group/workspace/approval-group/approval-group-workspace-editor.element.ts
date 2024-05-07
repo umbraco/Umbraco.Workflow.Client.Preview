@@ -1,5 +1,7 @@
-import type { UUIInputElement } from "@umbraco-cms/backoffice/external/uui";
-import { UUIInputEvent } from "@umbraco-cms/backoffice/external/uui";
+import {
+  UUIInputEvent,
+  type UUIInputElement,
+} from "@umbraco-cms/backoffice/external/uui";
 import {
   css,
   html,
@@ -8,11 +10,11 @@ import {
   LitElement,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
-import type { UmbModalManagerContext } from "@umbraco-cms/backoffice/modal";
 import {
   UMB_ICON_PICKER_MODAL,
   UMB_MODAL_MANAGER_CONTEXT,
 } from "@umbraco-cms/backoffice/modal";
+
 import { generateAlias } from "@umbraco-cms/backoffice/utils";
 import type { WorkflowApprovalGroupDetailModel } from "../../types.js";
 import { WORKFLOW_APPROVAL_GROUP_WORKSPACE_CONTEXT } from "./approval-group-workspace.context-token.js";

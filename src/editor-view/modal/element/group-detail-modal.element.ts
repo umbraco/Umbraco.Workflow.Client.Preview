@@ -7,7 +7,7 @@ import {
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import type { UmbModalContext } from "@umbraco-cms/backoffice/modal";
-import type { WorkflowGroupDetailModalData } from '../token/group-detail-modal.token.js';
+import type { WorkflowGroupDetailModalData } from "../token/group-detail-modal.token.js";
 
 const elementName = "workflow-group-detail-modal";
 

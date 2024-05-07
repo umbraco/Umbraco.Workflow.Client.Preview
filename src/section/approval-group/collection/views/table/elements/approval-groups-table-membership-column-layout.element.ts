@@ -17,7 +17,7 @@ export class ApprovalGroupsTableMembershipColumnLayoutElement extends UmbElement
 ) {
   @property({ attribute: false })
   value!: {
-    users: Array<{name: string, inherited: boolean}>;
+    users: Array<{ name: string; inherited: boolean }>;
   };
 
   render() {

@@ -52,7 +52,12 @@ export class WorkflowSettingsNotificationsViewElement
             <p>
               ${this.localize.term("workflow_installEmailTemplatesDescription")}
             </p>
-            <uui-button look="secondary" color="default" label="Install" @click=${this.#installTemplates}>
+            <uui-button
+              look="secondary"
+              color="default"
+              label="Install"
+              @click=${this.#installTemplates}
+            >
               ${this.localize.term("workflow_installEmailTemplates")}
             </uui-button>
           </uui-box>

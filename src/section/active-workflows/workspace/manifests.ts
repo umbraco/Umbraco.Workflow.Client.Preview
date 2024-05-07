@@ -9,7 +9,7 @@ const workspace: ManifestWorkspace = {
   name: "Active Workflows Root Workspace",
   js: () => import("./active-workflows-root-workspace.element.js"),
   meta: {
-    entityType: ACTIVE_WORKFLOWS_ROOT_ENTITY_TYPE
+    entityType: ACTIVE_WORKFLOWS_ROOT_ENTITY_TYPE,
   },
 };
 

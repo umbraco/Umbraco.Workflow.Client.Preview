@@ -12,7 +12,7 @@ export interface WorkflowApprovalGroupCollectionModel {
   unique: string;
   groupEmail?: string;
   icon: string;
-  users: Array<{ name: string; inherited: boolean, email?: string }>;
+  users: Array<{ name: string; inherited: boolean; email?: string }>;
   permissions: Array<UserGroupPermissionsModel>;
   languageCount: number;
 }

@@ -5,8 +5,10 @@ import {
   repeat,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import type { ChartHeaderCard } from "./chart-base.element.js";
-import { ChartBaseElement } from "./chart-base.element.js";
+import {
+  ChartBaseElement,
+  type ChartHeaderCard,
+} from "./chart-base.element.js";
 import { ChartBaseStyles } from "./chart-style.styles.js";
 import {
   ChartService,

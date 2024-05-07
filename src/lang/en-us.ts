@@ -3,10 +3,10 @@ import type { UmbLocalizationDictionary } from "@umbraco-cms/backoffice/localiza
 export default {
   dashboardTabs: {
     workflow: `Workflow`,
-  }, 
+  },
   sections: {
     workflow: `Workflow`,
-  }, 
+  },
   workflow: {
     actionWorkflow: `Action workflow`,
     activeWorkflow: `Active workflow`,
@@ -26,14 +26,14 @@ export default {
     describeChangesOptional: `Describe the changes (optional)`,
     detailButton: `Workflow detail`,
     docIsActive: `Document is currently in a workflow`,
-    document: 'Document',
+    document: "Document",
     editButton: `Go to node`,
     excludedNodeAlert: `Document is excluded from workflow`,
     hasChanged: `has changed`,
     initiateWorkflow: `Initiate workflow`,
     installedVersion: `Current installed version of Umbraco Workflow:`,
     invalidContent: `Invalid content can not be submitted for workflow approval`,
-    groupLanguage: 'Group language',
+    groupLanguage: "Group language",
     learnMoreAbout: `Learn more about`,
     newNodeApprovalFlow: `New node approval flow`,
     newNodeApprovalFlowDescription: `All new nodes use this workflow for initial publishing`,
@@ -42,13 +42,13 @@ export default {
     noPendingReview: `There is no pending content review on this node`,
     noPendingWorkflow: `There is no pending workflow on this node`,
     nothingToDo: `There's nothing for you to do...`,
-    notifications: 'Notifications',
+    notifications: "Notifications",
     noUnpublishPermissions: `No unpublish workflow configured for this content item.`,
     originalEditor: `Original editor`,
     outOfDate: `Workflow is out of date.`,
     pageSize: `Page size`,
     pendingApproval: `Pending approval`,
-    permissions: 'Permissions',
+    permissions: "Permissions",
     previousChangesRejected: `Previous changes were rejected`,
     previousGroup: `Previous approval group`,
     publishButton: `Request publish`,
@@ -63,7 +63,8 @@ export default {
     unsavedChanges: `Pending content changes will be saved automatically`,
     updateAvailable: `Update available`,
     userCannotAction: `Current user does not have permission to action the workflow.`,
-    userCannotUpdateDocument: 'The current user does not have permission to update this document.',
+    userCannotUpdateDocument:
+      "The current user does not have permission to update this document.",
     viewAttachment: `View attachment`,
     viewType: `View type`,
     workflowActivity: `Workflow activity`,
@@ -177,15 +178,14 @@ export default {
     nodeApprovalFlows: `Node-based approvals`,
     noDoctypeFlow: `No Document Type flow set for this document`,
     noInheritedFlow: `No inherited approval flow exists for this document`,
-    conditionalStages: 'Conditional stages',
+    conditionalStages: "Conditional stages",
 
     approvalGroups: `Approval groups`,
     createGroup: `Create group`,
-    contentWorkflowRoles: 'Content workflow roles',
-    documentTypeWorkflowRoles: 'Document Type workflow roles',
+    contentWorkflowRoles: "Content workflow roles",
+    documentTypeWorkflowRoles: "Document Type workflow roles",
     deleteGroup: `Delete group`,
-    deleteGroupWarning: 
-      `<h4>Careful! This is a destructive action.</h4>
+    deleteGroupWarning: `<h4>Careful! This is a destructive action.</h4>
         <p>Deleting a group will cancel all pending tasks and workflows where the group is a participant, and will delete all permissions assigned to the group.</p><p>To delete, type <strong>%0%</strong> below.</p>
     `,
     editGroup: `Edit group`,
@@ -222,7 +222,7 @@ export default {
     editUrl: `Edit site URL`,
     email: `Workflow email`,
     emailTemplates: `Email templates`,
-    installEmailTemplates: 'Install email templates',
+    installEmailTemplates: "Install email templates",
     excludeNodes: `Exclude nodes`,
     extendPermissions: `Extend permissions`,
     flowType: `Flow type`,
@@ -234,13 +234,13 @@ export default {
     sendNotifications: `Send notifications`,
     siteUrl: `Site URL`,
 
-    installEmailTemplatesDescription: 'Workflow provides default templates for the listed actions. To modify these templates, they must be copied to the filesystem.',
+    installEmailTemplatesDescription:
+      "Workflow provides default templates for the listed actions. To modify these templates, they must be copied to the filesystem.",
     adminCanEditDescription: `Set to true to allow administrators to edit content at any stage of a workflow`,
     allowAttachmentsDescription: `Set to true to allow attaching a media item when intiating a workflow`,
     allowSchedulingDescription: `Set to true to allow scheduling publishing when initiating a workflow`,
     approvalThresholdDescription: `How many group members must approve each workflow task?`,
-    approvalThresholdDescriptionExtended: 
-      `
+    approvalThresholdDescriptionExtended: `
           <p>This is a default value and can be overridden when configuring individal workflows.</p>
           <ul>
           <li>One: any member of the approval group can approve the task.</li>
@@ -255,8 +255,7 @@ export default {
     excludeNodesDescription: `Nodes (and their descendants) selected here will NOT be included in the workflow, and will revert to the default Umbraco actions`,
     extendPermissionsDescription: `Set to true to extend users' default save and publish permissions. When false, save and publish button is removed`,
     flowTypeDescription: `Controls how the original author is managed in subsequent tasks`,
-    flowTypeDescriptionExtended: 
-      `<ul>
+    flowTypeDescriptionExtended: `<ul>
           <li>Explicit requires all steps be approved, including steps where the original change author is a group member.</li>
           <li>Implicit auto-approves steps where the author is a member of the approving group.</li>
           <li>Exclude behaves similar to Explicit, but excludes the original author from any notifications (ie the author can not approve their own work).</li></ul>
@@ -269,7 +268,7 @@ export default {
     reminderDelayDescription: `Send reminder emails for inactive tasks, after this many days. Set to 0 to disable`,
     requireUnpublishDescription: `Set to true to require workflow approval when unpublishing content`,
     sendNotificationsDescription: `Set to true to send email notifications`,
-      siteUrlDescription: `Live site URL for inclusion in email notifications (eg http://www.mydomain.com)`,
+    siteUrlDescription: `Live site URL for inclusion in email notifications (eg http://www.mydomain.com)`,
 
     mySubmissions: `My submissions`,
     myTasks: `Tasks requiring my approval`,
@@ -293,11 +292,11 @@ export default {
     addCondition: `Add condition`,
     addStatus: `Add status`,
     addItem: `Add item`,
-    addDocumentType: 'Add document type',
-    addDocument: 'Add document',
-    addUser: 'Add user',
+    addDocumentType: "Add document type",
+    addDocument: "Add document",
+    addUser: "Add user",
 
-    licensing: 'Licensing',
+    licensing: "Licensing",
     licenseImpersonationActive: `Workflow license impersonation is active. All features are available on non-production domains only.`,
     licensedFeature: `This feature requires a license.`,
     licensedFeatureDescription: `<p>Workflow's advanced features require a license. To test these in a development environment, set Umbraco:Workflow:EnableTestLicense to true in appSettings.development.json</p>
@@ -305,8 +304,7 @@ export default {
     buyLicensePrompt: `To access advanced features and remove group limits, you must purchase a license.`,
     buyLicense: `Buy a license`,
 
-    invalidOfflineUrl: 
-      `<strong>INVALID REQUEST:</strong> The requested URL does not map to a valid workflow process. The task may have already been completed, or the requesting user does not have permission to action the task.
+    invalidOfflineUrl: `<strong>INVALID REQUEST:</strong> The requested URL does not map to a valid workflow process. The task may have already been completed, or the requesting user does not have permission to action the task.
     `,
 
     scheduledDate: `Scheduled date (optional)`,
@@ -320,7 +318,7 @@ export default {
     diffNoVersions: `Unable to find versions for comparison. Maybe they've been deleted? Try Umbraco's Rollback tool to view all available change history for this item.`,
     diffVariants: `The active workflow includes multiple content variants. Select the language below to view the changes for each variant.`,
     showDiff: `View differences`,
-  }, 
+  },
   workflowNotifications: {
     approved: `Workflow completed.`,
     approvedLog: `Workflow approved by %0% on %1% [%2%].`,
@@ -335,24 +333,23 @@ export default {
     pendingApprovalResubmitLog: `%0% request for %1% [%2%] was resubmitted by %3%.`,
     rejected: `%0% request has been rejected.`,
     rejectedLog: `%0% request for %1% [%2%] rejected by %3%.`,
-  }, 
+  },
   treeHeaders: {
     active: `Active workflows`,
     approvalGroups: `Approval groups`,
     contentReviews: `Content reviews`,
     history: `History`,
     settings: `Settings`,
-  }, 
+  },
   workflowCommentTemplates: {
-    homepage: 
-      `This is an important
+    homepage: `This is an important
 template for the homepage doctype
 
 it can have spaces
 
 and new lines
     `,
-  }, 
+  },
   contentReviews: {
     contentItemReviewed: `Content item has been marked as reviewed`,
     contentRequiresReview: `Content requires review`,
@@ -382,7 +379,7 @@ and new lines
     saveAndRegenerate: `Save and regenerate`,
     externalReviewers: `External reviewers`,
     externalReviewersDescription: `Semi-colon-delimited list of email addresses. These should not be associated with CMS users.`,
-    
+
     contentItemReviews: `Content item reviews`,
     documentTypeReviews: `Document-type reviews`,
     enableContentReviews: `Enable content reviews`,
@@ -397,7 +394,7 @@ and new lines
     reminderThresholdDescription: `Review notifications will be sent this many days before the review date. Default is 1`,
     reviewPeriodDescription: `Maximum time period between required content reviews`,
     reviewPeriodDescriptionExtended: `This is the global default and can be over-ridden for individual nodes. When set to 0 (the default), no nodes will be considered reviewable unless a review period is set for the individual node.`,
-  }, 
+  },
   workflowCleanup: {
     cleanupEnabled: `History cleanup enabled`,
     contentRules: `Content cleanup rules`,
@@ -406,7 +403,7 @@ and new lines
     globalSettings: `Global cleanup settings`,
     rulesUpdated: `Workflow history cleanup rules updated`,
     statusesToDelete: `Workflow statuses to delete`,
-  }, 
+  },
   workflowSearch: {
     addContentTypes: `Add Content Type(s)`,
     addDataType: `Add Data Type`,
@@ -425,5 +422,5 @@ and new lines
     singleProperty: `Single property`,
     someProperties: `Some properties`,
     score: `Score`,
-   }
+  },
 } as UmbLocalizationDictionary;

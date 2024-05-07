@@ -54,7 +54,7 @@ export class WorkflowDocumentWorkspaceVariantShowWorkflowDetailCondition
       observable.subscribe({
         next: (value) => {
           let culture = value.activeDocumentVariants[0]?.culture ?? "*";
-          culture = culture === 'invariant' ? "*" : culture;
+          culture = culture === "invariant" ? "*" : culture;
 
           if (value.scaffold?.activeVariants?.length === 0) {
             this.permitted = false;

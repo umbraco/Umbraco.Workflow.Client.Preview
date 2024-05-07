@@ -6,11 +6,11 @@ export class WorkflowSignalRContext extends UmbControllerBase {
   #connection: signalR.HubConnection | null = null;
 
   #complete = new UmbObjectState<string | null>(null);
-  
+
   public readonly complete = this.#complete.asObservable();
 
   hostConnected(): void {
-    super.hostConnected();    
+    super.hostConnected();
     this.#setupConnection();
   }
 
@@ -19,7 +19,7 @@ export class WorkflowSignalRContext extends UmbControllerBase {
     this.#connection?.stop().then(() => {
       console.debug("connection closed");
     });
-  }  
+  }
 
   // TODO => provide url
   async #setupConnection() {
@@ -34,7 +34,7 @@ export class WorkflowSignalRContext extends UmbControllerBase {
     });
 
     this.#connection.on("workflowAction", (data) => {
-        console.log(data);
+      console.log(data);
     });
 
     await this.#connection.start();

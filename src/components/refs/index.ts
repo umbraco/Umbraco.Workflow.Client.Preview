@@ -1,1 +1,1 @@
-export * from './ref-group-permissions.element.js';
+export * from "./ref-group-permissions.element.js";

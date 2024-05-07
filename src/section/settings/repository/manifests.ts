@@ -1,6 +1,4 @@
-import type {
-  ManifestRepository,
-} from "@umbraco-cms/backoffice/extension-registry";
+import type { ManifestRepository } from "@umbraco-cms/backoffice/extension-registry";
 import type { ManifestWorkflowObjectStore } from "../../workflow-object-store.js";
 import { WorkflowSettingsRepository } from "./settings.repository.js";
 import { WorkflowSettingsStore } from "./settings.store.js";

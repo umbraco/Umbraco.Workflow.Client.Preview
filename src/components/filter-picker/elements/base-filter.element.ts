@@ -1,11 +1,10 @@
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
-import {
-  LitElement,
-  property,
-} from "@umbraco-cms/backoffice/external/lit";
+import { LitElement, property } from "@umbraco-cms/backoffice/external/lit";
 
-export class WorkflowBaseFilterElement<FilterValueType> extends UmbElementMixin(LitElement) {
-  @property({ attribute: false})
+export class WorkflowBaseFilterElement<FilterValueType> extends UmbElementMixin(
+  LitElement
+) {
+  @property({ attribute: false })
   value?: FilterValueType;
 
   @property()

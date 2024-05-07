@@ -83,7 +83,7 @@ export class WorkflowConfirmDeleteGroupModalElement extends UmbModalBaseElement<
       }
 
       h4 {
-        margin-top:0;
+        margin-top: 0;
       }
     `,
   ];

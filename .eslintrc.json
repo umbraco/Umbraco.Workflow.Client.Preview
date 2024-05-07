@@ -1,5 +1,5 @@
 {
-	"ignorePatterns": ["vite.*.ts"],
+	"ignorePatterns": ["vite.*.ts", "src/generated/**"],
 	"root": true,
 	"plugins": ["eslint-plugin-local-rules"],
 	"parserOptions": {
@@ -38,19 +38,13 @@
 				"no-var": "error",
 				"import/no-unresolved": "off",
 				"import/order": "warn",
+				"import/no-duplicates": ["warn", {"prefer-inline": true}],
 				"local-rules/bad-type-import": "error",
 				"local-rules/no-direct-api-import": "warn",
 				"local-rules/prefer-import-aliases": "error",
 				"local-rules/enforce-element-suffix-on-element-class-name": "error",
-				// "local-rules/umb-class-prefix": "error",
 				"local-rules/prefer-static-styles-last": "warn",
 				"local-rules/ensure-relative-import-use-js-extension": "error",
-				// "local-rules/enforce-umbraco-external-imports": [
-				// 	"error",
-				// 	{
-				// 		"exceptions": ["@open-wc/testing", "@storybook", "msw", "."]
-				// 	}
-				// ],
 				"@typescript-eslint/no-non-null-assertion": "off",
 				"@typescript-eslint/no-explicit-any": "warn",
 				"@typescript-eslint/no-unused-vars": "warn",

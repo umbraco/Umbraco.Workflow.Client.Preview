@@ -11,8 +11,10 @@ import {
   WORKFLOW_DETAIL_MODAL,
   WORKFLOW_DETAIL_READONLY_MODAL,
 } from "@umbraco-workflow/editor-view";
-import type { WorkflowInstanceResponseModel } from "@umbraco-workflow/generated";
-import { WorkflowStatusModel } from "@umbraco-workflow/generated";
+import {
+  WorkflowStatusModel,
+  type WorkflowInstanceResponseModel,
+} from "@umbraco-workflow/generated";
 
 const elementName = "base-table-detail-column-layout";
 
