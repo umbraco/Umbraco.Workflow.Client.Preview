@@ -58,10 +58,6 @@ export class WorkflowConfigBoxBase extends UmbElementMixin(LitElement) {
     </uui-badge>`;
   }
 
-  hasLength(arr?: Array<any>) {
-    return (arr ?? []).length > 0;
-  }
-
   get activeType(): PermissionType | undefined {
     return this.workflowManagerContext?.getActivePermissionType();
   }

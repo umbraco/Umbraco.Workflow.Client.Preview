@@ -35,9 +35,6 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
   contentTypes: Array<Option> = [];
 
   @state()
-  conditions: Array<any> = [];
-
-  @state()
   selectedLanguage?: string;
 
   @state()

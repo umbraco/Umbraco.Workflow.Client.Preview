@@ -8,14 +8,8 @@ import {
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
 import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "../../workspace/settings-workspace.context-token.js";
 import { WORKFLOW_EMAIL_SENDTO_MODAL } from "../../modal/index.js";
+import type { ExtendedWorkflowEmailConfigModel } from "../../types.js";
 import type { ConfigTypeModel } from "@umbraco-workflow/generated";
-
-export type ExtendedWorkflowEmailConfigModel = {
-  sendTo: string;
-  name: string;
-  to: Array<number>;
-  key: string;
-};
 
 const elementName = "workflow-email-templates";
 

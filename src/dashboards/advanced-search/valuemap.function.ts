@@ -4,6 +4,8 @@ export function ValueMap(prop: Partial<PropertyDetailModel>) {
   let value = <any>prop.value;
 
   // offset js date back to c# ticks
+
+  // TODO => investigate date handling. should not need to do this
   if (prop.propertyEditorUiAlias === "datepicker") {
     const date = new Date(value);
     if (!isNaN(date.getTime())) {

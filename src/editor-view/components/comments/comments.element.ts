@@ -1,4 +1,3 @@
-import type { UUITextareaElement } from "@umbraco-ui/uui-textarea";
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import {
   LitElement,

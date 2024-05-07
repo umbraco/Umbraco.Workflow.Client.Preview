@@ -1,21 +1,20 @@
-import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import type { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
 import {
   UMB_NOTIFICATION_CONTEXT,
   type UmbNotificationContext,
 } from "@umbraco-cms/backoffice/notification";
-
+import { UmbRepositoryBase } from "@umbraco-cms/backoffice/repository";
 import type {
   WorkflowServerDataSource,
   WorkflowServerDataSourceConstructor,
 } from "./workflow-server-data-source.js";
 import type { WorkflowObjectStore } from "./workflow-object-store.js";
 
-export class WorkflowRepositoryBase<
+export abstract class WorkflowRepositoryBase<
   ModelType extends object,
   SaveModelType = ModelType
-> extends UmbControllerBase {
+> extends UmbRepositoryBase {
   #init: Promise<unknown>;
   #dataSource: WorkflowServerDataSource<ModelType, SaveModelType>;
 
@@ -41,7 +40,7 @@ export class WorkflowRepositoryBase<
     ]);
   }
 
-  async save(data: SaveModelType) {
+  async save(data?: SaveModelType) {
     if (!data) throw new Error("data is missing");
     await this.#init;
 

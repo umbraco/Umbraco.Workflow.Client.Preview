@@ -58,7 +58,7 @@ export function FieldQueryGenerator(args: FieldQueryGeneratorArgs) {
     );
   };
 
-  const fields: Record<string, any> = Object.fromEntries(
+  const fields = Object.fromEntries(
     args.props
       .filter((p) => {
         if (isSingleOrSomeSearch()) {

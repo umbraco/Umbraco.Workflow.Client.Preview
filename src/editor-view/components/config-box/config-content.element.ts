@@ -109,8 +109,7 @@ export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
         `
       )}
       ${when(
-        this.workflowManagerContext?.isNew &&
-          this.hasLength(this.permissions?.new),
+        this.workflowManagerContext?.isNew && this.permissions.new.length,
         () => html`
           <alert-workflow
             style="display:block; margin-top:var(--uui-size-space-5)"
@@ -132,7 +131,7 @@ export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
       ${when(
         !this.workflowManagerContext?.isNew,
         () => html`${when(
-            this.hasLength(this.permissions?.node),
+            this.permissions.node.length,
             () => html`
               <uui-ref-list>
                 ${this.permissions?.node?.map(
@@ -159,27 +158,22 @@ export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
           <workflow-add-button
             @click=${this.#openGroupPicker}
             .labelKey=${"workflow_addWorkflowGroups"}
-          >
-          </workflow-add-button>
+          ></workflow-add-button>
 
           <div id="action-buttons">
             <uui-button
               color="positive"
               look="primary"
               @click=${this.#save}
-              label="Save"
-            >
-              ${this.localize.term("buttons_save")}
-            </uui-button>
+              label=${this.localize.term("buttons_save")}
+            ></uui-button>
             <uui-button
               color="danger"
               look="primary"
               @click=${this.#removeAll}
-              ?disabled=${!this.hasLength(this.permissions?.node)}
-              label="Remove all"
-            >
-              ${this.localize.term("workflow_removeAll")}
-            </uui-button>
+              ?disabled=${!this.permissions.node.length}
+              label=${this.localize.term("workflow_removeAll")}
+            ></uui-button>
           </div>`
       )}
     </uui-box>`;

@@ -7,7 +7,6 @@ import {
 } from "@umbraco-cms/backoffice/external/lit";
 import {} from "@umbraco-cms/backoffice/modal";
 import type { UmbInputDocumentElement } from "@umbraco-cms/backoffice/document";
-
 import { splitStringToArray } from "@umbraco-cms/backoffice/utils";
 import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "../../workspace/settings-workspace.context-token.js";
 import type { GeneralSettingsModel } from "@umbraco-workflow/generated";
