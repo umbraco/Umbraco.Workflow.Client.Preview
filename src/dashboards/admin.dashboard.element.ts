@@ -12,6 +12,7 @@ const elementName = "workflow-admin-dashboard";
 
 @customElement(elementName)
 export class AdminDashboardElement extends UmbElementMixin(LitElement) {
+  // TODO => populate this!
   version?: PackageVersionModel;
 
   @state()
@@ -122,10 +123,9 @@ export class AdminDashboardElement extends UmbElementMixin(LitElement) {
   }
 
   render() {
-    return html`${this.#renderOutOfDate()} ${this.#renderWorkflowChart()}
-      ${this.#renderReviewsChart()}
-      <workflow-license-box></workflow-license-box>
-      ${this.#renderVersion()}`;
+    return html`<workflow-license-box></workflow-license-box
+      >${this.#renderOutOfDate()} ${this.#renderWorkflowChart()}
+      ${this.#renderReviewsChart()} ${this.#renderVersion()}`;
   }
 
   static styles = [
@@ -135,6 +135,7 @@ export class AdminDashboardElement extends UmbElementMixin(LitElement) {
         padding: var(--uui-size-layout-1);
       }
 
+      workflow-license-box:not([style]) + *,
       uui-box + * {
         margin-top: var(--uui-size-layout-1);
       }
