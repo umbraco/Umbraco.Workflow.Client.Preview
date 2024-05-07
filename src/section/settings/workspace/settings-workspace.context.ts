@@ -26,7 +26,10 @@ export class WorkflowSettingsWorkspaceContext
   public readonly IS_WORKFLOW_SETTINGS_WORKSPACE_CONTEXT = true;
   private readonly repository = new WorkflowSettingsRepository(this);
 
-  readonly unique;
+  // only requires a value to ensure save button is enabled
+  #unique = new UmbObjectState<string>(
+    WORKFLOW_SETTINGS_ENTITY_TYPE.toString()
+  );
 
   #data = new UmbObjectState<WorkflowSettingsPropertiesModel | undefined>(
     undefined
@@ -38,6 +41,7 @@ export class WorkflowSettingsWorkspaceContext
     NotificationsSettingsModel | undefined
   >(undefined);
 
+  unique = this.#unique.asObservable();
   generalSettings = this.#generalSettings.asObservable();
   notificationsSettings = this.#notificationsSettings.asObservable();
 
@@ -76,12 +80,8 @@ export class WorkflowSettingsWorkspaceContext
     return WORKFLOW_SETTINGS_ENTITY_TYPE;
   }
 
-  getEntityId() {
-    return "";
-  }
-
   getUnique() {
-    return "";
+    return this.#unique.getValue();
   }
 
   set(value: Record<string, unknown>) {

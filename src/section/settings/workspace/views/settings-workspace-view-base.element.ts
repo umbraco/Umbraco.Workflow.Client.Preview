@@ -3,6 +3,7 @@ import type {
   UmbPropertyDatasetElement,
   UmbPropertyValueData,
 } from "@umbraco-cms/backoffice/property";
+import { observeMultiple } from "@umbraco-cms/backoffice/observable-api";
 import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "../settings-workspace.context-token.js";
 import { WorkspaceWithSettingsViewBase } from "../../../workspace-with-settings-view-base.element.js";
 import type { SettingsSectionType } from "../../types.js";
@@ -32,14 +33,14 @@ export class WorkflowSettingsWorkspaceViewBase extends WorkspaceWithSettingsView
 
         this.workspaceContext = instance;
 
-        this.observe(this.workspaceContext.generalSettings, (settings) => {
-          this._generalSettings = settings;
-        });
-
         this.observe(
-          this.workspaceContext.notificationsSettings,
-          (settings) => {
-            this._notificationsSettings = settings;
+          observeMultiple([
+            instance.generalSettings,
+            instance.notificationsSettings,
+          ]),
+          ([generalSettings, notificationsSettings]) => {
+            this._generalSettings = generalSettings;
+            this._notificationsSettings = notificationsSettings;
           }
         );
       }).asPromise(),
@@ -72,7 +73,7 @@ export class WorkflowSettingsWorkspaceViewBase extends WorkspaceWithSettingsView
         (p) =>
           html`<umb-property
             .label=${this.localize.term(p.label)}
-            .description=${this.localize.term(p.description)}
+            .description=${this.localize.term(`${p.label}Description`)}
             .config=${p.config}
             alias=${p.alias}
             property-editor-ui-alias=${p.editorUiAlias}
