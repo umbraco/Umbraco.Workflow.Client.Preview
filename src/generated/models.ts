@@ -193,6 +193,7 @@ authorUserId?: string | null
 variant?: string | null
 type?: number | null
 expired?: boolean | null
+historyOnly?: boolean | null
 status?: Array<number> | null
 createdDate?: DateRangeModel | null
 completedDate?: DateRangeModel | null
@@ -429,7 +430,7 @@ isActive: boolean
 
 export type UserGroupBaseModel = {
         groupId: number
-key: string
+unique: string
 name: string
 groupEmail?: string | null
 description?: string | null
@@ -440,7 +441,7 @@ users: Array<User2UserGroupModel>
 
 export type UserGroupModel = {
         groupId: number
-key: string
+unique: string
 name: string
 groupEmail?: string | null
 description?: string | null
@@ -509,7 +510,7 @@ export type WorkflowConfigUpdateRequestModel = {
         id: number
 key?: string | null
 variant: string
-permissions: Array<UserGroupPermissionsModel>
+permissions: Array<Partial<UserGroupPermissionsModel>>
     };
 
 export type WorkflowContentDiffModel = {
@@ -560,8 +561,7 @@ activeVariants: Array<string>
     };
 
 export type WorkflowSearchRequestModel = {
-        userId?: string | null
-groupId?: string | null
+        groupId?: string | null
 skip?: number | null
 take: number
 variant?: string | null
