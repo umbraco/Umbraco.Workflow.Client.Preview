@@ -29,7 +29,7 @@ export class WorkflowApprovalGroupCollectionServerDataSource
           entityType: WORKFLOW_APPROVALGROUP_ENTITY_TYPE,
           name: item.name!,
           groupEmail: item.groupEmail ?? undefined,
-          unique: item.key,
+          unique: item.unique,
           icon: item.icon ?? "icon-users",
           users: item.users
             .filter((u) => !!u.username)

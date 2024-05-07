@@ -141,7 +141,7 @@ export class WorkflowContentReviewsWorkspaceContext
       excluded: r.excluded ? true : false,
       groups:
         r.groups?.map((g) => ({
-          key: g.key,
+          unique: g.unique,
           groupId: g.groupId,
           name: g.name,
           users: g.users,

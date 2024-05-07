@@ -1,7 +1,7 @@
 import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
 import { UmbDetailStoreBase } from "@umbraco-cms/backoffice/store";
 import type { UmbControllerHostElement } from "@umbraco-cms/backoffice/controller-api";
-import type { WorkflowApprovalGroupDetailModel } from "../types.js";
+import type { UserGroupBaseModel } from "@umbraco-workflow/generated";
 
 export const WORKFLOW_APPROVALGROUPS_STORE_CONTEXT =
   new UmbContextToken<WorkflowApprovalGroupsStore>(
@@ -14,7 +14,7 @@ export const WORKFLOW_APPROVALGROUPS_STORE_CONTEXT =
  * @extends {UmbStoreBase}
  * @description - Data Store for Approval Groups
  */
-export class WorkflowApprovalGroupsStore extends UmbDetailStoreBase<WorkflowApprovalGroupDetailModel> {
+export class WorkflowApprovalGroupsStore extends UmbDetailStoreBase<UserGroupBaseModel> {
   public readonly data = this._data.asObservable();
 
   constructor(host: UmbControllerHostElement) {

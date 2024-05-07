@@ -45,7 +45,7 @@ export class WorkflowApprovalGroupsDetailServerDataSource
     }
 
     const group: WorkflowApprovalGroupDetailModel = {
-      unique: data.key,
+      unique: data.unique,
       entityType: WORKFLOW_APPROVALGROUP_ENTITY_TYPE,
       name: data.name,
       users: data.users,
@@ -104,7 +104,7 @@ export class WorkflowApprovalGroupsDetailServerDataSource
     }
 
     const group: WorkflowApprovalGroupDetailModel = {
-      unique: data.key,
+      unique: data.unique,
       entityType: WORKFLOW_APPROVALGROUP_ENTITY_TYPE,
       name: data.name,
       users: data.users,
@@ -131,7 +131,7 @@ export class WorkflowApprovalGroupsDetailServerDataSource
 
     // TODO => mapping
     const requestBody: UserGroupModel = {
-      key: group.unique,
+      unique: group.unique,
       name: group.name,
       users: group.users.map((u) => ({
         userId: u.userId,
@@ -167,7 +167,7 @@ export class WorkflowApprovalGroupsDetailServerDataSource
 
     // TODO => mapping
     const requestBody: UserGroupModel = {
-      key: group.unique,
+      unique: group.unique,
       alias: group.alias,
       icon: group.icon,
       inheritMembers: group.inheritMembers,

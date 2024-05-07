@@ -6,7 +6,7 @@ import {
   unsafeHTML,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
-import type { UUIInputEvent } from "@umbraco-cms/backoffice/external/uui";
+import type { UUIInputEvent } from '@umbraco-cms/backoffice/external/uui';
 import type {
   WorkflowConfirmDeleteGroupModalData,
   WorkflowConfirmDeleteGroupModalResult,
@@ -56,7 +56,7 @@ export class WorkflowConfirmDeleteGroupModalElement extends UmbModalBaseElement<
             this.data?.groupName
           )
         )}
-        <uui-input @keyup=${this.#handleInputChange}></uui-input>
+        <uui-input type="text" @input=${this.#handleInputChange}></uui-input>
       </div>
       <div slot="actions">
         <uui-button
