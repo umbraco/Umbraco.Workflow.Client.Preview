@@ -6,9 +6,9 @@ import {
   state,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
-import type { TableQueryModel } from "../../../types.js";
+import type { TableQueryModel } from "../../../core/entities.js";
 import { BoxHeaderFlexStyles } from "@umbraco-workflow/css";
-import { SortDirection } from "@umbraco-workflow/enums";
+import { SortDirection } from "src/core/enums.js";
 import { InstanceService } from "@umbraco-workflow/generated";
 import { InstanceFilters } from "@umbraco-workflow/components";
 import type {

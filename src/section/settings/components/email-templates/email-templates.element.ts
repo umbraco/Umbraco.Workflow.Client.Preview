@@ -8,23 +8,20 @@ import {
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
 import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "../../workspace/settings-workspace.context-token.js";
 import { WORKFLOW_EMAIL_SENDTO_MODAL } from "../../modal/index.js";
-import type {
-  ConfigTypeModel,
-} from "@umbraco-workflow/generated";
+import type { ConfigTypeModel } from "@umbraco-workflow/generated";
 
 export type ExtendedWorkflowEmailConfigModel = {
   sendTo: string;
   name: string;
   to: Array<number>;
   key: string;
-}
+};
 
 const elementName = "workflow-email-templates";
 
 @customElement(elementName)
 export class WorkflowEmailTemplatesElement extends UmbElementMixin(LitElement) {
   #workspaceContext?: typeof WORKFLOW_SETTINGS_WORKSPACE_CONTEXT.TYPE;
-  #modalManagerContext?: typeof UMB_MODAL_MANAGER_CONTEXT.TYPE;
 
   @state()
   config: Array<ConfigTypeModel> = [];
@@ -36,10 +33,6 @@ export class WorkflowEmailTemplatesElement extends UmbElementMixin(LitElement) {
 
   constructor() {
     super();
-
-    this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (instance) => {
-      this.#modalManagerContext = instance;
-    });
 
     this.consumeContext(WORKFLOW_SETTINGS_WORKSPACE_CONTEXT, (instance) => {
       if (!instance) return;
@@ -82,17 +75,13 @@ export class WorkflowEmailTemplatesElement extends UmbElementMixin(LitElement) {
   }
 
   async #edit(emailType: ExtendedWorkflowEmailConfigModel) {
-    if (!this.#modalManagerContext) return;
-
-    const modalHandler = this.#modalManagerContext.open(this, 
-      WORKFLOW_EMAIL_SENDTO_MODAL,
-      {
-        data: {
-          config: this.config,
-          emailType,
-        },
-      }
-    );
+    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    const modalHandler = modalContext.open(this, WORKFLOW_EMAIL_SENDTO_MODAL, {
+      data: {
+        config: this.config,
+        emailType,
+      },
+    });
 
     const { selectedIds } = await modalHandler.onSubmit();
     emailType.to = selectedIds;

@@ -43,16 +43,12 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
   @state()
   selectedType?: string;
 
-  #modalManagerContext?: typeof UMB_MODAL_MANAGER_CONTEXT.TYPE;
   #host: UmbControllerHost;
 
   constructor(host: UmbControllerHost) {
     super();
 
     this.#host = host;
-    this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (instance) => {
-      this.#modalManagerContext = instance;
-    });
   }
 
   connectedCallback() {
@@ -134,7 +130,7 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
         this.permissions.filter((p) => p.variant === this.selectedLanguage),
         undefined,
         this.selectedType,
-        this.#modalManagerContext,
+        await this.getContext(UMB_MODAL_MANAGER_CONTEXT),
         { variant: this.selectedLanguage }
       )),
     ];

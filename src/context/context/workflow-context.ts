@@ -8,7 +8,7 @@ import type {
   ManifestWorkspaceActionMenuItem,
   ManifestWorkspaceAction,
 } from "@umbraco-cms/backoffice/extension-registry";
-import { WORKFLOW_DOCUMENT_WORKSPACE_VARIANT_SHOW_WORKFLOW_DETAIL_CONDITION } from "../editor-view/conditions/manifests.js";
+import { WORKFLOW_DOCUMENT_WORKSPACE_VARIANT_SHOW_WORKFLOW_DETAIL_CONDITION } from "../../editor-view/conditions/manifests.js";
 import type {
   GlobalVariablesResponseModel,
   WorkflowLicenseModel,

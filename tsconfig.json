@@ -31,11 +31,8 @@
       "@umbraco-workflow/generated": [
         "./src/generated/index.ts"
       ],
-      "@umbraco-workflow/utils": [
-        "./src/utils/index.ts"
-      ],
       "@umbraco-workflow/modal": [
-        "./src/modal/index.ts"
+        "./src/core/modal/index.ts"
       ],
       "@umbraco-workflow/context": [
         "./src/context/index.ts"
@@ -43,26 +40,20 @@
       "@umbraco-workflow/components": [
         "./src/components/index.ts"
       ],
-      "@umbraco-workflow/constants": [
-        "./src/constants.ts"
-      ],
-      "@umbraco-workflow/enums": [
-        "./src/enums.ts"
-      ],
       "@umbraco-workflow/css": [
         "./src/css/index.ts"
       ],
       "@umbraco-workflow/approval-group": [
         "./src/section/approval-group/index.ts",
       ],
-      "@umbraco-workflow/types": [
-        "./src/types.ts",
-      ],
       "@umbraco-workflow/collections": [
         "./src/collections/index.ts",
       ],
       "@umbraco-workflow/editor-view": [
         "./src/editor-view/index.ts",
+      ],
+      "@umbraco-workflow/core": [
+        "./src/core/index.ts",
       ]
     }
   },

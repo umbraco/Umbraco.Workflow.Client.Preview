@@ -10,13 +10,12 @@ import {
 } from "@umbraco-cms/backoffice/modal";
 import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
 import type { UmbDocumentDetailModel } from "node_modules/@umbraco-cms/backoffice/dist-cms/packages/documents/documents/types.js";
-import { UMB_MEDIA_TREE_PICKER_MODAL } from '@umbraco-cms/backoffice/media';
+import { UMB_MEDIA_TREE_PICKER_MODAL } from "@umbraco-cms/backoffice/media";
 import type { WorkflowAction, DatePickerData } from "../../types.js";
 import {
   type WorkflowState,
   WorkflowManagerContext,
 } from "@umbraco-workflow/context";
-import { constants } from "@umbraco-workflow/constants";
 import type { WorkflowTaskModel } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-submit-modal";
@@ -65,11 +64,11 @@ export class WorkflowSubmitModalElement extends UmbModalBaseElement {
     });
 
     this.#documentData = this.#documentWorkspace.getData();
-    
+
     this.#workflowManager.init(
       undefined,
       this.#documentData?.unique,
-      this.#documentData?.documentType.unique,
+      this.#documentData?.documentType.unique
     );
   }
 
@@ -112,7 +111,7 @@ export class WorkflowSubmitModalElement extends UmbModalBaseElement {
           ? this.releaseDate.raw
           : undefined,
       expireDate: this.state?.allowScheduling ? this.expireDate.raw : undefined,
-      publish: this.action === constants.actions.publish,
+      publish: this.action === "publish",
       variants,
       attachmentId: this.attachmentId,
     });
@@ -134,7 +133,7 @@ export class WorkflowSubmitModalElement extends UmbModalBaseElement {
   // TODO => date picker clear
   #handleDatePickerChange(e: InputEvent, action: WorkflowAction) {
     const date = (e.target as HTMLInputElement).value;
-    if (action === constants.actions.publish) {
+    if (action === "publish") {
       this.expireDate = { ...this.expireDate, ...{ min: date } };
       this.releaseDate = { ...this.releaseDate, ...{ raw: date } };
     } else {
@@ -154,25 +153,18 @@ export class WorkflowSubmitModalElement extends UmbModalBaseElement {
   async #filepicker() {
     const currentSelection = [this.attachmentId ?? null];
 
-    this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, async (modalContext) => {
-      if (!modalContext) return;
-
-      const modalHandler = modalContext.open(
-        this,
-        UMB_MEDIA_TREE_PICKER_MODAL,
-        {
-          data: {
-            multiple: false,
-          },
-          value: {
-            selection: currentSelection,
-          },
-        }
-      );
-
-      const { selection } = await modalHandler!.onSubmit();
-      this.attachmentId = selection[0] ?? undefined;
+    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    const modalHandler = modalContext.open(this, UMB_MEDIA_TREE_PICKER_MODAL, {
+      data: {
+        multiple: false,
+      },
+      value: {
+        selection: currentSelection,
+      },
     });
+
+    const { selection } = await modalHandler!.onSubmit();
+    this.attachmentId = selection[0] ?? undefined;
   }
 
   #filepickerClear() {

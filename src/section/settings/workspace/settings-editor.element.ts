@@ -8,9 +8,9 @@ import {
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import { umbExtensionsRegistry } from "@umbraco-cms/backoffice/extension-registry";
+import { noneSomeAll } from "@umbraco-workflow/core";
 import type { SettingsSectionType } from "../types.js";
 import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "./settings-workspace.context-token.js";
-import { noneSomeAll } from "@umbraco-workflow/utils";
 import type {
   GeneralSettingsModel,
   NotificationsSettingsModel,

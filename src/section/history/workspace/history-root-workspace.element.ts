@@ -3,12 +3,12 @@ import {
   html,
   state,
 } from "@umbraco-cms/backoffice/external/lit";
-import type { TableQueryModel } from "../../../types.js";
+import type { TableQueryModel } from "../../../core/entities.js";
 import { SectionRootBase } from "../../section-root.base.element.js";
 import { BoxHeaderFlexStyles } from "@umbraco-workflow/css";
 import type { FilterModel } from "@umbraco-workflow/generated";
 import { InstanceService } from "@umbraco-workflow/generated";
-import { SortDirection } from "@umbraco-workflow/enums";
+import { SortDirection } from "src/core/enums.js";
 import { InstanceFilters } from "@umbraco-workflow/components";
 import type {
   FilterPickerElement,

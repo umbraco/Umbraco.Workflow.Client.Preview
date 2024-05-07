@@ -4,7 +4,7 @@ import {
   state,
 } from "@umbraco-cms/backoffice/external/lit";
 import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/extension-registry";
-import type { TableQueryModel } from "../../../../types.js";
+import type { TableQueryModel } from "../../../../core/entities.js";
 import { WorkspaceWithSettingsViewBase } from "../../../../section/workspace-with-settings-view-base.element.js";
 import { WorkflowSettingsWorkspaceViewBase } from "../../../settings/workspace/views/settings-workspace-view-base.element.js";
 import type { FilterModel } from "@umbraco-workflow/generated";

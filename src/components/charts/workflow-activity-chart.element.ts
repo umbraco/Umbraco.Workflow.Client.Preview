@@ -5,7 +5,7 @@ import {
   html,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import type { WorkflowInstancesFilterModel } from "../../types.js";
+import type { WorkflowInstancesFilterModel } from "../../core/entities.js";
 import { ChartBaseStyles } from "./chart-style.styles.js";
 import { ChartBaseElement } from "./chart-base.element.js";
 import type { ChartHeaderCard } from "./chart-base.element.js";
@@ -14,7 +14,7 @@ import {
   ChartService,
   WorkflowStatusModel,
 } from "@umbraco-workflow/generated";
-import { WorkflowStatus } from "@umbraco-workflow/enums";
+import { WorkflowStatus } from "src/core/enums.js";
 
 const elementName = "workflow-activity-chart";
 

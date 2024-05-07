@@ -10,13 +10,13 @@ import {
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbHistoryItemElement } from "@umbraco-cms/backoffice/components";
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
+import { getCommentParts } from "@umbraco-workflow/core";
 import { WORKFLOW_DIFF_MODAL } from "@umbraco-workflow/editor-view";
 import type {
   WorkflowInstanceResponseModel,
   WorkflowTaskModel,
 } from "@umbraco-workflow/generated";
 import { WorkflowStatusModel } from "@umbraco-workflow/generated";
-import { getCommentParts } from "@umbraco-workflow/utils";
 import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
 const elementName = "workflow-change-description";
@@ -25,8 +25,6 @@ const elementName = "workflow-change-description";
 export class WorkflowChangeDescriptionElement extends UmbElementMixin(
   LitElement
 ) {
-  #modalManagerContext?: typeof UMB_MODAL_MANAGER_CONTEXT.TYPE;
-
   @property({ type: Object })
   item?: WorkflowInstanceResponseModel | WorkflowTaskModel;
 
@@ -41,11 +39,6 @@ export class WorkflowChangeDescriptionElement extends UmbElementMixin(
 
   constructor() {
     super();
-
-    this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (instance) => {
-      if (!instance) return;
-      this.#modalManagerContext = instance;
-    });
 
     this.consumeContext(WORKFLOW_CONTEXT, (instance) => {
       if (!instance) return;
@@ -82,7 +75,8 @@ export class WorkflowChangeDescriptionElement extends UmbElementMixin(
   async #showDiff() {
     if (!this.item?.instance?.key) throw new Error("instance data is missing");
 
-    const modalHandler = this.#modalManagerContext?.open(this, WORKFLOW_DIFF_MODAL, {
+    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    const modalHandler = modalContext.open(this, WORKFLOW_DIFF_MODAL, {
       data: {
         instanceKey: this.item?.instance?.key,
       },

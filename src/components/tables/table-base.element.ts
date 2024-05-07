@@ -15,13 +15,13 @@ import {
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import { Sorter } from "../sorter.js";
-import type { TableQueryModel } from "../../types.js";
+import type { TableQueryModel } from "../../core/entities.js";
 import { Pagination } from "./pagination.js";
 import type {
   LanguageModel,
   WorkflowSearchRequestModel,
 } from "@umbraco-workflow/generated";
-import { SortDirection } from "@umbraco-workflow/enums";
+import { SortDirection } from "src/core/enums.js";
 import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
 export abstract class WorkflowTableBase extends UmbElementMixin(LitElement) {

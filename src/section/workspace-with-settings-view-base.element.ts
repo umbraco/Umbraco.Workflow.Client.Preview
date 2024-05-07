@@ -1,6 +1,6 @@
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import { LitElement, css, html } from "@umbraco-cms/backoffice/external/lit";
-import { noneSomeAll } from "@umbraco-workflow/utils";
+import { noneSomeAll } from "@umbraco-workflow/core";
 import type {
   ContentReviewsSettingsModel,
   GeneralSettingsModel,

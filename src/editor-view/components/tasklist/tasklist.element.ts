@@ -10,7 +10,7 @@ import {
 } from "@umbraco-cms/backoffice/external/lit";
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
 import { UmbHistoryItemElement } from "@umbraco-cms/backoffice/components";
-import { WorkflowStatus } from "@umbraco-workflow/enums";
+import { WorkflowStatus } from "src/core/enums";
 import { WORKFLOW_MANAGER_CONTEXT } from "@umbraco-workflow/context";
 import {
   type WorkflowTaskCollectionItemModel,

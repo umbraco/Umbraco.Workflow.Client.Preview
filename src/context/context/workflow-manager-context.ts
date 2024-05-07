@@ -2,12 +2,14 @@ import type { UmbControllerHostElement } from "@umbraco-cms/backoffice/controlle
 import { UMB_NOTIFICATION_CONTEXT } from "@umbraco-cms/backoffice/notification";
 import { UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
 import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
+import type { ValidActionDescriptor } from "@umbraco-workflow/core";
 import {
-  type ValidActionDescriptor,
+  PermissionType,
+  WorkflowStatus,
   WorkflowActionRepository,
-} from "./workflow-action.repository.js";
-import { WORKFLOW_CONTEXT, WORKFLOW_MANAGER_CONTEXT } from "./index.js";
-import type { WorkflowState } from "./index.js";
+} from "@umbraco-workflow/core";
+import { WORKFLOW_CONTEXT, WORKFLOW_MANAGER_CONTEXT } from "../index.js";
+import type { WorkflowState } from "../index.js";
 import { WorkflowStatusModel } from "@umbraco-workflow/generated";
 import type {
   ActionWorkflowResponseModel,
@@ -19,7 +21,6 @@ import type {
   WorkflowSettingsBaseModel,
   WorkflowTaskModel,
 } from "@umbraco-workflow/generated";
-import { PermissionType, WorkflowStatus } from "@umbraco-workflow/enums";
 
 export class WorkflowManagerContext extends UmbControllerBase {
   public readonly workspaceAlias = WORKFLOW_MANAGER_CONTEXT.contextAlias;

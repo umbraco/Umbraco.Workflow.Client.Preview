@@ -1,4 +1,3 @@
-import type { UmbControllerHostElement } from "@umbraco-cms/backoffice/controller-api";
 import { UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
 import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
@@ -16,34 +15,15 @@ export class WorkflowFilterPickerContext extends UmbControllerBase {
   #activeCount = new UmbObjectState<number>(0);
   activeCount = this.#activeCount.asObservable();
 
-  #modalManager?: typeof UMB_MODAL_MANAGER_CONTEXT.TYPE;
-
-  constructor(host: UmbControllerHostElement) {
-    super(host);
-  }
-
-  async hostConnected() {
-    super.hostConnected();
-
-    this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (instance) => {
-      this.#modalManager = instance;
-    });
-  }
-
   async openPicker() {
-    if (!this.#modalManager) return;
+    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    const modalHandler = modalContext.open(this, WORKFLOW_FILTER_PICKER_MODAL, {
+      data: {
+        config: this.getConfig(),
+      },
+    });
 
-    const modalContext = this.#modalManager.open(
-      this,
-      WORKFLOW_FILTER_PICKER_MODAL,
-      {
-        data: {
-          config: this.getConfig(),
-        },
-      }
-    );
-
-    const { config } = await modalContext.onSubmit();
+    const { config } = await modalHandler.onSubmit();
     this.setConfig(config);
   }
 
@@ -68,7 +48,7 @@ export class WorkflowFilterPickerContext extends UmbControllerBase {
     return (
       this.getConfig()?.filters?.filter((f) => {
         if (f.value === undefined) return false;
-        
+
         // value is a daterange
         if (Object.prototype.hasOwnProperty.call(f.value, "from")) {
           return f.value.from || f.value.to;

@@ -20,7 +20,6 @@ const elementName = "workflow-new-node-flow";
 
 @customElement(elementName)
 export class WorkflowNewNodeFlowElement extends UmbElementMixin(LitElement) {
-  #modalManagerContext?: typeof UMB_MODAL_MANAGER_CONTEXT.TYPE;
   workspaceContext?: typeof WORKFLOW_SETTINGS_WORKSPACE_CONTEXT.TYPE;
 
   readonly #propertyAlias = "newNodeApprovalFlow";
@@ -37,10 +36,6 @@ export class WorkflowNewNodeFlowElement extends UmbElementMixin(LitElement) {
     super();
 
     this.#host = host;
-
-    this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (instance) => {
-      this.#modalManagerContext = instance;
-    });
 
     this.consumeContext(WORKFLOW_SETTINGS_WORKSPACE_CONTEXT, (instance) => {
       this.workspaceContext = instance;
@@ -89,7 +84,7 @@ export class WorkflowNewNodeFlowElement extends UmbElementMixin(LitElement) {
       this.value,
       undefined,
       undefined,
-      this.#modalManagerContext
+      await this.getContext(UMB_MODAL_MANAGER_CONTEXT)
     );
 
     this.workspaceContext?.setValue(

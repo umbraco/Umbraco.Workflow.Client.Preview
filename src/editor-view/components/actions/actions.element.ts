@@ -8,12 +8,11 @@ import {
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
+import { ValidActionDescriptor, WorkflowStatus } from "@umbraco-workflow/core";
 import { WORKFLOW_REJECT_TASK_MODAL } from "@umbraco-workflow/editor-view";
-import { WorkflowStatus } from "@umbraco-workflow/enums";
 import type { WorkflowTaskModel } from "@umbraco-workflow/generated";
 import {
   type WorkflowState,
-  ValidActionDescriptor,
   WORKFLOW_MANAGER_CONTEXT,
 } from "@umbraco-workflow/context";
 
@@ -22,7 +21,6 @@ const elementName = "workflow-actions";
 @customElement(elementName)
 export class WorkflowActionsElement extends UmbElementMixin(LitElement) {
   #workflowManagerContext?: typeof WORKFLOW_MANAGER_CONTEXT.TYPE;
-  #modalManagerContext?: typeof UMB_MODAL_MANAGER_CONTEXT.TYPE;
 
   @state()
   workflowState?: WorkflowState;
@@ -48,12 +46,6 @@ export class WorkflowActionsElement extends UmbElementMixin(LitElement) {
       this.#workflowManagerContext = instance;
       this.#observeState();
       this.#observeCurrentTask();
-    });
-
-    this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (instance) => {
-      if (!instance) return;
-
-      this.#modalManagerContext = instance;
     });
   }
 
@@ -121,8 +113,6 @@ export class WorkflowActionsElement extends UmbElementMixin(LitElement) {
   }
 
   async #reject() {
-    if (!this.#modalManagerContext) return;
-
     // when rejecting, can chose any of the previous groups, but we
     // will auto select the first group if this is the first workflow task
     // state holds all the permissions, and knows which are active
@@ -138,7 +128,8 @@ export class WorkflowActionsElement extends UmbElementMixin(LitElement) {
       return;
     }
 
-    const modelHandler = this.#modalManagerContext.open(
+    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    const modalHandler = modalContext.open( 
       this,
       WORKFLOW_REJECT_TASK_MODAL,
       {
@@ -149,7 +140,7 @@ export class WorkflowActionsElement extends UmbElementMixin(LitElement) {
       }
     );
 
-    const { assignTo } = await modelHandler.onSubmit();
+    const { assignTo } = await modalHandler.onSubmit();
     if (!assignTo) return;
 
     this.#action(ValidActionDescriptor.REJECT, assignTo);

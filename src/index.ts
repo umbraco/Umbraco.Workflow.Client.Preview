@@ -7,7 +7,7 @@ import { UMB_AUTH_CONTEXT } from "@umbraco-cms/backoffice/auth";
 import { manifests as dashboardManifests } from "./dashboards/manifests.js";
 import { manifests as sectionManifests } from "./section/section.manifests.js";
 import { manifests as workspaceEditorViewManifests } from "./editor-view/manifests.js";
-import { manifests as modalManifests } from "./modal/manifests.js";
+import { manifests as modalManifests } from "./core/modal/manifests.js";
 import { manifests as localizationManifests } from "./lang/manifests.js";
 
 // eslint-disable-next-line local-rules/ensure-relative-import-use-js-extension

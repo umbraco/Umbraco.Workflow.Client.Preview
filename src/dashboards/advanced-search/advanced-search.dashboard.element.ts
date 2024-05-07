@@ -14,7 +14,7 @@ import type {
 } from "@umbraco-cms/backoffice/property";
 import { UMB_DOCUMENT_TYPE_PICKER_MODAL } from "@umbraco-cms/backoffice/document-type";
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
-import type { TableQueryModel } from "../../types.js";
+import type { TableQueryModel } from "../../core/entities.js";
 import { UmbUserPickerContext } from "../../temp/user-input.context.js";
 import { SomeFilter } from "./somefilter.function.js";
 import { BaseFieldQueryGenerator } from "./basefield-query-generator.function.js";
@@ -42,8 +42,6 @@ const elementName = "workflow-advanced-search-dashboard";
 export class AdvancedSearchDashboardElement extends UmbElementMixin(
   LitElement
 ) {
-  #modalManagerContext?: typeof UMB_MODAL_MANAGER_CONTEXT.TYPE;
-
   @state()
   searchType?: AdvancedSearchTypeModel;
 
@@ -144,10 +142,6 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
   constructor() {
     super();
 
-    this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (instance) => {
-      this.#modalManagerContext = instance;
-    });
-
     this.consumeContext(WORKFLOW_CONTEXT, (instance) => {
       if (!instance) return;
       this.#workflowGlobalContext = instance;
@@ -240,7 +234,8 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
   }
 
   async #addContentType() {
-    const modalHandler = this.#modalManagerContext?.open(
+    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    const modalHandler = modalContext.open(
       this,
       UMB_DOCUMENT_TYPE_PICKER_MODAL,
       {
@@ -287,16 +282,13 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
   }
 
   async #addSelectedProperty() {
-    const modalHandler = this.#modalManagerContext?.open(
-      this,
-      WORKFLOW_ITEM_PICKER_MODAL,
-      {
-        data: {
-          multiple: this.searchType != AdvancedSearchTypeModel.SINGLE,
-          items: this.availableProperties,
-        },
-      }
-    );
+    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    const modalHandler = modalContext.open(this, WORKFLOW_ITEM_PICKER_MODAL, {
+      data: {
+        multiple: this.searchType != AdvancedSearchTypeModel.SINGLE,
+        items: this.availableProperties,
+      },
+    });
 
     const { items } = await modalHandler!.onSubmit();
     this.availableProperties = items;
@@ -320,18 +312,15 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
   }
 
   async #addSelectedType() {
-    const modalHandler = this.#modalManagerContext?.open(
-      this,
-      WORKFLOW_ITEM_PICKER_MODAL,
-      {
-        data: {
-          multiple: false,
-          items: this.isDataTypeSearch
-            ? this.availableDataTypes
-            : this.availablePropertyEditors,
-        },
-      }
-    );
+    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    const modalHandler = modalContext.open(this, WORKFLOW_ITEM_PICKER_MODAL, {
+      data: {
+        multiple: false,
+        items: this.isDataTypeSearch
+          ? this.availableDataTypes
+          : this.availablePropertyEditors,
+      },
+    });
 
     const { items } = await modalHandler!.onSubmit();
     this.selectedType = items.find((x) => x.selected)!;
@@ -399,7 +388,9 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
     status: Record<string, any>
   ) {
     status.selected = !status.selected;
-    const value = !(<any>property.value)?.length ? [] : (<string>property.value).split(",");
+    const value = !(<any>property.value)?.length
+      ? []
+      : (<string>property.value).split(",");
 
     if (status.selected) {
       value.push(status.value);
@@ -845,7 +836,8 @@ export class AdvancedSearchDashboardElement extends UmbElementMixin(
                               html`${when(
                                 prop.value,
                                 () => html`<uui-ref-list>
-                                  <uui-ref-node-user .name=${(<any>prop.value)?.name}
+                                  <uui-ref-node-user
+                                    .name=${(<any>prop.value)?.name}
                                     ><uui-action-bar slot="actions">
                                       <uui-button
                                         label="Remove"

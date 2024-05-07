@@ -6,7 +6,7 @@ import {
   state,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
-import type { TableQueryModel } from "../types.js";
+import type { TableQueryModel } from "../core/entities.js";
 import type { PageSizeDropdownElement } from "@umbraco-workflow/components";
 import {
   ContentReviewService,

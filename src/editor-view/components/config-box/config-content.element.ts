@@ -8,26 +8,21 @@ import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { WorkflowConfigBoxBase } from "./index.js";
+import { PermissionType } from "@umbraco-workflow/core";
 import type { WorkflowRefGroupPermissionElement } from "@umbraco-workflow/components";
 import { add, remove } from "@umbraco-workflow/components";
-import { PermissionType } from "@umbraco-workflow/enums";
 import { ConfigService } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-config-content";
 
 @customElement(elementName)
 export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
-  #modalManagerContext?: typeof UMB_MODAL_MANAGER_CONTEXT.TYPE;
   #host: UmbControllerHost;
 
   constructor(host: UmbControllerHost) {
     super();
 
     this.#host = host;
-
-    this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (instance) => {
-      this.#modalManagerContext = instance;
-    });
   }
 
   async #openGroupPicker() {
@@ -37,7 +32,7 @@ export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
         this.permissions.node,
         this.workflowManagerContext?.getEntityId(),
         undefined,
-        this.#modalManagerContext,
+        await this.getContext(UMB_MODAL_MANAGER_CONTEXT),
         { variant: this.variant }
       )),
     ]);

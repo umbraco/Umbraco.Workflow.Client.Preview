@@ -1,11 +1,10 @@
+import type { SettingsStatusModel } from "@umbraco-workflow/core";
 import type {
   ContentReviewsSettingsModel,
   GeneralSettingsModel,
   NotificationsSettingsModel,
   SettingsPropertyDisplayModel,
 } from "@umbraco-workflow/generated";
-import type { SettingsStatusModel } from "@umbraco-workflow/types";
-
 
 /**
  * Determine if some, all or none of the provided items are hidden or readonly

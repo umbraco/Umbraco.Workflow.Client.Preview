@@ -8,7 +8,7 @@ import {
   state,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import { WorkflowStatus } from "@umbraco-workflow/enums";
+import { WorkflowStatus } from "src/core/enums";
 import type { WorkflowTaskModel } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-scheduling-block";

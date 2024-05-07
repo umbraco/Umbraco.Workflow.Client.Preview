@@ -33,7 +33,6 @@ const elementName = "workflow-document-type-flow";
 export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
   LitElement
 ) {
-  #modalManagerContext?: typeof UMB_MODAL_MANAGER_CONTEXT.TYPE;
   #workspaceContext?: typeof WORKFLOW_SETTINGS_WORKSPACE_CONTEXT.TYPE;
 
   #license?: WorkflowLicenseModel;
@@ -47,10 +46,6 @@ export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
 
   constructor() {
     super();
-
-    this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (instance) => {
-      this.#modalManagerContext = instance;
-    });
 
     this.consumeContext(
       WORKFLOW_SETTINGS_WORKSPACE_CONTEXT,
@@ -95,11 +90,12 @@ export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
   }
 
   async #openOverlay(key?: string) {
-    if (this.#license?.isTrial || !this.#modalManagerContext) {
+    if (this.#license?.isTrial) {
       return;
     }
 
-    const overlayHandler = this.#modalManagerContext.open(
+    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    const modalHandler = modalContext.open(
       this,
       WORKFLOW_DOCUMENT_TYPE_FLOW_MODAL,
       {
@@ -116,7 +112,7 @@ export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
       }
     );
 
-    const { result } = await overlayHandler.onSubmit();
+    const { result } = await modalHandler.onSubmit();
     let newValue = [...this.value];
 
     if (!key) {

@@ -9,10 +9,10 @@ import { WorkflowApprovalGroupWorkspaceViewBase } from "./approval-group-workspa
 import type {
   TableQueryModel,
   WorkflowInstancesFilterModel,
-} from "@umbraco-workflow/types";
+} from "src/core/entities.js";
 import type { FilterModel} from "@umbraco-workflow/generated";
 import { InstanceService } from "@umbraco-workflow/generated";
-import { SortDirection } from "@umbraco-workflow/enums";
+import { SortDirection } from "src/core/enums.js";
 import { BoxHeaderFlexStyles } from "@umbraco-workflow/css";
 import type { FilterPickerElement } from "@umbraco-workflow/components";
 import { InstanceFilters } from "@umbraco-workflow/components";

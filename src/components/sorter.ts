@@ -1,4 +1,4 @@
-﻿import { SortDirection } from "@umbraco-workflow/enums";
+﻿import { SortDirection } from "src/core/enums";
 
 export class Sorter {
   sortBy: string;

@@ -10,14 +10,17 @@ import {
   state,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
+import {
+  getCommentParts,
+  getStatusFromString,
+  TaskStatus,
+} from "@umbraco-workflow/core";
 import { WORKFLOW_GROUP_DETAIL_MODAL } from "@umbraco-workflow/editor-view";
-import { getCommentParts, getStatusFromString } from "@umbraco-workflow/utils";
 import {
   type WorkflowTaskModel,
   TaskStatusModel,
 } from "@umbraco-workflow/generated";
 import { WorkflowColorStyles } from "@umbraco-workflow/css";
-import { TaskStatus } from "@umbraco-workflow/enums";
 
 const elementName = "workflow-status-block";
 
@@ -35,16 +38,6 @@ export class WorkflowStatusBlockElement extends UmbElementMixin(LitElement) {
   @property()
   status?: string;
 
-  modalContext?: typeof UMB_MODAL_MANAGER_CONTEXT.TYPE;
-
-  constructor() {
-    super();
-
-    this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (instance) => {
-      this.modalContext = instance;
-    });
-  }
-
   protected firstUpdated() {
     const { errorMessage } = getCommentParts(this.task?.comment);
     this.errorMessage = errorMessage;
@@ -58,10 +51,11 @@ export class WorkflowStatusBlockElement extends UmbElementMixin(LitElement) {
     }
   }
 
-  #showGroupDetails() {
+  async #showGroupDetails() {
     if (!this.task) throw new Error("task is missing");
 
-    this.modalContext?.open(this, WORKFLOW_GROUP_DETAIL_MODAL, {
+    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    modalContext.open(this, WORKFLOW_GROUP_DETAIL_MODAL, {
       data: {
         group: this.task.userGroup!,
         isAdmin: this.isAdmin,

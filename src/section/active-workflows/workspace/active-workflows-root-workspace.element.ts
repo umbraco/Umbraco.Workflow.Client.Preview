@@ -3,7 +3,7 @@ import {
   html,
   state,
 } from "@umbraco-cms/backoffice/external/lit";
-import type { TableQueryModel } from "../../../types.js";
+import type { TableQueryModel } from "../../../core/entities.js";
 import { SectionRootBase } from "../../section-root.base.element.js";
 import type { FilterModel } from "@umbraco-workflow/generated";
 import { InstanceService } from "@umbraco-workflow/generated";

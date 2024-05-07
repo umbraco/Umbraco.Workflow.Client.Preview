@@ -10,6 +10,7 @@ import {
   UmbControllerBase
 } from "@umbraco-cms/backoffice/class-api";
 import { UmbContextConsumerController } from "@umbraco-cms/backoffice/context-api";
+import { ValidActionDescriptor } from './enums.js';
 import {
   ActionService,
   WorkflowTypeModel,
@@ -18,13 +19,6 @@ import type {
   ActionWorkflowRequestModel,
   ActionWorkflowResponseModel,
   CancelablePromise} from "@umbraco-workflow/generated";
-
-export enum ValidActionDescriptor {
-  APPROVE,
-  CANCEL,
-  REJECT,
-  RESUBMIT,
-}
 
 export class WorkflowActionRepository extends UmbControllerBase {
   #notificationContext?: UmbNotificationContext;

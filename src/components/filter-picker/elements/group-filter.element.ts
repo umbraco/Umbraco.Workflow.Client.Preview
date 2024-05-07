@@ -17,20 +17,10 @@ const elementName = "workflow-group-filter";
 export class WorkflowGroupFilterElement extends WorkflowBaseFilterElement<
   string | undefined
 > {
-  #modalManagerContext?: typeof UMB_MODAL_MANAGER_CONTEXT.TYPE;
   #approvalGroupsRepository = new WorkflowApprovalGroupsRepository(this);
 
   @state()
   group?: UserGroupBaseModel;
-
-  constructor() {
-    super();
-
-    this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (instance) => {
-      if (!instance) return;
-      this.#modalManagerContext = instance;
-    });
-  }
 
   async connectedCallback() {
     super.connectedCallback();
@@ -42,7 +32,8 @@ export class WorkflowGroupFilterElement extends WorkflowBaseFilterElement<
   }
 
   async #openGroupPicker() {
-    const modalHandler = this.#modalManagerContext?.open(
+    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    const modalHandler = modalContext.open(
       this,
       WORKFLOW_GROUP_PICKER_MODAL
     );

@@ -16,7 +16,6 @@ const elementName = "workflow-history-cleanup";
 
 @customElement(elementName)
 export class WorkflowHistoryCleanupElement extends UmbElementMixin(LitElement) {
-  #modalManagerContext?: typeof UMB_MODAL_MANAGER_CONTEXT.TYPE;
   #notificationContext?: typeof UMB_NOTIFICATION_CONTEXT.TYPE;
 
   @property()
@@ -25,11 +24,6 @@ export class WorkflowHistoryCleanupElement extends UmbElementMixin(LitElement) {
   constructor() {
     super();
 
-    this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (instance) => {
-      if (!instance) return;
-      this.#modalManagerContext = instance;
-    });
-
     this.consumeContext(UMB_NOTIFICATION_CONTEXT, (instance) => {
       if (!instance) return;
       this.#notificationContext = instance;
@@ -37,7 +31,8 @@ export class WorkflowHistoryCleanupElement extends UmbElementMixin(LitElement) {
   }
 
   async #handleClick() {
-    const modalHandler = this.#modalManagerContext?.open(this, 
+    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    const modalHandler = modalContext.open(this, 
       WORKFLOW_HISTORY_CLEANUP_MODAL,
       {
         data: {

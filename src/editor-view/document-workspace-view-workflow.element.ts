@@ -18,7 +18,7 @@ import {
   WORKFLOW_MANAGER_CONTEXT,
   WorkflowManagerContext,
 } from "@umbraco-workflow/context";
-import { SubView } from "@umbraco-workflow/enums";
+import { SubView } from "src/core/enums";
 
 const elementName = "workflow-document-workspace-view";
 
