@@ -16,10 +16,8 @@ import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "../../workspace/settings-wo
 import { WORKFLOW_DOCUMENT_TYPE_FLOW_MODAL } from "../../modal/index.js";
 import {
   ContentService,
-  ApprovalGroupService,
   type WorkflowConfigUpdateRequestModel,
   type LanguageModel,
-  type UserGroupModel,
   type ContentTypePropertyModel,
   type WorkflowLicenseModel,
 } from "@umbraco-workflow/generated";
@@ -37,7 +35,6 @@ export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
   #license?: WorkflowLicenseModel;
 
   #contentTypes?: Array<ContentTypePropertyModel> = [];
-  #groups?: Array<UserGroupModel> = [];
   #languages?: Array<LanguageModel> = [];
 
   @state()
@@ -65,7 +62,6 @@ export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
 
     this.observe(this.#workspaceContext.generalSettings, async (settings) => {
       await this.#getContentTypes();
-      await this.#getGroups();
 
       this.value =
         <Array<WorkflowConfigUpdateRequestModel>>(
@@ -81,14 +77,6 @@ export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
       ContentService.getContentContentTypes()
     );
     this.#contentTypes = data;
-  }
-
-  async #getGroups() {
-    const { data } = await tryExecuteAndNotify(
-      this,
-      ApprovalGroupService.getApprovalGroup({ skip: 0, take: 1000 })
-    );
-    this.#groups = data?.items;
   }
 
   async #openOverlay(key?: string) {
@@ -107,7 +95,6 @@ export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
           permissions: key
             ? this.value.find((x) => x.key === key)?.permissions ?? []
             : [],
-          groups: this.#groups ?? [],
           languages: this.#languages ?? [],
           isNew: !key,
         },
@@ -116,6 +103,8 @@ export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
 
     const { result } = await modalHandler.onSubmit();
     let newValue = [...this.value];
+
+    console.log(result, newValue);
 
     if (!key) {
       newValue = appendToFrozenArray(newValue, result);

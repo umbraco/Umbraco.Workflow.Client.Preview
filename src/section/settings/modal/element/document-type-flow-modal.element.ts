@@ -5,17 +5,17 @@ import {
   when,
   state,
 } from "@umbraco-cms/backoffice/external/lit";
-import {
-  UMB_MODAL_MANAGER_CONTEXT,
-  UmbModalBaseElement,
-} from "@umbraco-cms/backoffice/modal";
+import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 import type { UUISelectEvent } from "@umbraco-cms/backoffice/external/uui";
-import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import type {
   WorkflowDocumentTypeFlowModalData,
   WorkflowDocumentTypeFlowModalResult,
 } from "../token/index.js";
-import { add, remove } from "@umbraco-workflow/components";
+import {
+  add,
+  type WorkflowApprovalGroupInputElement,
+} from "@umbraco-workflow/components";
+
 import type { UserGroupPermissionsModel } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-document-type-flow-modal";
@@ -39,14 +39,6 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
 
   @state()
   selectedType?: string;
-
-  #host: UmbControllerHost;
-
-  constructor(host: UmbControllerHost) {
-    super();
-
-    this.#host = host;
-  }
 
   connectedCallback() {
     super.connectedCallback();
@@ -82,7 +74,7 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
         id: documentType.id,
         key: documentType.key,
         permissions: this.permissions,
-        variant: "TODO...",
+        variant: this.selectedLanguage!,
       },
     };
 
@@ -108,29 +100,15 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
     this.permissions = [...permissions];
   }
 
-  #remove(idx: number) {
-    let permissions = this.permissions.filter(
-      (p) => p.variant === this.selectedLanguage
-    );
-    permissions = [...remove(permissions, idx)];
+  async #onApprovalGroupsChange(e: CustomEvent) {
+    const target = e.target as WorkflowApprovalGroupInputElement;
 
-    this.permissions = [
-      ...this.permissions.filter((p) => p.variant !== this.selectedLanguage),
-      ...permissions,
-    ];
-  }
+    // const store = await this.getContext(WORKFLOW_APPROVALGROUPS_DETAIL_STORE_CONTEXT);
+    // const items = store.getItems(target.selection);
 
-  async #openGroupPicker() {
-    const permissions = [
-      ...(await add(
-        this.#host,
-        this.permissions.filter((p) => p.variant === this.selectedLanguage),
-        undefined,
-        this.selectedType,
-        await this.getContext(UMB_MODAL_MANAGER_CONTEXT),
-        { variant: this.selectedLanguage }
-      )),
-    ];
+    const permissions = add(target.selection, undefined, this.selectedType, {
+      variant: this.selectedLanguage,
+    });
 
     this.permissions = [
       ...this.permissions.filter((p) => p.variant !== this.selectedLanguage),
@@ -176,27 +154,9 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
 
   #renderCurrentFlow() {
     return html`<uui-box headline=${this.localize.term("workflow_currentFlow")}>
-      ${when(
-        this.permissions.length,
-        () => html` <uui-ref-list>
-          ${this.permissions
-            .filter((p) => p.variant === this.selectedLanguage)
-            .map(
-              (p, idx) =>
-                html`<workflow-ref-group-permission
-                  .name=${p.groupName!}
-                  .stage=${p.permission}
-                  ?canRemove=${true}
-                  @remove=${() => this.#remove(idx)}
-                ></workflow-ref-group-permission>`
-            )}
-        </uui-ref-list>`
-      )}
-
-      <workflow-add-button
-        .labelKey=${"workflow_addWorkflowGroups"}
-        @click=${this.#openGroupPicker}
-      ></workflow-add-button>
+      <workflow-approval-group-input
+        @change=${this.#onApprovalGroupsChange}      
+      ></workflow-approval-group-input>
     </uui-box> `;
   }
 
@@ -225,15 +185,13 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
       </div>
       <div slot="actions">
         <uui-button
-          id="close"
-          label="Close"
+          label=${this.localize.term("general_close")}
           @click="${this.#handleClose}"
         ></uui-button>
         <uui-button
-          id="submit"
           color="positive"
           look="primary"
-          label="Submit"
+          label=${this.localize.term("general_submit")}
           @click=${this.#handleSubmit}
         ></uui-button>
       </div>

@@ -9,7 +9,7 @@ import {
   appendToFrozenArray,
 } from "@umbraco-cms/backoffice/observable-api";
 import type { UmbControllerHostElement } from "@umbraco-cms/backoffice/controller-api";
-import { WorkflowApprovalGroupsRepository } from "../../repository/approval-groups.repository.js";
+import { WorkflowApprovalGroupsDetailRepository } from "../../repository/detail/approval-groups-detail.repository.js";
 import {
   WORKFLOW_APPROVALGROUP_ENTITY_TYPE,
   type WorkflowPropertyModel,
@@ -23,7 +23,7 @@ export class WorkflowApprovalGroupWorkspaceContext
   implements UmbSubmittableWorkspaceContext, UmbRoutableWorkspaceContext
 {
   public readonly IS_APPROVAL_GROUPS_WORKSPACE_CONTEXT = true;
-  public readonly repository = new WorkflowApprovalGroupsRepository(this);
+  public readonly repository = new WorkflowApprovalGroupsDetailRepository(this);
 
   readonly unique;
 

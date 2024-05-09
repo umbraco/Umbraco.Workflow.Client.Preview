@@ -85,23 +85,24 @@ export class WorkflowNewNodeFlowElement extends UmbElementMixin(LitElement) {
   }
 
   async #openGroupPicker() {
-    const value = await add(
-      this.#host,
-      this.value,
-      undefined,
-      undefined,
-      await this.getContext(UMB_MODAL_MANAGER_CONTEXT)
-    );
+    // const value = await add(
+    //   this.#host,
+    //   this.value,
+    //   undefined,
+    //   undefined,
+    //   await this.getContext(UMB_MODAL_MANAGER_CONTEXT)
+    // );
 
-    this.workspaceContext?.setValue(
-      value,
-      this.#propertyAlias,
-      this.#settingsAlias
-    );
+    // this.workspaceContext?.setValue(
+    //   value,
+    //   this.#propertyAlias,
+    //   this.#settingsAlias
+    // );
   }
 
-  #handleApprovalThresholdChange(event: Event) {
-    const detail = (event.target as WorkflowRefGroupPermissionElement).value;
+  #handleApprovalThresholdChange(event: CustomEvent) {
+    // TODO => fix me, unknown shouldn't be needed
+    const detail = (event.target as unknown as WorkflowRefGroupPermissionElement)?.value;
     const permissions = structuredClone(this.value ?? []);
     const idx = permissions.findIndex(
       (x) => x.permission === detail?.permission

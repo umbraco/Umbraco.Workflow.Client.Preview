@@ -439,6 +439,12 @@ groupLanguage?: string | null
 users: Array<User2UserGroupModel>
     };
 
+export type UserGroupItemResponseModel = {
+        id: string
+name: string
+icon?: string | null
+    };
+
 export type UserGroupModel = {
         groupId: number
 unique: string
@@ -510,7 +516,7 @@ export type WorkflowConfigUpdateRequestModel = {
         id: number
 key?: string | null
 variant: string
-permissions: Array<Partial<UserGroupPermissionsModel>>
+permissions: Array<UserGroupPermissionsModel>
     };
 
 export type WorkflowContentDiffModel = {
@@ -758,6 +764,10 @@ skip?: number
 take?: number
                         
                     };
+GetItemApprovalGroup: {
+                        id?: Array<string>
+                        
+                    };
         }
         
         
@@ -770,6 +780,7 @@ take?: number
                 ,GetApprovalGroupInheritedMembers: Array<User2UserGroupModel>
                 ,GetApprovalGroupScaffold: UserGroupModel
                 ,GetApprovalGroupSlim: PagedUserGroupBaseModel
+                ,GetItemApprovalGroup: Array<UserGroupItemResponseModel>
                 
         }
         

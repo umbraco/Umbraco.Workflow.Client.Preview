@@ -1,18 +1,23 @@
 import {
-  css,
   html,
   customElement,
   state,
-  when,
+  ifDefined,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbSelectionManager } from "@umbraco-cms/backoffice/utils";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
+import type { UUIMenuItemEvent } from "@umbraco-cms/backoffice/external/uui";
+import {
+  UmbSelectedEvent,
+  UmbDeselectedEvent,
+} from "@umbraco-cms/backoffice/event";
 import type { UserGroupBaseModel } from "@umbraco-workflow/generated";
 import type {
   WorkflowGroupPickerModalData,
   WorkflowGroupPickerModalResult,
 } from "@umbraco-workflow/modal";
-import { WorkflowApprovalGroupsRepository } from "@umbraco-workflow/approval-group";
+import { WorkflowApprovalGroupCollectionRepository ,type  WorkflowApprovalGroupCollectionModel } from "@umbraco-workflow/approval-group";
+
 
 const elementName = "workflow-group-picker-modal-element";
 
@@ -22,93 +27,95 @@ export class WorkflowGroupPickerModalElement extends UmbModalBaseElement<
   WorkflowGroupPickerModalResult
 > {
   #selectionManager = new UmbSelectionManager(this);
-  #approvalGroupsRepository = new WorkflowApprovalGroupsRepository(this);
+  #approvalGroupsRepository = new WorkflowApprovalGroupCollectionRepository(this);
 
   @state()
-  groups?: Array<UserGroupBaseModel> = [];
+  private _groups?: Array<WorkflowApprovalGroupCollectionModel> = [];
 
-  async connectedCallback() {
+  connectedCallback() {
     super.connectedCallback();
 
-    const { data } = await this.#approvalGroupsRepository.listSlim();
-    this.groups = data?.items ?? [];
-
-    if (!this.groups?.length) {
-      return;
-    }
-
     this.#selectionManager.setSelectable(true);
-    this.#selectionManager.setMultiple(true);
-    this.#selectionManager.setSelection(this.data?.selection ?? []);
+    this.#selectionManager.setMultiple(this.data?.multiple ?? false);
+    this.#selectionManager.setSelection(this.value?.selection ?? []);
+    this.observe(
+      this.#selectionManager.selection,
+      (selection) => this.updateValue({ selection }),
+      "selectionObserver"
+    );
   }
 
-  #handleSubmit() {
-    const selection = this.#selectionManager.getSelection();
-    this.value = {
-      groups: this.groups?.filter((x) => selection.includes(x.key!)) ?? null,
-    };
-    this.modalContext?.submit();
+  protected firstUpdated(): void {
+		this.#observeUserGroups();
+	}
+
+	async #observeUserGroups() {
+		const { error, asObservable } = await this.#approvalGroupsRepository.requestCollection();
+		if (error) return;
+		this.observe(asObservable(), (items) => (this._groups = items), 'approvalGroupsObserver');
+	}
+
+  #onSelected(event: UUIMenuItemEvent, item: WorkflowApprovalGroupCollectionModel) {
+    if (!item.unique) throw new Error("User group unique is required");
+    event.stopPropagation();
+    this.#selectionManager.select(item.unique);
+    this.requestUpdate();
+    this.modalContext?.dispatchEvent(new UmbSelectedEvent(item.unique));
   }
 
-  #handleClose() {
-    this.modalContext?.reject();
+  #onDeselected(event: UUIMenuItemEvent, item: WorkflowApprovalGroupCollectionModel) {
+    if (!item.unique) throw new Error("User group unique is required");
+    event.stopPropagation();
+    this.#selectionManager.deselect(item.unique);
+    this.requestUpdate();
+    this.modalContext?.dispatchEvent(new UmbDeselectedEvent(item.unique));
+  }
+
+  #onSubmit() {
+    this.updateValue({ selection: this.#selectionManager.getSelection() });
+    this._submitModal();
   }
 
   render() {
-    return html`<umb-body-layout headline="Group picker">
-      <div id="main">
+    return html`
+      <umb-body-layout
+        headline=${this.localize.term("workflow_addWorkflowGroups")}
+      >
         <uui-box>
-          ${when(
-            this.groups?.length,
-            () =>
-              this.groups?.map(
-                (group) => html`
-                  <uui-menu-item
-                    .label=${group.name}
-                    selectable
-                    @selected=${() => this.#selectionManager.select(group.key!)}
-                    @deselected=${() =>
-                      this.#selectionManager.deselect(group.key!)}
-                    ?selected=${this.#selectionManager.isSelected(group.key!)}
-                  >
-                    <uui-avatar slot="icon" .name=${group.name!}></uui-avatar>
-                  </uui-menu-item>
-                `
-              ),
-            () => this.localize.term("content_noItemsToShow")
+          ${this._groups?.map(
+            (item) => html`
+              <uui-menu-item
+                label=${ifDefined(item.name)}
+                selectable
+                @selected=${(event: UUIMenuItemEvent) =>
+                  this.#onSelected(event, item)}
+                @deselected=${(event: UUIMenuItemEvent) =>
+                  this.#onDeselected(event, item)}
+                ?selected=${this.#selectionManager.isSelected(item.unique)}
+              >
+                <umb-icon
+                  .name=${item.icon ? `icon-${item.icon}` : undefined}
+                  slot="icon"
+                ></umb-icon>
+              </uui-menu-item>
+            `
           )}
         </uui-box>
-      </div>
-      <div slot="actions">
-        <uui-button
-          id="close"
-          label="Close"
-          @click="${this.#handleClose}"
-        ></uui-button>
-        ${when(
-          this.groups?.length,
-          () => html` <uui-button
-            id="submit"
-            color="positive"
+        <div slot="actions">
+          <uui-button
+            label=${this.localize.term("general_close")}
+            @click=${this._rejectModal}
+          ></uui-button>
+          <uui-button
+            label=${this.localize.term("general_submit")}
             look="primary"
-            label="Submit"
-            @click=${this.#handleSubmit}
-          ></uui-button>`
-        )}
-      </div>
-    </umb-body-layout>`;
+            color="positive"
+            @click=${this.#onSubmit}
+          ></uui-button>
+        </div>
+      </umb-body-layout>
+    `;
   }
-
-  static styles = [
-    css`
-      uui-scroll-container {
-        overflow-y: scroll;
-        max-height: 100%;
-        min-height: 0;
-        flex: 1;
-      }
-    `,
-  ];
 }
 
 export default WorkflowGroupPickerModalElement;

@@ -1,6 +1,6 @@
 import type { ManifestEntityAction } from "@umbraco-cms/backoffice/extension-registry";
 import { WORKFLOW_APPROVALGROUP_ENTITY_TYPE } from "../types.js";
-import { WORKFLOW_APPROVAL_GROUPS_REPOSITORY_ALIAS } from "../repository/manifests.js";
+import { WORKFLOW_APPROVAL_GROUPS_DETAIL_REPOSITORY_ALIAS } from "../repository/detail/manifests.js";
 import { WorkflowDeleteGroupEntityAction } from "./delete.action.js";
 
 const entityActions: Array<ManifestEntityAction> = [
@@ -12,7 +12,7 @@ const entityActions: Array<ManifestEntityAction> = [
     api: WorkflowDeleteGroupEntityAction,
     forEntityTypes: [WORKFLOW_APPROVALGROUP_ENTITY_TYPE],
     meta: {
-      repositoryAlias: WORKFLOW_APPROVAL_GROUPS_REPOSITORY_ALIAS,
+      repositoryAlias: WORKFLOW_APPROVAL_GROUPS_DETAIL_REPOSITORY_ALIAS,
     },
   },
 ];

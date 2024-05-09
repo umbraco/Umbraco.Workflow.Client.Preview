@@ -6,18 +6,19 @@ import {
   state,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
-import { WorkflowApprovalGroupsRepository } from "../../../section/approval-group/repository/approval-groups.repository.js";
+import { WorkflowApprovalGroupsDetailRepository } from "../../../section/approval-group/repository/detail/approval-groups-detail.repository.js";
 import { WorkflowBaseFilterElement } from "./base-filter.element.js";
 import { WORKFLOW_GROUP_PICKER_MODAL } from "@umbraco-workflow/modal";
 import type { UserGroupBaseModel } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-group-filter";
 
+// TODO => this should use the new group picker context
 @customElement(elementName)
 export class WorkflowGroupFilterElement extends WorkflowBaseFilterElement<
   string | undefined
 > {
-  #approvalGroupsRepository = new WorkflowApprovalGroupsRepository(this);
+  #approvalGroupsRepository = new WorkflowApprovalGroupsDetailRepository(this);
 
   @state()
   group?: UserGroupBaseModel;
@@ -27,7 +28,7 @@ export class WorkflowGroupFilterElement extends WorkflowBaseFilterElement<
 
     if (this.value) {
       const { data } = await this.#approvalGroupsRepository.listSlim();
-      this.group = data?.items.find((g) => g.key === this.value);
+      this.group = data?.items.find((g) => g.unique === this.value);
     }
   }
 
@@ -35,11 +36,10 @@ export class WorkflowGroupFilterElement extends WorkflowBaseFilterElement<
     const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
     const modalHandler = modalContext.open(this, WORKFLOW_GROUP_PICKER_MODAL);
 
-    const { groups } = await modalHandler!.onSubmit();
-    if (!groups?.length) return;
+    const { selection } = await modalHandler!.onSubmit();
+    if (!selection?.length) return;
 
-    this.group = groups.at(0);
-    this.setValue(this.group?.key);
+    this.setValue(this.group?.unique);
   }
 
   render() {

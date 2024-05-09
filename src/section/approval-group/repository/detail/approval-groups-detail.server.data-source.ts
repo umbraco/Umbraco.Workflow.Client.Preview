@@ -4,18 +4,12 @@ import type { UmbDetailDataSource } from "@umbraco-cms/backoffice/repository";
 import {
   WORKFLOW_APPROVALGROUP_ENTITY_TYPE,
   type WorkflowApprovalGroupDetailModel,
-} from "../types.js";
+} from "../../types.js";
 import {
   ApprovalGroupService,
   type UserGroupModel,
 } from "@umbraco-workflow/generated";
 
-/**
- * A data source for Approval Groups that fetches data from the server
- * @export
- * @class WorkflowApprovalGroupsDetailServerDataSource
- * @implements {WorkflowDetailDataSource}
- */
 export class WorkflowApprovalGroupsDetailServerDataSource
   implements UmbDetailDataSource<WorkflowApprovalGroupDetailModel>
 {

@@ -15,3 +15,4 @@ export * from "./license-box/license-box.element.js";
 export * from "./history-cleanup/history-cleanup.element.js";
 export * from "./history-cleanup/history-cleanup-detail.element.js";
 export * from "./tooltip/tooltip.element.js";
+export * from "./approval-group-picker/index.js";

@@ -3,7 +3,6 @@ import type {
   WorkflowConfigUpdateRequestModel,
   ContentTypePropertyModel,
   LanguageModel,
-  UserGroupModel,
   UserGroupPermissionsModel,
 } from "@umbraco-workflow/generated";
 
@@ -12,7 +11,6 @@ export const WORKFLOW_DOCUMENT_TYPE_FLOW_MODAL_ALIAS =
 
 export interface WorkflowDocumentTypeFlowModalData {
   contentTypes: Array<ContentTypePropertyModel>;
-  groups: Array<UserGroupModel>;
   languages: Array<LanguageModel>;
   permissions: Array<UserGroupPermissionsModel>;
   isNew: boolean;

@@ -30,16 +30,16 @@ export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
   }
 
   async #openGroupPicker() {
-    this.workflowManagerContext?.setNodePermissions([
-      ...(await add(
-        this.#host,
-        this.permissions.node,
-        this.workflowManagerContext?.getEntityId(),
-        undefined,
-        await this.getContext(UMB_MODAL_MANAGER_CONTEXT),
-        { variant: this.variant }
-      )),
-    ]);
+    // this.workflowManagerContext?.setNodePermissions([
+    //   ...(await add(
+    //     this.#host,
+    //     this.permissions.node,
+    //     this.workflowManagerContext?.getEntityId(),
+    //     undefined,
+    //     await this.getContext(UMB_MODAL_MANAGER_CONTEXT),
+    //     { variant: this.variant }
+    //   )),
+    // ]);
   }
 
   #remove(idx: number) {

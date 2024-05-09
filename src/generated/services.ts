@@ -345,6 +345,29 @@ filter
 		});
 	}
 
+	/**
+	 * @returns unknown Success
+	 * @throws ApiError
+	 */
+	public static getItemApprovalGroup(data: ApprovalGroupData['payloads']['GetItemApprovalGroup'] = {}): CancelablePromise<ApprovalGroupData['responses']['GetItemApprovalGroup']> {
+		const {
+                    
+                    id
+                } = data;
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/umbraco/workflow/api/v1/item/approval-group',
+			query: {
+				id
+			},
+			errors: {
+				400: `Bad Request`,
+				401: `The resource is protected and requires an authentication token`,
+				500: `Server Error`,
+			},
+		});
+	}
+
 }
 
 export class ChartService {

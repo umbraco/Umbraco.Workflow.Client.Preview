@@ -1,7 +1,6 @@
-import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
-import type { UmbModalManagerContext } from "@umbraco-cms/backoffice/modal";
-import type { UserGroupPermissionsModel } from "@umbraco-workflow/generated";
-import { WORKFLOW_GROUP_PICKER_MODAL } from "@umbraco-workflow/modal";
+import type {
+  UserGroupPermissionsModel,
+} from "@umbraco-workflow/generated";
 
 export function remove(arr: Array<UserGroupPermissionsModel>, idx: number) {
   const unfrozenArr = [...arr];
@@ -9,48 +8,31 @@ export function remove(arr: Array<UserGroupPermissionsModel>, idx: number) {
   return unfrozenArr.map((x, i) => ({ ...x, permission: i }));
 }
 
-export async function add(
-  host: UmbControllerHost,
-  arr: Array<UserGroupPermissionsModel>,
+export function add(
+  uniques: Array<string>,
   nodeKey?: string,
   contentTypeKey?: string,
-  modalManagerContext?: UmbModalManagerContext,
   additionalProps?: Record<string, any>
 ) {
-  const modalHandler = modalManagerContext?.open(
-    host,
-    WORKFLOW_GROUP_PICKER_MODAL,
-    {
-      data: {
-        selection: [...(arr.map((p) => p.groupKey ?? null) ?? [])],
-      },
-    }
-  );
-
-  const { groups } = await modalHandler!.onSubmit();
-
   const mapped: Array<UserGroupPermissionsModel> = [];
 
-  groups?.forEach((group) => {
-    if (arr.find((p) => p.groupKey === group.key)) {
-      return;
-    }
-
+  uniques?.forEach((unique, idx) => {
     mapped.push({
-      groupName: group.name,
       nodeKey,
       contentTypeKey,
-      groupKey: group.key,
-      groupId: group.groupId!,
+      groupKey: unique,
       approvalThreshold: 0,
-      permission: arr.length + mapped.length,
+      permission: idx,
       id: 0,
       variant: "",
       nodeId: 0,
       contentTypeId: 0,
+      groupId: 0,
+      groupName: "",
       ...additionalProps,
     });
+
   });
 
-  return [...arr, ...mapped];
+  return mapped;
 }

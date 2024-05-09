@@ -92,13 +92,13 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
   async #openGroupPicker() {
     const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
     const modalHandler = modalContext.open(this, WORKFLOW_GROUP_PICKER_MODAL, {
-      data: {
-        selection: [...(this.current!.groups?.map((p) => p.key ?? null) ?? [])],
+      value: {
+        selection: [...(this.current!.groups?.map((p) => p.unique ?? null) ?? [])],
       },
     });
 
-    const { groups } = await modalHandler!.onSubmit();
-    this.#setValue(groups, "groups");
+    // const { groups } = await modalHandler!.onSubmit();
+    // this.#setValue(groups, "groups");
   }
 
   #handleLanguageChange(e: UUIInputEvent) {

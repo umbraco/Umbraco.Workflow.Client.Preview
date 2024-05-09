@@ -47,7 +47,7 @@ export const PendingApproval: Story = {
       id: 1,
       typeId: 0,
       userGroup: {
-        key: "",
+        unique: "",
         alias: "alias",
         deleted: false,
         permissions: [],
