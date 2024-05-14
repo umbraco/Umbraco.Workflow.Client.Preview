@@ -11,7 +11,6 @@ import {
   UmbSelectedEvent,
   UmbDeselectedEvent,
 } from "@umbraco-cms/backoffice/event";
-import type { UserGroupBaseModel } from "@umbraco-workflow/generated";
 import type {
   WorkflowGroupPickerModalData,
   WorkflowGroupPickerModalResult,

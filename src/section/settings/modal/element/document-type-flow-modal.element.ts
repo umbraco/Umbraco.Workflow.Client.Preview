@@ -11,11 +11,7 @@ import type {
   WorkflowDocumentTypeFlowModalData,
   WorkflowDocumentTypeFlowModalResult,
 } from "../token/index.js";
-import {
-  add,
-  type WorkflowApprovalGroupInputElement,
-} from "@umbraco-workflow/components";
-
+import { type WorkflowApprovalGroupInputElement } from "@umbraco-workflow/components";
 import type { UserGroupPermissionsModel } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-document-type-flow-modal";
@@ -40,6 +36,9 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
   @state()
   selectedType?: string;
 
+  @state()
+  private _selectedGroups: Array<string> = [];
+
   connectedCallback() {
     super.connectedCallback();
 
@@ -58,8 +57,14 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
       })) ?? [];
 
     this.permissions = this.data?.permissions ?? [];
-    this.selectedType = this.contentTypes.find((x) => x.selected)?.value;
-    this.selectedLanguage = this.languages.find((x) => x.selected)?.value;
+    this.selectedType = (
+      this.contentTypes.find((x) => x.selected) ?? this.contentTypes[0]
+    ).value;
+    this.selectedLanguage = (
+      this.languages.find((x) => x.selected) ?? this.languages[0]
+    ).value;
+
+    this.#setGroupSelection();
   }
 
   #handleSubmit() {
@@ -81,10 +86,6 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
     this.modalContext?.submit();
   }
 
-  #handleClose() {
-    this.modalContext?.reject();
-  }
-
   #handleConditionChange(e: CustomEvent) {
     const updatedPermission = e.detail.permission as UserGroupPermissionsModel;
     const permissionIndex = this.permissions.findIndex(
@@ -98,22 +99,27 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
     permissions[permissionIndex] = updatedPermission;
 
     this.permissions = [...permissions];
+
+    this.#setGroupSelection();
   }
 
   async #onApprovalGroupsChange(e: CustomEvent) {
     const target = e.target as WorkflowApprovalGroupInputElement;
 
-    // const store = await this.getContext(WORKFLOW_APPROVALGROUPS_DETAIL_STORE_CONTEXT);
-    // const items = store.getItems(target.selection);
-
-    const permissions = add(target.selection, undefined, this.selectedType, {
-      variant: this.selectedLanguage,
-    });
+    const permissions = target.selectedPermissions(
+      undefined,
+      this.selectedType,
+      {
+        variant: this.selectedLanguage,
+      }
+    );
 
     this.permissions = [
       ...this.permissions.filter((p) => p.variant !== this.selectedLanguage),
       ...permissions,
     ];
+
+    this.#setGroupSelection();
   }
 
   #handleLanguageChange(e: UUISelectEvent) {
@@ -121,6 +127,8 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
     this.languages.forEach(
       (l) => (l.selected = l.value === this.selectedLanguage)
     );
+
+    this.#setGroupSelection();
   }
 
   #handleTypeChange(e: UUISelectEvent) {
@@ -128,6 +136,18 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
     this.contentTypes.forEach(
       (l) => (l.selected = l.value === this.selectedType)
     );
+
+    this.#setGroupSelection();
+  }
+
+  #setGroupSelection() {
+    this._selectedGroups = this.permissions
+      .filter(
+        (p) =>
+          p.variant === this.selectedLanguage &&
+          p.contentTypeKey === this.selectedType
+      )
+      .map((x) => x.groupKey);
   }
 
   #renderTypeSelect() {
@@ -153,9 +173,12 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
   }
 
   #renderCurrentFlow() {
-    return html`<uui-box headline=${this.localize.term("workflow_currentFlow")}>
+    return html`<uui-box
+      headline=${this.localize.term("workflow_approvalGroups")}
+    >
       <workflow-approval-group-input
-        @change=${this.#onApprovalGroupsChange}      
+        .selection=${this._selectedGroups}
+        @change=${this.#onApprovalGroupsChange}
       ></workflow-approval-group-input>
     </uui-box> `;
   }
@@ -186,7 +209,7 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
       <div slot="actions">
         <uui-button
           label=${this.localize.term("general_close")}
-          @click="${this.#handleClose}"
+          @click="${this._rejectModal}"
         ></uui-button>
         <uui-button
           color="positive"

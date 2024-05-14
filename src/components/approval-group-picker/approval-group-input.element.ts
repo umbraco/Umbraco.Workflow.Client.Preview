@@ -10,7 +10,10 @@ import { UUIFormControlMixin } from "@umbraco-cms/backoffice/external/uui";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import { splitStringToArray } from "@umbraco-cms/backoffice/utils";
 import { WorkflowApprovalGroupPickerContext } from "./approval-group-input.context.js";
-import type { UserGroupBaseModel } from "@umbraco-workflow/generated";
+import type {
+  UserGroupBaseModel,
+  UserGroupPermissionsModel,
+} from "@umbraco-workflow/generated";
 
 const elementName = "workflow-approval-group-input";
 
@@ -67,6 +70,33 @@ export class WorkflowApprovalGroupInputElement extends UUIFormControlMixin(
 
   protected getFormElement() {
     return undefined;
+  }
+
+  selectedPermissions(
+    nodeKey?: string,
+    contentTypeKey?: string,
+    additionalProps?: Record<string, any>
+  ) {
+    const mapped: Array<UserGroupPermissionsModel> = [];
+
+    this.selection?.forEach((unique, idx) => {
+      mapped.push({
+        nodeKey,
+        contentTypeKey,
+        groupKey: unique,
+        approvalThreshold: 0,
+        permission: idx,
+        id: 0,
+        variant: "",
+        nodeId: 0,
+        contentTypeId: 0,
+        groupId: 0,
+        groupName: "",
+        ...additionalProps,
+      });
+    });
+
+    return mapped;
   }
 
   render() {

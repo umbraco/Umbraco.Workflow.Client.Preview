@@ -104,8 +104,6 @@ export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
     const { result } = await modalHandler.onSubmit();
     let newValue = [...this.value];
 
-    console.log(result, newValue);
-
     if (!key) {
       newValue = appendToFrozenArray(newValue, result);
     } else {

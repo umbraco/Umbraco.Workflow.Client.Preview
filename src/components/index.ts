@@ -9,7 +9,6 @@ export * from "./daterange/daterange.element.js";
 export * from "./refs/index.js";
 export * from "./timeline/timeline.element.js";
 export * from "./timeline/progress-marker.element.js";
-export * from "./group-picker.utils.js";
 export * from "./add-button/add-button.element.js";
 export * from "./license-box/license-box.element.js";
 export * from "./history-cleanup/history-cleanup.element.js";

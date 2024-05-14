@@ -5,17 +5,16 @@ import {
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
-import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { WorkflowConfigBoxBase } from "./index.js";
 import { PermissionType } from "@umbraco-workflow/core";
+import { type WorkflowRefGroupPermissionElement } from "@umbraco-workflow/components";
 import {
-  add,
-  remove,
-  type WorkflowRefGroupPermissionElement,
-} from "@umbraco-workflow/components";
+  ConfigService
+,type 
+  UserGroupPermissionsModel
+} from "@umbraco-workflow/generated";
 
-import { ConfigService } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-config-content";
 
@@ -43,9 +42,14 @@ export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
   }
 
   #remove(idx: number) {
-    this.workflowManagerContext?.setNodePermissions([
-      ...remove(this.permissions.node, idx),
-    ]);
+    const permissions = this.#removePermission(this.permissions.node, idx);
+    this.workflowManagerContext?.setNodePermissions([...permissions]);
+  }
+
+  #removePermission(arr: Array<UserGroupPermissionsModel>, idx: number) {
+    const unfrozenArr = [...arr];
+    unfrozenArr.splice(idx, 1);
+    return unfrozenArr.map((x, i) => ({ ...x, permission: i }));
   }
 
   async #save() {

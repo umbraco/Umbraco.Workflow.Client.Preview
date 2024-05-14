@@ -6,14 +6,9 @@ import {
   state,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "../../workspace/settings-workspace.context-token.js";
-import {
-  add,
-  remove,
-  type WorkflowRefGroupPermissionElement,
-} from "@umbraco-workflow/components";
+import { type WorkflowRefGroupPermissionElement } from "@umbraco-workflow/components";
 
 import type {
   GeneralSettingsModel,
@@ -76,12 +71,18 @@ export class WorkflowNewNodeFlowElement extends UmbElementMixin(LitElement) {
   }
 
   #remove(idx: number) {
-    const value = remove([...this.value], idx);
+    const value = this.#removePermission([...this.value], idx);
     this.workspaceContext?.setValue(
       value,
       this.#propertyAlias,
       this.#settingsAlias
     );
+  }
+
+  #removePermission(arr: Array<UserGroupPermissionsModel>, idx: number) {
+    const unfrozenArr = [...arr];
+    unfrozenArr.splice(idx, 1);
+    return unfrozenArr.map((x, i) => ({ ...x, permission: i }));
   }
 
   async #openGroupPicker() {
@@ -92,7 +93,6 @@ export class WorkflowNewNodeFlowElement extends UmbElementMixin(LitElement) {
     //   undefined,
     //   await this.getContext(UMB_MODAL_MANAGER_CONTEXT)
     // );
-
     // this.workspaceContext?.setValue(
     //   value,
     //   this.#propertyAlias,
@@ -102,7 +102,9 @@ export class WorkflowNewNodeFlowElement extends UmbElementMixin(LitElement) {
 
   #handleApprovalThresholdChange(event: CustomEvent) {
     // TODO => fix me, unknown shouldn't be needed
-    const detail = (event.target as unknown as WorkflowRefGroupPermissionElement)?.value;
+    const detail = (
+      event.target as unknown as WorkflowRefGroupPermissionElement
+    )?.value;
     const permissions = structuredClone(this.value ?? []);
     const idx = permissions.findIndex(
       (x) => x.permission === detail?.permission
