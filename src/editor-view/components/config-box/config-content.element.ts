@@ -10,11 +10,9 @@ import { WorkflowConfigBoxBase } from "./index.js";
 import { PermissionType } from "@umbraco-workflow/core";
 import { type WorkflowRefGroupPermissionElement } from "@umbraco-workflow/components";
 import {
-  ConfigService
-,type 
-  UserGroupPermissionsModel
+  ConfigService,
+  type UserGroupPermissionsModel,
 } from "@umbraco-workflow/generated";
-
 
 const elementName = "workflow-config-content";
 
@@ -141,7 +139,8 @@ export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
                 ${this.permissions?.node?.map(
                   (permission, idx) =>
                     html`<workflow-ref-group-permission
-                      .value=${permission}
+                      .stage=${permission.permission}
+                      .name=${permission.groupName}
                       ?linked=${true}
                       ?canRemove=${true}
                       ?canConfigureApprovalThreshold=${this

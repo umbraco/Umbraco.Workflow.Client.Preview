@@ -4,12 +4,9 @@ import {
   customElement,
   html,
   state,
-  when,
 } from "@umbraco-cms/backoffice/external/lit";
-import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "../../workspace/settings-workspace.context-token.js";
-import { type WorkflowRefGroupPermissionElement } from "@umbraco-workflow/components";
-
+import type { WorkflowApprovalGroupInputElement } from "@umbraco-workflow/components";
 import type {
   GeneralSettingsModel,
   UserGroupPermissionsModel,
@@ -26,31 +23,31 @@ export class WorkflowNewNodeFlowElement extends UmbElementMixin(LitElement) {
   readonly #configureApprovalThreshold = "configureApprovalThreshold";
   readonly #approvalThreshold = "approvalThreshold";
 
-  #host: UmbControllerHost;
-
   @state()
   _generalSettings?: GeneralSettingsModel;
 
-  constructor(host: UmbControllerHost) {
-    super();
+  @state()
+  value: Array<UserGroupPermissionsModel> = [];
 
-    this.#host = host;
+  @state()
+  documentUnique?: string;
+
+  constructor() {
+    super();
 
     this.consumeContext(WORKFLOW_SETTINGS_WORKSPACE_CONTEXT, (instance) => {
       this.workspaceContext = instance;
 
       this.observe(this.workspaceContext.generalSettings, (settings) => {
         this._generalSettings = settings;
+        this.value = (this._generalSettings?.newNodeApprovalFlow?.value ??
+          []) as Array<UserGroupPermissionsModel>;
+        this.documentUnique = this._generalSettings?.newNodeApprovalFlow?.config.find(x => x.alias === 'nodeKey')?.value as string ?? "";
       });
     });
   }
 
-  get value() {
-    return (this._generalSettings?.newNodeApprovalFlow?.value ??
-      []) as Array<UserGroupPermissionsModel>;
-  }
-
-  get configureApprovalThreshold() {
+  configureApprovalThreshold() {
     return (
       <boolean>(
         this._generalSettings?.properties?.find(
@@ -60,99 +57,38 @@ export class WorkflowNewNodeFlowElement extends UmbElementMixin(LitElement) {
     );
   }
 
-  get defaultApprovalThreshold() {
-    return (
-      <number>(
-        this._generalSettings?.properties?.find(
-          (x) => x.alias === this.#approvalThreshold
-        )?.value
-      ) ?? 0
+  defaultApprovalThreshold() {
+    const prop = this._generalSettings?.properties?.find(
+      (x) => x.alias === this.#approvalThreshold
     );
+
+    const value = (
+      (prop?.config.find((c) => c.alias === "items")?.value as Array<any>) ?? []
+    ).indexOf(prop?.value);
+    return value;
   }
 
-  #remove(idx: number) {
-    const value = this.#removePermission([...this.value], idx);
+  async #onApprovalGroupsChange(e: CustomEvent) {
+    const target = e.target as WorkflowApprovalGroupInputElement;
     this.workspaceContext?.setValue(
-      value,
-      this.#propertyAlias,
-      this.#settingsAlias
-    );
-  }
-
-  #removePermission(arr: Array<UserGroupPermissionsModel>, idx: number) {
-    const unfrozenArr = [...arr];
-    unfrozenArr.splice(idx, 1);
-    return unfrozenArr.map((x, i) => ({ ...x, permission: i }));
-  }
-
-  async #openGroupPicker() {
-    // const value = await add(
-    //   this.#host,
-    //   this.value,
-    //   undefined,
-    //   undefined,
-    //   await this.getContext(UMB_MODAL_MANAGER_CONTEXT)
-    // );
-    // this.workspaceContext?.setValue(
-    //   value,
-    //   this.#propertyAlias,
-    //   this.#settingsAlias
-    // );
-  }
-
-  #handleApprovalThresholdChange(event: CustomEvent) {
-    // TODO => fix me, unknown shouldn't be needed
-    const detail = (
-      event.target as unknown as WorkflowRefGroupPermissionElement
-    )?.value;
-    const permissions = structuredClone(this.value ?? []);
-    const idx = permissions.findIndex(
-      (x) => x.permission === detail?.permission
-    );
-
-    if (idx === -1) {
-      return;
-    }
-
-    permissions[idx].approvalThreshold =
-      detail?.approvalThreshold ?? this.defaultApprovalThreshold ?? 0;
-
-    this.workspaceContext?.setValue(
-      permissions,
+      target.selectedPermissions,
       this.#propertyAlias,
       this.#settingsAlias
     );
   }
 
   render() {
-    return html`${when(
-        this.value?.length,
-        () => html`
-          <uui-ref-list>
-            ${this.value!.map(
-              (permission, idx) =>
-                html`<workflow-ref-group-permission
-                  .value=${permission}
-                  ?canEdit=${false}
-                  ?canRemove=${true}
-                  ?canConfigureApprovalThreshold=${this
-                    .configureApprovalThreshold}
-                  .defaultApprovalThreshold=${this.defaultApprovalThreshold}
-                  @approvalThresholdChange=${this
-                    .#handleApprovalThresholdChange}
-                  @remove=${() => this.#remove(idx)}
-                >
-                </workflow-ref-group-permission>`
-            )}
-          </uui-ref-list>
-        `
-      )}
-
-      <workflow-add-button
-        @click=${this.#openGroupPicker}
-        .labelKey=${"workflow_addWorkflowGroups"}
-      >
-      </workflow-add-button>`;
+    return html`<workflow-approval-group-input
+      .config=${{
+        edit: false,
+        remove: true,
+        defaultThreshold: this.defaultApprovalThreshold(),
+        configureThreshold: this.configureApprovalThreshold(),
+      }}
+      .document=${this.documentUnique}
+      .selectedPermissions=${this.value}
+      @change=${this.#onApprovalGroupsChange}
+    ></workflow-approval-group-input>`;
   }
 }
 

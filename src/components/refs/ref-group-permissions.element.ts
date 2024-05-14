@@ -3,7 +3,6 @@ import {
   html,
   customElement,
   property,
-  when,
   css,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
@@ -46,43 +45,22 @@ export class WorkflowRefGroupPermissionElement extends UmbElementMixin(
   connectedCallback(): void {
     super.connectedCallback();
 
-    if (!this.value) return;
-
-    this.name = `Stage ${this.value.permission! + 1}: ${this.value.groupName}`;
-
+    // order here MUST reflect the enum order
     this.allMostOneLabels = [
-      this.localize.term("workflow_all"),
-      this.localize.term("workflow_most"),
       this.localize.term("workflow_one"),
+      this.localize.term("workflow_most"),
+      this.localize.term("workflow_all"),
     ];
   }
 
-  #emit(event: string) {
-    this.dispatchEvent(new CustomEvent(event));
-  }
-
-  #renderRemove() {
-    return html`<uui-button
-      @click=${() => this.#emit("remove")}
-      label="Remove group ${this.name}"
-      >Remove</uui-button
-    >`;
-  }
-
-  #renderEdit() {
-    return html`<uui-button
-      @click=${() => this.#emit("edit")}
-      label="Edit group ${this.name}"
-      >Edit</uui-button
-    >`;
-  }
-
   #getName() {
-    if (this.stage === undefined) {
-      return this.name;
+    if (this.value) {
+      return `Stage ${(this.value.permission ?? 0) + 1}: ${
+        this.value.groupName
+      }`
     }
 
-    return `${this.name} - stage ${this.stage + 1}`;
+    return `Stage ${(this.stage ?? 0) + 1}: ${this.name}`;
   }
 
   #cycleThresholdValue() {
@@ -96,15 +74,14 @@ export class WorkflowRefGroupPermissionElement extends UmbElementMixin(
         : 1;
 
     this.value = { ...this.value, approvalThreshold };
-
     this.dispatchEvent(new CustomEvent("approvalThresholdChange"));
   }
 
   #renderApprovalThreshold() {
     if (!this.value) return;
 
-    return html`<small id="detail"
-      ><slot name="detail">
+    return html`<small id="detail">
+      <slot name="detail">
         <button
           @click=${this.#cycleThresholdValue}
           id="thresholdButton"
@@ -120,6 +97,7 @@ export class WorkflowRefGroupPermissionElement extends UmbElementMixin(
   render() {
     return html`
       <div id="open-part" tabindex="0">
+        <span id="icon"><slot name="icon"></slot></span>
         <div id="info">
           <div id="name">${this.#getName()}</div>
           ${this.#renderApprovalThreshold()}
@@ -127,15 +105,9 @@ export class WorkflowRefGroupPermissionElement extends UmbElementMixin(
       </div>
       <!-- Select border must be right after #open-part -->
       <div id="select-border"></div>
-
       <slot></slot>
       <slot name="tag"></slot>
-      <slot name="actions" id="actions-container">
-        <uui-action-bar>
-          ${when(this.canEdit, () => this.#renderEdit())}
-          ${when(this.canRemove, () => this.#renderRemove())}
-        </uui-action-bar>
-      </slot>
+      <slot name="actions" id="actions-container"></slot>
     `;
   }
 

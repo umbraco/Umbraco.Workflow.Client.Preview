@@ -104,15 +104,8 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
   }
 
   async #onApprovalGroupsChange(e: CustomEvent) {
-    const target = e.target as WorkflowApprovalGroupInputElement;
-
-    const permissions = target.selectedPermissions(
-      undefined,
-      this.selectedType,
-      {
-        variant: this.selectedLanguage,
-      }
-    );
+    const permissions = (e.target as WorkflowApprovalGroupInputElement)
+      .selectedPermissions;
 
     this.permissions = [
       ...this.permissions.filter((p) => p.variant !== this.selectedLanguage),
@@ -179,6 +172,11 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
       <workflow-approval-group-input
         .selection=${this._selectedGroups}
         @change=${this.#onApprovalGroupsChange}
+        .config=${{
+          additionalData: {
+            variant: this.selectedLanguage,
+          },
+        }}
       ></workflow-approval-group-input>
     </uui-box> `;
   }
