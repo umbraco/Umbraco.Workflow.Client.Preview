@@ -5,49 +5,18 @@ import {
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
-import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { WorkflowConfigBoxBase } from "./index.js";
 import { PermissionType } from "@umbraco-workflow/core";
-import { type WorkflowRefGroupPermissionElement } from "@umbraco-workflow/components";
-import {
-  ConfigService,
-  type UserGroupPermissionsModel,
-} from "@umbraco-workflow/generated";
+import type { WorkflowApprovalGroupInputElement } from "@umbraco-workflow/components";
+import { ConfigService } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-config-content";
 
 @customElement(elementName)
 export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
-  #host: UmbControllerHost;
-
-  constructor(host: UmbControllerHost) {
-    super();
-
-    this.#host = host;
-  }
-
-  async #openGroupPicker() {
-    // this.workflowManagerContext?.setNodePermissions([
-    //   ...(await add(
-    //     this.#host,
-    //     this.permissions.node,
-    //     this.workflowManagerContext?.getEntityId(),
-    //     undefined,
-    //     await this.getContext(UMB_MODAL_MANAGER_CONTEXT),
-    //     { variant: this.variant }
-    //   )),
-    // ]);
-  }
-
-  #remove(idx: number) {
-    const permissions = this.#removePermission(this.permissions.node, idx);
-    this.workflowManagerContext?.setNodePermissions([...permissions]);
-  }
-
-  #removePermission(arr: Array<UserGroupPermissionsModel>, idx: number) {
-    const unfrozenArr = [...arr];
-    unfrozenArr.splice(idx, 1);
-    return unfrozenArr.map((x, i) => ({ ...x, permission: i }));
+  async #onApprovalGroupsUpdated(e: CustomEvent) {
+    const target = e.target as WorkflowApprovalGroupInputElement;
+    this.workflowManagerContext?.setNodePermissions(target.selectedPermissions);
   }
 
   async #save() {
@@ -61,7 +30,7 @@ export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
         requestBody: {
           key: this.workflowManagerContext.getEntityId()!,
           id: 1,
-          permissions: this.permissions.node,
+          permissions: this.permissions?.node ?? [],
           variant: this.variant!,
         },
       })
@@ -74,25 +43,6 @@ export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
 
   #removeAll() {
     this.workflowManagerContext?.setNodePermissions([]);
-  }
-
-  #handleApprovalThresholdChange(event: Event) {
-    const detail = (event.target as WorkflowRefGroupPermissionElement).value;
-    const permissions = structuredClone(this.permissions?.node ?? []);
-    const idx = permissions.findIndex(
-      (x) => x.permission === detail?.permission
-    );
-
-    if (idx === -1) {
-      return;
-    }
-
-    permissions[idx].approvalThreshold =
-      detail?.approvalThreshold ??
-      this.workflowManagerContext!.settings!.approvalThreshold ??
-      0;
-
-    this.workflowManagerContext?.setNodePermissions(permissions);
   }
 
   render() {
@@ -111,7 +61,7 @@ export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
         `
       )}
       ${when(
-        this.workflowManagerContext?.isNew && this.permissions.new.length,
+        this.workflowManagerContext?.isNew && this.permissions?.new.length,
         () => html`
           <alert-workflow
             style="display:block; margin-top:var(--uui-size-space-5)"
@@ -120,10 +70,7 @@ export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
             <uui-ref-list>
               ${this.permissions?.new?.map(
                 (permission) =>
-                  html`<workflow-ref-group-permission
-                    .name=${permission.groupName!}
-                    .stage=${permission.permission}
-                  >
+                  html`<workflow-ref-group-permission .value=${permission}>
                   </workflow-ref-group-permission>`
               )}
             </uui-ref-list>
@@ -132,36 +79,23 @@ export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
       )}
       ${when(
         !this.workflowManagerContext?.isNew,
-        () => html`${when(
-            this.permissions.node.length,
-            () => html`
-              <uui-ref-list>
-                ${this.permissions?.node?.map(
-                  (permission, idx) =>
-                    html`<workflow-ref-group-permission
-                      .stage=${permission.permission}
-                      .name=${permission.groupName}
-                      ?linked=${true}
-                      ?canRemove=${true}
-                      ?canConfigureApprovalThreshold=${this
-                        .workflowManagerContext!.settings
-                        ?.configureApprovalThreshold}
-                      .defaultApprovalThreshold=${this.workflowManagerContext!
-                        .settings?.approvalThreshold}
-                      @approvalThresholdChange=${this
-                        .#handleApprovalThresholdChange}
-                      @remove=${() => this.#remove(idx)}
-                    >
-                    </workflow-ref-group-permission>`
-                )}
-              </uui-ref-list>
-            `
-          )}
-
-          <workflow-add-button
-            @click=${this.#openGroupPicker}
-            .labelKey=${"workflow_addWorkflowGroups"}
-          ></workflow-add-button>
+        () => html` <workflow-approval-group-input
+            .config=${{
+              multiple: true,
+              document: this.workflowManagerContext!.getEntityId(),
+              remove: true,
+              defaultThreshold:
+                this.workflowManagerContext?.settings?.approvalThreshold,
+              configureThreshold:
+                this.workflowManagerContext?.settings
+                  ?.configureApprovalThreshold,
+              additionalData: {
+                variant: this.variant,
+              },
+            }}
+            .selectedPermissions=${this.permissions?.node ?? []}
+            @updated=${this.#onApprovalGroupsUpdated}
+          ></workflow-approval-group-input>
 
           <div id="action-buttons">
             <uui-button
@@ -174,7 +108,7 @@ export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
               color="danger"
               look="primary"
               @click=${this.#removeAll}
-              ?disabled=${!this.permissions.node.length}
+              ?disabled=${!this.permissions?.node.length}
               label=${this.localize.term("workflow_removeAll")}
             ></uui-button>
           </div>`

@@ -8,10 +8,11 @@ import {
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
 import { UMB_CURRENT_USER_CONTEXT } from "@umbraco-cms/backoffice/current-user";
+import type { WorkflowHistoryCleanupRuleSet } from "../types.js";
 import type {
   WorkflowHistoryCleanupModalData,
   WorkflowHistoryCleanupModalResult,
-} from "../token/history-cleanup-modal.token.js";
+} from './history-cleanup-modal.token.js';
 import {
   type HistoryCleanupConfigModel,
   type HistoryCleanupModel,
@@ -19,10 +20,6 @@ import {
 } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-history-cleanup-modal";
-
-export type WorkflowHistoryCleanupRuleSet = {
-  [k: string]: HistoryCleanupConfigModel;
-};
 
 @customElement(elementName)
 export class WorkflowHistoryCleanupModalElement extends UmbModalBaseElement<

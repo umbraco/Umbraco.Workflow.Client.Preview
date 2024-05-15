@@ -1,11 +1,11 @@
-import type { UserGroupBaseModel } from "@umbraco-workflow/generated";
+import type { WorkflowApprovalGroupCollectionModel } from '../approval-group/collection/index.js';
 
 export type ContentReviewType = "document" | "documentType";
 
 export type ContentReviewConfigItem = {
   id?: number;
   variant?: string;
-  groups?: Array<UserGroupBaseModel>;
+  groups?: Array<WorkflowApprovalGroupCollectionModel>;
   excluded?: boolean;
   period?: number;
   externalReviewers?: string;

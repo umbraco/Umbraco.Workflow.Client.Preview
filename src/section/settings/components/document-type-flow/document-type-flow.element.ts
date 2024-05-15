@@ -1,6 +1,4 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import {
-  LitElement,
   customElement,
   html,
   state,
@@ -12,12 +10,11 @@ import {
   appendToFrozenArray,
   partialUpdateFrozenArray,
 } from "@umbraco-cms/backoffice/observable-api";
-import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "../../workspace/settings-workspace.context-token.js";
 import { WORKFLOW_DOCUMENT_TYPE_FLOW_MODAL } from "../../modal/index.js";
+import { WorkflowSettingsElementBase } from "../settings-component.base.js";
 import {
   ContentService,
   type WorkflowConfigUpdateRequestModel,
-  type LanguageModel,
   type ContentTypePropertyModel,
   type WorkflowLicenseModel,
 } from "@umbraco-workflow/generated";
@@ -27,15 +24,11 @@ import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 const elementName = "workflow-document-type-flow";
 
 @customElement(elementName)
-export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
-  LitElement
-) {
-  #workspaceContext?: typeof WORKFLOW_SETTINGS_WORKSPACE_CONTEXT.TYPE;
-
+export class DocumentTypeApprovalFlowElement extends WorkflowSettingsElementBase {
   #license?: WorkflowLicenseModel;
 
-  #contentTypes?: Array<ContentTypePropertyModel> = [];
-  #languages?: Array<LanguageModel> = [];
+  @state()
+  contentTypes: Array<ContentTypePropertyModel> = [];
 
   @state()
   value: Array<WorkflowConfigUpdateRequestModel> = [];
@@ -43,43 +36,31 @@ export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
   constructor() {
     super();
 
-    this.consumeContext(
-      WORKFLOW_SETTINGS_WORKSPACE_CONTEXT,
-      async (instance) => {
-        this.#workspaceContext = instance;
-        this.#observeSettings();
-      }
-    );
-
     this.consumeContext(WORKFLOW_CONTEXT, (instance) => {
       if (!instance) return;
       this.observe(instance.license, (license) => (this.#license = license));
     });
   }
 
-  #observeSettings() {
-    if (!this.#workspaceContext) return;
+  async connectedCallback() {
+    super.connectedCallback();
 
-    this.observe(this.#workspaceContext.generalSettings, async (settings) => {
-      await this.#getContentTypes();
-
-      this.value =
-        <Array<WorkflowConfigUpdateRequestModel>>(
-          settings?.documentTypeApprovalFlows?.value
-        ) ?? [];
-      this.#languages = this.#workspaceContext?.getData()?.availableLanguages;
-    });
-  }
-
-  async #getContentTypes() {
     const { data } = await tryExecuteAndNotify(
       this,
       ContentService.getContentContentTypes()
     );
-    this.#contentTypes = data;
+
+    this.contentTypes = data ?? [];
   }
 
-  async #openOverlay(key?: string) {
+  init() {
+    this.value =
+      <Array<WorkflowConfigUpdateRequestModel>>(
+        this.generalSettings?.documentTypeApprovalFlows?.value
+      ) ?? [];
+  }
+
+  async #openOverlay(key?: string | null) {
     if (this.#license?.isTrial) {
       return;
     }
@@ -90,18 +71,25 @@ export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
       WORKFLOW_DOCUMENT_TYPE_FLOW_MODAL,
       {
         data: {
-          contentTypes:
-            this.#contentTypes?.filter((x) => !key || x.key === key) ?? [],
+          contentTypes: this.contentTypes,
+          existing: this.value.map((x) => x.key).filter((x) => x !== key),
+          key,
           permissions: key
             ? this.value.find((x) => x.key === key)?.permissions ?? []
             : [],
-          languages: this.#languages ?? [],
           isNew: !key,
+          configureThreshold: this.configureApprovalThreshold(),
+          defaultThreshold: this.defaultApprovalThreshold(),
         },
       }
     );
 
-    const { result } = await modalHandler.onSubmit();
+    const result = (await modalHandler
+      .onSubmit()
+      .catch(() => undefined)) as WorkflowConfigUpdateRequestModel;
+
+    if (!result) return;
+
     let newValue = [...this.value];
 
     if (!key) {
@@ -114,22 +102,22 @@ export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
       );
     }
 
-    this.#workspaceContext?.setValue(
+    this.workspaceContext?.setValue(
       newValue,
       "documentTypeApprovalFlows",
       "generalSettings"
     );
   }
 
-  #getProp(prop: "name" | "icon", key?: string) {
-    return this.#contentTypes?.find((x) => x.key === key)?.[prop] ?? "";
+  #getProp(prop: "name" | "icon", key?: string | null) {
+    return this.contentTypes?.find((x) => x.key === key)?.[prop] ?? "";
   }
 
   #remove(idx: number) {
     const newValue = [...this.value];
     newValue.splice(idx, 1);
 
-    this.#workspaceContext?.setValue(
+    this.workspaceContext?.setValue(
       newValue,
       "documentTypeApprovalFlows",
       "generalSettings"
@@ -144,20 +132,17 @@ export class DocumentTypeApprovalFlowElement extends UmbElementMixin(
             ${this.value!.map(
               (node, idx) =>
                 html`<uui-ref-node
-                  name=${this.#getProp("name", node.key ?? undefined)}
-                  @open=${() => this.#openOverlay(node.key ?? undefined)}
+                  .name=${this.#getProp("name", node.key)}
+                  @open=${() => this.#openOverlay(node.key)}
                 >
                   <uui-icon
                     slot="icon"
-                    name=${this.#getProp("icon", node.key ?? undefined)}
+                    name=${this.#getProp("icon", node.key)}
                   ></uui-icon>
                   <uui-action-bar slot="actions">
                     <uui-button
                       @click=${() => this.#remove(idx)}
-                      label="Remove ${this.#getProp(
-                        "name",
-                        node.key ?? undefined
-                      )}"
+                      label="Remove ${this.#getProp("name", node.key)}"
                       >Remove</uui-button
                     >
                   </uui-action-bar>

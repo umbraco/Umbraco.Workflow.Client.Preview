@@ -1,5 +1,5 @@
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
-import type { WorkflowHistoryCleanupRuleSet } from "../index.js";
+import type { WorkflowHistoryCleanupRuleSet } from '../types.js';
 
 export const WORKFLOW_HISTORY_CLEANUP_MODAL_ALIAS =
   "Workflow.Modal.HistoryCleanup";

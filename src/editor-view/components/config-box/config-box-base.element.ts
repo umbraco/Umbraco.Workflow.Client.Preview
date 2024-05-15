@@ -18,8 +18,9 @@ export class WorkflowConfigBoxBase extends UmbElementMixin(LitElement) {
   workflowState?: WorkflowState;
 
   @state()
-  permissions!: NodePermissionsResponseModel;
+  permissions?: NodePermissionsResponseModel;
 
+  @state()
   variant?: string;
 
   constructor() {

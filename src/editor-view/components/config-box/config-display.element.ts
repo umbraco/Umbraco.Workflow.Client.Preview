@@ -16,19 +16,19 @@ export class WorkflowConfigDisplayElement extends WorkflowConfigBoxBase {
   approvalType!: PermissionType.CONTENT_TYPE | PermissionType.INHERITED;
 
   get headline() {
-    if (this.approvalType === PermissionType.CONTENT_TYPE) {
-      return this.localize.term("workflow_docTypeApprovalFlow");
-    }
-
-    return this.localize.term("workflow_inheritedApprovalFlow");
+    return this.localize.term(
+      this.approvalType === PermissionType.CONTENT_TYPE
+        ? "workflow_docTypeApprovalFlow"
+        : "workflow_inheritedApprovalFlow"
+    );
   }
 
   get empty() {
-    if (this.approvalType === PermissionType.CONTENT_TYPE) {
-      return this.localize.term("workflow_noDoctypeFlow");
-    }
-
-    return this.localize.term("workflow_noInheritedFlow");
+    return this.localize.term(
+      this.approvalType === PermissionType.CONTENT_TYPE
+        ? "workflow_noDoctypeFlow"
+        : "workflow_noInheritedFlow"
+    );
   }
 
   #renderDescription() {
@@ -44,15 +44,13 @@ export class WorkflowConfigDisplayElement extends WorkflowConfigBoxBase {
     </p>`;
   }
 
+  // TODO => add group icon to permission view model
   #renderPermissions() {
     return html`<uui-ref-list>
       ${this.permissions?.[this.approvalType]?.map(
         (permission) =>
-          html`<workflow-ref-group-permission
-            .name=${`Stage ${permission.permission! + 1}: ${
-              permission.groupName
-            }`}
-          >
+          html`<workflow-ref-group-permission .value=${permission}>
+            <span slot="icon"><uui-icon name="icon-users"></uui-icon> </span>
           </workflow-ref-group-permission>`
       )}
     </uui-ref-list>`;

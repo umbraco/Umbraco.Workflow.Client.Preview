@@ -14,7 +14,7 @@ export class WorkflowConfigContentReviewsElement extends WorkflowConfigBoxBase {
   }
 
   #renderDescription() {
-    if (!this.reviewConfig?.inherited) return null;
+    if (!this.reviewConfig?.inheritedFrom) return null;
 
     return html` <p>
       ${this.localize.term(

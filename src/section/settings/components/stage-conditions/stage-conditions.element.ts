@@ -20,30 +20,32 @@ type StageCondition = {
   condition?: string;
 };
 
+export interface StageConditionConfig {
+  variant: string;
+  contentType: ContentTypePropertyModel;
+}
+
 const elementName = "workflow-stage-conditions";
 
 @customElement(elementName)
 export class StageConditionElement extends UmbElementMixin(LitElement) {
   @property({ type: Object })
-  variant?: Option;
-
-  @property({ type: Object })
-  contentType?: ContentTypePropertyModel;
+  config?: StageConditionConfig;
 
   @property({ type: Array })
-  permissions?: Array<UserGroupPermissionsModel> = [];
+  value?: Array<UserGroupPermissionsModel> = [];
 
   @state()
   conditions: Array<StageCondition> = [];
 
-  get permissionsByVariant() {
-    return this.permissions?.filter((x) => x.variant === this.variant?.value);
+  get valueByVariant() {
+    return this.value?.filter((x) => x.variant === this.config?.variant);
   }
 
   connectedCallback(): void {
     super.connectedCallback();
 
-    this.permissions?.forEach((p) => {
+    this.value?.forEach((p) => {
       if (!p.condition) return;
 
       p.condition.split(",").forEach((condition) => {
@@ -57,7 +59,7 @@ export class StageConditionElement extends UmbElementMixin(LitElement) {
   }
 
   #addCondition() {
-    this.conditions = [...this.conditions, { variant: this.variant?.value }];
+    this.conditions = [...this.conditions, { variant: this.config?.variant }];
   }
 
   #removeCondition(idx: number) {
@@ -67,7 +69,7 @@ export class StageConditionElement extends UmbElementMixin(LitElement) {
     this.conditions = conditions;
 
     // update permission to remove condition value
-    let permission = this.permissions?.find(
+    let permission = this.value?.find(
       (p) =>
         removedCondition.condition &&
         p.variant === removedCondition.variant &&
@@ -104,10 +106,10 @@ export class StageConditionElement extends UmbElementMixin(LitElement) {
   }
 
   #handlePropertySelect(condition: StageCondition, e: UUISelectEvent) {
-    let permission = this.permissions?.find(
+    let permission = this.value?.find(
       (p) =>
-        p.contentTypeKey === this.contentType?.key &&
-        p.variant === this.variant?.value &&
+        p.contentTypeKey === this.config?.contentType.key &&
+        p.variant === this.config?.variant &&
         p.groupKey === condition.groupKey
     );
 
@@ -150,7 +152,7 @@ export class StageConditionElement extends UmbElementMixin(LitElement) {
       <umb-localize key="workflow_include">Include</umb-localize>
       <uui-select
         placeholder="Select"
-        .options=${this.permissionsByVariant?.map((p) => ({
+        .options=${this.valueByVariant?.map((p) => ({
           name: p.groupName!,
           value: p.groupKey!.toString(),
           selected: condition.groupKey === p.groupKey,
@@ -161,7 +163,7 @@ export class StageConditionElement extends UmbElementMixin(LitElement) {
       <umb-localize key="workflow_when">when</umb-localize>
       <uui-select
         placeholder="Select"
-        .options=${this.contentType?.properties?.map((x) => ({
+        .options=${this.config?.contentType.properties?.map((x) => ({
           name: x.name!,
           value: x.key!,
           selected: condition.condition === x.key,
@@ -190,7 +192,7 @@ export class StageConditionElement extends UmbElementMixin(LitElement) {
         () => html`
           <ul id="conditionsList">
             ${this.conditions
-              .filter((c) => c.variant === this.variant?.value)
+              .filter((c) => c.variant === this.config?.variant)
               .map((c, i) => this.#renderConditionElement(c, i))}
           </ul>
         `

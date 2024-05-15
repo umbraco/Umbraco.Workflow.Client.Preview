@@ -58,14 +58,14 @@ export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
 
     this.consumeContext(
       WORKFLOW_CONTENTREVIEWS_WORKSPACE_CONTEXT,
-      (instance) => {
-        if (!instance) return;
-        this.#contentReviewsWorkspaceContext = instance;
+      (context) => {
+        if (!context) return;
+        this.#contentReviewsWorkspaceContext = context;
 
-        this.contentTypes = instance.getData()?.contentTypes;
-        this.languages = instance.getData()?.availableLanguages;
+        this.contentTypes = context.getData()?.contentTypes;
+        this.languages = context.getData()?.availableLanguages;
 
-        this.observe(instance.settings, (settings) => {
+        this.observe(context.settings, (settings) => {
           this.settings = settings;
         });
       }
@@ -98,14 +98,15 @@ export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
       });
     }
 
-    const result = await modalHandler.onSubmit().catch(() => undefined);
+    await modalHandler.onSubmit().catch(() => undefined);
 
-    if (!result?.selection?.length) return;
+    const value = modalHandler.getValue();
+    if (!value?.selection?.length) return;
 
     const itemToConfigure: ContentReviewItem = {
-      documentKey: this.type === "document" ? result.selection[0]! : undefined,
+      documentKey: this.type === "document" ? value.selection[0]! : undefined,
       documentTypeKey:
-        this.type === "documentType" ? result.selection[0]! : undefined,
+        this.type === "documentType" ? value.selection[0]! : undefined,
       type: this.type!,
       configItems: [],
     };
@@ -186,24 +187,26 @@ export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
           <uui-ref-list>
             ${this.value.map(
               (item, idx) =>
-                html`<workflow-ref-group-permission
+                html`<uui-ref-node
                   .name=${this.#getProp("name", item)}
-                  .icon=${this.#getProp("icon", item)}
-                  ?canEdit=${true}
-                  ?canRemove=${true}
-                  @edit=${() => this.#editReview(item)}
-                  @remove=${() => this.#remove(idx)}
-                ></workflow-ref-group-permission>`
+                  @open=${() => this.#editReview(item)}
+                >
+                  <uui-icon
+                    slot="icon"
+                    name=${this.#getProp("icon", item)}
+                  ></uui-icon>
+                  <uui-action-bar slot="actions"
+                    ><uui-button
+                      @click=${() => this.#remove(idx)}
+                      label=${this.localize.term("general_remove")}
+                    ></uui-button> </uui-action-bar
+                ></uui-ref-node>`
             )}
           </uui-ref-list>
         `
       )}
 
-      <workflow-add-button
-        @click=${this.#openPicker}
-        .labelKey=${"workflow_addItem"}
-      >
-      </workflow-add-button>`;
+      <workflow-add-button @click=${this.#openPicker}></workflow-add-button>`;
   }
 }
 

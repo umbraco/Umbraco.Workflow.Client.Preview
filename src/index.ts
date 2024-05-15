@@ -2,37 +2,23 @@ import {
   UmbExtensionsApiInitializer,
   type UmbEntryPointOnInit,
 } from "@umbraco-cms/backoffice/extension-api";
-import type { ManifestTypes } from "@umbraco-cms/backoffice/extension-registry";
 import { UMB_AUTH_CONTEXT } from "@umbraco-cms/backoffice/auth";
-import { manifests as dashboardManifests } from "./dashboards/manifests.js";
-import { manifests as sectionManifests } from "./section/section.manifests.js";
-import { manifests as workspaceEditorViewManifests } from "./editor-view/manifests.js";
-import { manifests as modalManifests } from "./core/modal/manifests.js";
-import { manifests as localizationManifests } from "./lang/manifests.js";
-
+import { manifests } from "./manifests.js";
 // eslint-disable-next-line local-rules/ensure-relative-import-use-js-extension
 import styles from "./css/workflow.css?inline";
-import { OpenAPI } from "@umbraco-workflow/generated";
 import {
-  WORKFLOW_FILTERPICKER_CONTEXT,
-  WORKFLOW_CONTEXT,
   WorkflowFilterPickerContext,
-  WorkflowContext,
-} from "@umbraco-workflow/context";
+  WORKFLOW_FILTERPICKER_CONTEXT,
+} from "@umbraco-workflow/components";
+import { OpenAPI } from "@umbraco-workflow/generated";
+import { WORKFLOW_CONTEXT, WorkflowContext } from "@umbraco-workflow/context";
 
 document.head.insertAdjacentHTML("beforeend", `<style>${styles}</style>`);
 
 export * from "./components/index.js";
-export * from "./dashboards/index.js";
 export * from "./editor-view/index.js";
-
-const manifests: Array<ManifestTypes> = [
-  ...dashboardManifests,
-  ...sectionManifests,
-  ...workspaceEditorViewManifests,
-  ...modalManifests,
-  ...localizationManifests,
-];
+// TODO => why does this need exporting when other dashboards do not?
+export * from "./dashboards/advanced-search/advanced-search.dashboard.element.js";
 
 export const onInit: UmbEntryPointOnInit = (host, extensionRegistry) => {
   new UmbExtensionsApiInitializer(

@@ -6,7 +6,7 @@ const dashboards: Array<ManifestDashboard> = [
     alias: "workflow.admin.dashboard",
     name: "Workflow Admin Dashboard",
     elementName: "workflow-admin-dashboard",
-    js: () => import("./admin.dashboard.element.js"),
+    element: () => import("./admin.dashboard.element.js"),
     meta: {
       label: "Admin",
       pathname: "admin",
@@ -24,7 +24,7 @@ const dashboards: Array<ManifestDashboard> = [
     name: "Workflow Editor Dashboard",
     elementName: "workflow-editor-dashboard",
     weight: 1000,
-    js: () => import("./editor.dashboard.element.js"),
+    element: () => import("./editor.dashboard.element.js"),
     meta: {
       label: "Workflow",
       pathname: "workflow",
@@ -42,7 +42,7 @@ const dashboards: Array<ManifestDashboard> = [
     name: "Workflow Advanced Search Dashboard",
     elementName: "workflow-advanced-search-dashboard",
     weight: 100,
-    js: () => import("./advanced-search/advanced-search.dashboard.element.js"),
+    element: () => import("./advanced-search/advanced-search.dashboard.element.js"),
     meta: {
       label: "Advanced Search",
       pathname: "advanced-search",

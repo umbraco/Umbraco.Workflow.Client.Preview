@@ -16,6 +16,7 @@ import { UMB_DOCUMENT_TYPE_PICKER_MODAL } from "@umbraco-cms/backoffice/document
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import { SomeFilter } from "./somefilter.function.js";
 import { FieldQueryGenerator } from "./field-query-generator.function.js";
+import { WORKFLOW_ITEM_PICKER_MODAL } from "./modal/index.js";
 import type { TableQueryModel } from "@umbraco-workflow/core";
 import {
   AdvancedSearchService,
@@ -28,7 +29,6 @@ import {
   type SelectableNameKeyPairModel,
 } from "@umbraco-workflow/generated";
 
-import { WORKFLOW_ITEM_PICKER_MODAL } from "@umbraco-workflow/modal";
 import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
 export type SelectableLanguageModel = LanguageModel & { selected: boolean };

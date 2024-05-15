@@ -4,7 +4,7 @@ import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 import type {
   WorkflowItemPickerModalData,
   WorkflowItemPickerModalResult,
-} from "../index.js";
+} from './item-picker-modal.token.js';
 
 const elementName = "workflow-item-picker-modal";
 

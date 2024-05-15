@@ -414,7 +414,6 @@ export class WorkflowManagerContext extends UmbControllerBase {
       userId: this.#userId,
       offline: false,
     };
-    console.log(config);
     this.#state?.setValue(config);
   }
 

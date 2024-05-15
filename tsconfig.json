@@ -31,9 +31,6 @@
       "@umbraco-workflow/generated": [
         "./src/generated/index.ts"
       ],
-      "@umbraco-workflow/modal": [
-        "./src/core/modal/index.ts"
-      ],
       "@umbraco-workflow/context": [
         "./src/context/index.ts"
       ],

@@ -2,7 +2,6 @@ import {
   html,
   customElement,
   css,
-  when,
   state,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
@@ -11,8 +10,12 @@ import type {
   WorkflowDocumentTypeFlowModalData,
   WorkflowDocumentTypeFlowModalResult,
 } from "../token/index.js";
+import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "../../workspace/settings-workspace.context-token.js";
 import { type WorkflowApprovalGroupInputElement } from "@umbraco-workflow/components";
-import type { UserGroupPermissionsModel } from "@umbraco-workflow/generated";
+import {
+  type ContentTypePropertyModel,
+  type UserGroupPermissionsModel,
+} from "@umbraco-workflow/generated";
 
 const elementName = "workflow-document-type-flow-modal";
 
@@ -21,66 +24,77 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
   WorkflowDocumentTypeFlowModalData,
   WorkflowDocumentTypeFlowModalResult
 > {
+  #contentTypes: Array<ContentTypePropertyModel> = [];
+
   @state()
   permissions: Array<UserGroupPermissionsModel> = [];
 
   @state()
-  languages: Array<Option> = [];
+  languages: Array<Option & { isDefault: boolean }> = [];
 
   @state()
-  contentTypes: Array<Option> = [];
+  contentTypeOptions: Array<Option & { varies: boolean }> = [];
 
   @state()
-  selectedLanguage?: string;
+  get selectedPermissions() {
+    return this.permissions.filter(
+      (p) =>
+        p.variant === this.selectedLanguage?.value &&
+        p.contentTypeKey === this.selectedType?.value
+    );
+  }
 
   @state()
-  selectedType?: string;
+  get selectedType() {
+    return this.contentTypeOptions.find((x) => x.selected);
+  }
 
   @state()
-  private _selectedGroups: Array<string> = [];
+  get selectedLanguage() {
+    return this.languages.find((x) => x.selected);
+  }
 
-  connectedCallback() {
+  async connectedCallback() {
     super.connectedCallback();
 
-    this.languages =
-      this.data?.languages.map((l, i) => ({
-        name: l.name!,
-        value: l.isoCode!,
-        selected: i === 0,
-      })) ?? [];
+    const workspaceContext = await this.getContext(
+      WORKFLOW_SETTINGS_WORKSPACE_CONTEXT
+    );
 
-    this.contentTypes =
-      this.data?.contentTypes.map((x, i, arr) => ({
+    this.#contentTypes = this.data?.contentTypes ?? [];
+    this.permissions = this.data?.permissions ?? [];
+
+    this.contentTypeOptions = this.#contentTypes
+      ?.filter((x) => !this.data?.existing.includes(x.key))
+      .map((x, i, arr) => ({
         name: x.name!,
         value: x.key!,
-        selected: i === 0 && arr.length === 1,
+        varies: x.varies,
+        selected: (i === 0 && arr.length === 1) || this.data?.key === x.key,
+      }));
+
+    this.languages =
+      workspaceContext?.getData()?.availableLanguages.map((l) => ({
+        name: l.name!,
+        value: l.isoCode!,
+        selected:
+          l.isoCode === this.selectedType?.value ||
+          (!this.selectedType?.varies && l.isDefault),
+        isDefault: l.isDefault,
       })) ?? [];
-
-    this.permissions = this.data?.permissions ?? [];
-    this.selectedType = (
-      this.contentTypes.find((x) => x.selected) ?? this.contentTypes[0]
-    ).value;
-    this.selectedLanguage = (
-      this.languages.find((x) => x.selected) ?? this.languages[0]
-    ).value;
-
-    this.#setGroupSelection();
   }
 
   #handleSubmit() {
-    const documentType = this.data?.contentTypes.find(
-      (x) => x.key === this.selectedType
+    const documentType = this.#contentTypes.find(
+      (x) => x.key === this.selectedType?.value
     );
 
     if (!documentType) throw new Error("document type is missing");
 
     this.value = {
-      result: {
-        id: documentType.id,
-        key: documentType.key,
-        permissions: this.permissions,
-        variant: this.selectedLanguage!,
-      },
+      id: documentType.id,
+      key: documentType.key,
+      permissions: this.permissions,
     };
 
     this.modalContext?.submit();
@@ -95,61 +109,45 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
         p.groupKey === updatedPermission.groupKey
     );
 
-    const permissions = [...this.permissions];
-    permissions[permissionIndex] = updatedPermission;
-
-    this.permissions = [...permissions];
-
-    this.#setGroupSelection();
+    this.permissions[permissionIndex].condition = updatedPermission.condition;
   }
 
-  async #onApprovalGroupsChange(e: CustomEvent) {
+  async #onApprovalGroupsUpdated(e: CustomEvent) {
     const permissions = (e.target as WorkflowApprovalGroupInputElement)
       .selectedPermissions;
 
     this.permissions = [
-      ...this.permissions.filter((p) => p.variant !== this.selectedLanguage),
+      ...this.permissions.filter(
+        (p) => p.variant !== this.selectedLanguage?.value
+      ),
       ...permissions,
     ];
-
-    this.#setGroupSelection();
   }
 
   #handleLanguageChange(e: UUISelectEvent) {
-    this.selectedLanguage = e.target.value.toString();
-    this.languages.forEach(
-      (l) => (l.selected = l.value === this.selectedLanguage)
-    );
+    const selectedLanguage = e.target.value.toString();
+    this.languages.forEach((l) => (l.selected = l.value === selectedLanguage));
 
-    this.#setGroupSelection();
+    this.requestUpdate("languages");
   }
 
   #handleTypeChange(e: UUISelectEvent) {
-    this.selectedType = e.target.value.toString();
-    this.contentTypes.forEach(
-      (l) => (l.selected = l.value === this.selectedType)
+    const selectedType = e.target.value.toString();
+    this.contentTypeOptions.forEach(
+      (l) => (l.selected = l.value === selectedType)
     );
 
-    this.#setGroupSelection();
-  }
-
-  #setGroupSelection() {
-    this._selectedGroups = this.permissions
-      .filter(
-        (p) =>
-          p.variant === this.selectedLanguage &&
-          p.contentTypeKey === this.selectedType
-      )
-      .map((x) => x.groupKey);
+    this.languages.forEach((l) => (l.selected = l.isDefault));
+    this.requestUpdate("contentTypeOptions");
   }
 
   #renderTypeSelect() {
     return html`<uui-box headline=${this.localize.term("content_documentType")}>
       <uui-select
-        placeholder="Select document type"
-        ?disabled=${this.contentTypes.length < 2}
+        placeholder=${this.localize.term("workflow_selectDocumentTypes", false)}
+        ?disabled=${this.contentTypeOptions.length < 2 || !this.data?.isNew}
         @change=${this.#handleTypeChange}
-        .options=${this.contentTypes}
+        .options=${this.contentTypeOptions}
       >
       </uui-select>
     </uui-box>`;
@@ -158,7 +156,8 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
   #renderLanguagesSelect() {
     return html`<uui-box headline=${this.localize.term("general_language")}>
       <uui-select
-        ?disabled=${this.languages.length < 2}
+        placeholder=${this.localize.term("workflow_selectVariants", false)}
+        ?disabled=${this.languages.length < 2 || !this.selectedType?.varies}
         @change=${this.#handleLanguageChange}
         .options=${this.languages}
       ></uui-select>
@@ -166,15 +165,22 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
   }
 
   #renderCurrentFlow() {
+    if (!this.selectedLanguage?.value || !this.selectedType?.value) return null;
+
     return html`<uui-box
       headline=${this.localize.term("workflow_approvalGroups")}
     >
       <workflow-approval-group-input
-        .selection=${this._selectedGroups}
-        @change=${this.#onApprovalGroupsChange}
+        .selectedPermissions=${this.selectedPermissions}
+        @updated=${this.#onApprovalGroupsUpdated}
         .config=${{
+          contentType: this.selectedType?.value,
+          remove: true,
+          multiple: true,
+          configureThreshold: this.data?.configureThreshold,
+          defaultThreshold: this.data?.defaultThreshold,
           additionalData: {
-            variant: this.selectedLanguage,
+            variant: this.selectedLanguage?.value,
           },
         }}
       ></workflow-approval-group-input>
@@ -182,16 +188,21 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
   }
 
   #renderConditions() {
-    const selectedType = this.contentTypes.find((x) => x.selected);
-    if (!selectedType || !this.selectedLanguage || !this.permissions.length)
+    if (
+      !this.selectedType?.value ||
+      !this.selectedLanguage?.value ||
+      !this.permissions.length
+    )
       return null;
 
     return html`<workflow-stage-conditions
-      .variant=${this.languages.find((x) => x.selected)}
-      .contentType=${this.data?.contentTypes.find(
-        (x) => x.key === selectedType.value
-      )}
-      .permissions=${this.permissions}
+      .value=${this.permissions}
+      .config=${{
+        variant: this.selectedLanguage.value,
+        contentType: this.#contentTypes.find(
+          (x) => x.key === this.selectedType?.value
+        ),
+      }}
       @change=${this.#handleConditionChange}
     ></workflow-stage-conditions>`;
   }
@@ -199,10 +210,8 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
   render() {
     return html`<umb-body-layout headline="Document type flow">
       <div id="main">
-        ${when(this.data?.isNew, () => this.#renderTypeSelect())}
-        ${when(this.selectedType, () => this.#renderLanguagesSelect())}
-        ${when(this.selectedLanguage, () => this.#renderCurrentFlow())}
-        ${when(this.selectedLanguage, () => this.#renderConditions())}
+        ${this.#renderTypeSelect()} ${this.#renderLanguagesSelect()}
+        ${this.#renderCurrentFlow()} ${this.#renderConditions()}
       </div>
       <div slot="actions">
         <uui-button

@@ -1,8 +1,8 @@
 import { UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
 import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
+import { WORKFLOW_FILTER_PICKER_MODAL } from './modal/filter-picker-modal.token.js';
 import type { WorkflowFilterConfig } from "@umbraco-workflow/components";
-import { WORKFLOW_FILTER_PICKER_MODAL } from "@umbraco-workflow/modal";
 import type { FilterModel } from "@umbraco-workflow/generated";
 
 export class WorkflowFilterPickerContext extends UmbControllerBase {
@@ -23,8 +23,8 @@ export class WorkflowFilterPickerContext extends UmbControllerBase {
       },
     });
 
-    const { config } = await modalHandler.onSubmit();
-    this.setConfig(config);
+    await modalHandler.onSubmit().catch(() => undefined);
+    this.setConfig(modalHandler.getValue().config);
   }
 
   getConfig() {

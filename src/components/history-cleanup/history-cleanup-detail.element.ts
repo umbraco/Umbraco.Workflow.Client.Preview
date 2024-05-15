@@ -7,7 +7,7 @@ import {
   property,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import type { WorkflowHistoryCleanupRuleSet } from "@umbraco-workflow/modal";
+import type { WorkflowHistoryCleanupRuleSet } from './types.js';
 import type { HistoryCleanupConfigModel } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-history-cleanup-detail";

@@ -14,9 +14,11 @@ import {
 import type {
   WorkflowGroupPickerModalData,
   WorkflowGroupPickerModalResult,
-} from "@umbraco-workflow/modal";
-import { WorkflowApprovalGroupCollectionRepository ,type  WorkflowApprovalGroupCollectionModel } from "@umbraco-workflow/approval-group";
-
+} from './group-picker-modal.token.js';
+import {
+  WorkflowApprovalGroupCollectionRepository,
+  type WorkflowApprovalGroupCollectionModel,
+} from "@umbraco-workflow/approval-group";
 
 const elementName = "workflow-group-picker-modal-element";
 
@@ -26,7 +28,9 @@ export class WorkflowGroupPickerModalElement extends UmbModalBaseElement<
   WorkflowGroupPickerModalResult
 > {
   #selectionManager = new UmbSelectionManager(this);
-  #approvalGroupsRepository = new WorkflowApprovalGroupCollectionRepository(this);
+  #approvalGroupsRepository = new WorkflowApprovalGroupCollectionRepository(
+    this
+  );
 
   @state()
   private _groups?: Array<WorkflowApprovalGroupCollectionModel> = [];
@@ -45,16 +49,24 @@ export class WorkflowGroupPickerModalElement extends UmbModalBaseElement<
   }
 
   protected firstUpdated(): void {
-		this.#observeUserGroups();
-	}
+    this.#observeUserGroups();
+  }
 
-	async #observeUserGroups() {
-		const { error, asObservable } = await this.#approvalGroupsRepository.requestCollection();
-		if (error) return;
-		this.observe(asObservable(), (items) => (this._groups = items), 'approvalGroupsObserver');
-	}
+  async #observeUserGroups() {
+    const { error, asObservable } =
+      await this.#approvalGroupsRepository.requestCollection();
+    if (error) return;
+    this.observe(
+      asObservable(),
+      (items) => (this._groups = items),
+      "approvalGroupsObserver"
+    );
+  }
 
-  #onSelected(event: UUIMenuItemEvent, item: WorkflowApprovalGroupCollectionModel) {
+  #onSelected(
+    event: UUIMenuItemEvent,
+    item: WorkflowApprovalGroupCollectionModel
+  ) {
     if (!item.unique) throw new Error("User group unique is required");
     event.stopPropagation();
     this.#selectionManager.select(item.unique);
@@ -62,7 +74,10 @@ export class WorkflowGroupPickerModalElement extends UmbModalBaseElement<
     this.modalContext?.dispatchEvent(new UmbSelectedEvent(item.unique));
   }
 
-  #onDeselected(event: UUIMenuItemEvent, item: WorkflowApprovalGroupCollectionModel) {
+  #onDeselected(
+    event: UUIMenuItemEvent,
+    item: WorkflowApprovalGroupCollectionModel
+  ) {
     if (!item.unique) throw new Error("User group unique is required");
     event.stopPropagation();
     this.#selectionManager.deselect(item.unique);
@@ -71,7 +86,11 @@ export class WorkflowGroupPickerModalElement extends UmbModalBaseElement<
   }
 
   #onSubmit() {
-    this.updateValue({ selection: this.#selectionManager.getSelection() });
+    const selection = this.#selectionManager.getSelection();
+    this.updateValue({
+      selection,
+      selectedItems: this._groups?.filter((g) => selection.includes(g.unique)),
+    });
     this._submitModal();
   }
 

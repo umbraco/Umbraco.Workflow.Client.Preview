@@ -7,7 +7,7 @@ import {
   state,
 } from "@umbraco-cms/backoffice/external/lit";
 import type { WorkflowFilterConfig } from "./types.js";
-import { WorkflowFilterPickerContext } from "@umbraco-workflow/context";
+import { WorkflowFilterPickerContext } from "./workflow-filterpicker-context.js";
 import type { FilterModel } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-filter-picker";

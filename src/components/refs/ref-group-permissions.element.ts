@@ -8,6 +8,12 @@ import {
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import type { UserGroupPermissionsModel } from "@umbraco-workflow/generated";
 
+export interface RefGroupPermissionConfig {
+  configureThreshold?: boolean;
+  defaultThreshold?: number;
+  basic?: boolean;
+}
+
 const elementName = "workflow-ref-group-permission";
 
 @customElement(elementName)
@@ -28,17 +34,12 @@ export class WorkflowRefGroupPermissionElement extends UmbElementMixin(
   @property({ type: Number })
   stage?: number;
 
-  @property({ type: Boolean })
-  canRemove = false;
-
-  @property({ type: Boolean })
-  canEdit = false;
-
-  @property({ type: Boolean })
-  canConfigureApprovalThreshold = false;
-
-  @property({ type: Number })
-  defaultApprovalThreshold?;
+  @property({ type: Object })
+  config: RefGroupPermissionConfig = {
+    configureThreshold: false,
+    defaultThreshold: 0,
+    basic: false,
+  };
 
   allMostOneLabels: Array<string> = [];
 
@@ -54,10 +55,14 @@ export class WorkflowRefGroupPermissionElement extends UmbElementMixin(
   }
 
   #getName() {
+    if (this.config.basic) {
+      return this.value?.groupName ?? this.name;
+    }
+
     if (this.value) {
       return `Stage ${(this.value.permission ?? 0) + 1}: ${
         this.value.groupName
-      }`
+      }`;
     }
 
     return `Stage ${(this.stage ?? 0) + 1}: ${this.name}`;
@@ -78,14 +83,14 @@ export class WorkflowRefGroupPermissionElement extends UmbElementMixin(
   }
 
   #renderApprovalThreshold() {
-    if (!this.value) return;
+    if (!this.value || this.config.basic) return;
 
     return html`<small id="detail">
       <slot name="detail">
         <button
           @click=${this.#cycleThresholdValue}
           id="thresholdButton"
-          ?disabled=${!this.canConfigureApprovalThreshold}
+          ?disabled=${!this.config.configureThreshold}
         >
           <span>${this.localize.term("workflow_requiredApprovals")}:</span>
           ${this.allMostOneLabels[this.value?.approvalThreshold ?? 0]}

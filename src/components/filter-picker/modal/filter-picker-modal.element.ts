@@ -1,11 +1,20 @@
-import { css, customElement, html } from "@umbraco-cms/backoffice/external/lit";
+import {
+  css,
+  customElement,
+  html,
+  state,
+} from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
+import {
+  assignToFrozenObject,
+  partialUpdateFrozenArray,
+} from "@umbraco-cms/backoffice/observable-api";
 import type { Filter, WorkflowFilterConfig } from "../../../index.js";
-import type { WorkflowBaseFilterElement } from "../../../components/filter-picker/elements/base-filter.element.js";
+import type { WorkflowBaseFilterElement } from "../elements/base-filter.element.js";
 import type {
   WorkflowFilterPickerModalData,
   WorkflowFilterPickerModalResult,
-} from "@umbraco-workflow/modal";
+} from "./filter-picker-modal.token.js";
 
 const elementName = "workflow-filter-picker-modal";
 
@@ -14,31 +23,25 @@ export class FilterPickerModalElement extends UmbModalBaseElement<
   WorkflowFilterPickerModalData,
   WorkflowFilterPickerModalResult
 > {
-  config?: WorkflowFilterConfig;
+  @state()
+  private _config?: WorkflowFilterConfig;
 
   connectedCallback() {
     super.connectedCallback();
-
-    this.config = structuredClone(this.data?.config);
+    this._config = structuredClone(this.data?.config);
   }
 
   #handleClear() {
-    this.config?.filters.forEach((f) => {
-      const original = this.data?.config?.filters.find(
-        (x) => x.alias === f.alias
-      );
+    this._config?.filters.forEach((f) => {
+      const original = this._config?.filters.find((x) => x.alias === f.alias);
       f.value = original?.default;
     });
     this.requestUpdate();
   }
 
   #handleSubmit() {
-    this.value = { config: this.config };
+    this.value = { config: this._config };
     this.modalContext?.submit();
-  }
-
-  #handleClose() {
-    this.modalContext?.reject();
   }
 
   #renderFilterPickerElement<FilterType>(filter: Filter<FilterType>) {
@@ -50,7 +53,7 @@ export class FilterPickerModalElement extends UmbModalBaseElement<
 
     el.alias = filter.alias;
     el.value = filter.value ?? filter.default;
-    el.onchange = (e) => this.#handleFilterValueChange(e);
+    el.onchange = (e) => this.#handleFilterValueChange<FilterType>(e, filter);
 
     if (filter.options) {
       el.options = filter.options;
@@ -63,15 +66,20 @@ export class FilterPickerModalElement extends UmbModalBaseElement<
     </umb-property-layout>`;
   }
 
-  #handleFilterValueChange<T>(e: Event) {
+  #handleFilterValueChange<T>(e: Event, filter: Filter<T>) {
+    if (!this._config?.filters) return;
+
     const filterElement = e.target as WorkflowBaseFilterElement<T>;
     const alias = filterElement.alias;
     if (!alias) return;
 
-    const filter = this.config?.filters.find((f) => f.alias === alias);
-    if (!filter) return;
-
-    filter.value = filterElement.value;
+    this._config.filters = partialUpdateFrozenArray(
+      this._config.filters,
+      { ...filter, ...{ value: filterElement.value } },
+      (x) => x.alias === alias
+    );
+    
+    console.log(this._config);
   }
 
   render() {
@@ -79,7 +87,7 @@ export class FilterPickerModalElement extends UmbModalBaseElement<
       <umb-body-layout headline="Filter picker">
         <div id="main">
           <uui-box>
-            ${this.config?.filters.map((filter) =>
+            ${this._config?.filters.map((filter) =>
               this.#renderFilterPickerElement(filter)
             )}
           </uui-box>
@@ -87,22 +95,19 @@ export class FilterPickerModalElement extends UmbModalBaseElement<
 
         <div slot="actions">
           <uui-button
-            id="close"
-            label="Close"
-            @click="${this.#handleClose}"
+            label=${this.localize.term("general_cancel")}
+            @click=${this._rejectModal}
           ></uui-button>
           <uui-button
-            id="clear"
-            label="Clear"
+            label=${this.localize.term("general_clear")}
             look="primary"
             color="default"
-            @click="${this.#handleClear}"
+            @click=${this.#handleClear}
           ></uui-button>
           <uui-button
-            id="submit"
             color="positive"
             look="primary"
-            label="Submit"
+            label=${this.localize.term("general_submit")}
             @click=${this.#handleSubmit}
           ></uui-button>
         </div>

@@ -16,7 +16,7 @@ export class WorkflowBaseFilterElement<FilterValueType> extends UmbElementMixin(
   @property({ type: Boolean, reflect: true })
   disabled = false;
 
-  setValue(value: FilterValueType) {
+  setValue(value?: FilterValueType) {
     this.value = value;
     this.dispatchEvent(new CustomEvent("change"));
   }

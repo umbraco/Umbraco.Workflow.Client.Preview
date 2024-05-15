@@ -5,17 +5,15 @@ import {
   state,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import {
-  UMB_MODAL_MANAGER_CONTEXT,
-  UmbModalBaseElement,
-} from "@umbraco-cms/backoffice/modal";
+import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 import type { UUIInputEvent } from "@umbraco-cms/backoffice/external/uui";
 import type {
   WorkflowContentReviewsConfigModalData,
   WorkflowContentReviewsConfigModalResult,
 } from "../token/index.js";
 import type { ContentReviewConfigItem } from "../../types.js";
-import { WORKFLOW_GROUP_PICKER_MODAL } from "@umbraco-workflow/modal";
+import type { WorkflowApprovalGroupInputElement } from "@umbraco-workflow/components";
+import { WorkflowApprovalGroupCollectionModel } from "@umbraco-workflow/approval-group";
 
 const elementName = "workflow-content-reviews-config-modal";
 
@@ -48,7 +46,10 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
     // unfreeze
     this.configItems = [...this.data!.model.configItems];
     this.current = {
-      ...(this.configItems.at(0) ?? { groups: [], externalReviewers: "" }),
+      ...(this.configItems.at(0) ?? {
+        groups: [],
+        externalReviewers: "",
+      }),
     };
 
     if (!this.current.variant) {
@@ -75,30 +76,8 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
     this.modalContext?.submit();
   }
 
-  #handleClose() {
-    this.modalContext?.reject();
-  }
-
   #setValue(value: unknown, propertyAlias: string) {
     this.current = { ...this.current, ...{ [propertyAlias]: value } };
-  }
-
-  #removeGroup(idx: number) {
-    const groups = [...this.current!.groups!];
-    groups.splice(idx, 1);
-    this.#setValue(groups, "groups");
-  }
-
-  async #openGroupPicker() {
-    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-    const modalHandler = modalContext.open(this, WORKFLOW_GROUP_PICKER_MODAL, {
-      value: {
-        selection: [...(this.current!.groups?.map((p) => p.unique ?? null) ?? [])],
-      },
-    });
-
-    // const { groups } = await modalHandler!.onSubmit();
-    // this.#setValue(groups, "groups");
   }
 
   #handleLanguageChange(e: UUIInputEvent) {
@@ -122,6 +101,19 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
     };
 
     this.configItems.push(this.current);
+  }
+
+  /** requires some manual mapping to get the correct type */
+  async #onApprovalGroupsUpdated(e: CustomEvent) {
+    const target = e.target as WorkflowApprovalGroupInputElement;
+
+    const groups = target.selectedPermissions.map((p) => ({
+      icon: "users",
+      name: p.groupName,
+      unique: p.groupKey,
+    }));
+
+    this.#setValue(groups, "groups");
   }
 
   #renderLanguagesBox() {
@@ -166,27 +158,22 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
     return html`<uui-box
       .headline=${this.localize.term("contentReviews_reviewGroup")}
     >
-      <uui-ref-list>
-        ${this.current?.groups?.map(
-          (group, idx) =>
-            html`<workflow-ref-group-permission
-              .name=${group.name!}
-              ?canRemove=${true}
-              @remove=${() => this.#removeGroup(idx)}
-            ></workflow-ref-group-permission>`
-        )}
-      </uui-ref-list>
-      <workflow-add-button
-        @click=${this.#openGroupPicker}
-        labelKey="workflow_addWorkflowGroups"
-      ></workflow-add-button>
+      <workflow-approval-group-input
+        .config=${{
+          basic: true,
+          remove: true,
+          multiple: false,
+        }}
+        .selection=${this.current?.groups?.map((x) => x.unique) ?? []}
+        @updated=${this.#onApprovalGroupsUpdated}
+      ></workflow-approval-group-input>
     </uui-box>`;
   }
 
   #renderExternalReviewersBox() {
     return html`<uui-box
       .headline=${this.localize.term("contentReviews_externalReviewers")}
-      ><umb-workspace-property-layout
+      ><umb-property-layout
         .label=${this.localize.term("contentReviews_externalReviewers")}
       >
         <uui-input
@@ -195,7 +182,7 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
           label=${this.localize.term("contentReviews_externalReviewers")}
           .value=${this.current?.externalReviewers}
           @change=${(e) => this.#setValue(e.target.value, "externalReviewers")}
-        ></uui-input> </umb-workspace-property-layout
+        ></uui-input> </umb-property-layout
     ></uui-box>`;
   }
 
@@ -211,15 +198,13 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
       </div>
       <div slot="actions">
         <uui-button
-          id="close"
-          label="Close"
-          @click="${this.#handleClose}"
+          label=${this.localize.term("general_cancel")}
+          @click=${this._rejectModal}
         ></uui-button>
         <uui-button
-          id="submit"
           color="positive"
           look="primary"
-          label="Ok"
+          label=${this.localize.term("general_submit")}
           @click=${this.#handleSubmit}
         ></uui-button>
       </div>

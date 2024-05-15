@@ -138,27 +138,14 @@ export class WorkflowContentReviewsWorkspaceContext
       documentKey: type === "document" ? key : undefined,
       documentTypeKey: type === "documentType" ? key : undefined,
       variant: r.variant!,
-      excluded: r.excluded ? true : false,
-      groups:
-        r.groups?.map((g) => ({
-          unique: g.unique,
-          groupId: g.groupId,
-          name: g.name,
-          users: g.users,
-        })) ?? [],
+      excluded: r.excluded ? true : false,      
       period: r.period!,
       externalReviewers: r.externalReviewers,
-
       name: "",
       variantName: "",
       isDefaultVariant: false,
       expired: false,
-      groupIds: r.groups?.map((g) => g.groupId).join(",") ?? "",
-      inherited: false,
-      inheritedFrom: "",
-      inheritedType: "",
-      responsibleUsers: [],
-      icon: "",
+      groupIds: r.groups?.map((g) => g.unique).join(",") ?? "",
     };
   }
 

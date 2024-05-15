@@ -113,16 +113,14 @@ expired: boolean
 period: number
 variant: string
 variantName: string
-groups: Array<UserGroupBaseModel>
+groups?: Array<UserGroupBaseModel> | null
 groupIds: string
 dueOn?: string | null
 reviewedOn?: string | null
 reviewedBy?: UserSlimModel | null
-readonly inherited: boolean
-inheritedFrom: string
-inheritedType: string
-icon: string
-responsibleUsers: Array<string>
+inheritedFrom?: string | null
+inheritedType?: string | null
+icon?: string | null
 isDefaultVariant: boolean
 externalReviewers?: string | null
     };
@@ -170,7 +168,6 @@ key: string
 varies: boolean
 icon: string
 properties: Array<PropertyModel>
-permissions: Array<UserGroupPermissionsModel>
     };
 
 export type DateRangeModel = {
@@ -271,6 +268,7 @@ readonly type?: string | null
 export type LanguageModel = {
         name: string
 isoCode: string
+isDefault: boolean
     };
 
 export type NodePermissionsResponseModel = {
@@ -378,7 +376,6 @@ key: string
 varies: boolean
 icon: string
 properties: Array<PropertyDetailModel>
-permissions: Array<UserGroupPermissionsModel>
 selected: boolean
     };
 
@@ -508,14 +505,14 @@ variant: string
 export type WorkflowConfigResponseModel = {
         id: number
 key?: string | null
-variant: string
+variant?: string | null
 permissions: Array<UserGroupPermissionsModel>
     };
 
 export type WorkflowConfigUpdateRequestModel = {
         id: number
 key?: string | null
-variant: string
+variant?: string | null
 permissions: Array<UserGroupPermissionsModel>
     };
 

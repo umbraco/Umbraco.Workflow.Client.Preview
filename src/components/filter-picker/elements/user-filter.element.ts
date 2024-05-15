@@ -7,9 +7,8 @@ const elementName = "workflow-user-filter";
 @customElement(elementName)
 export class WorkflowUserFilterElement extends WorkflowBaseFilterElement<string> {
   #onSelectionChange(event: CustomEvent) {
-    this.setValue(
-      (event.target as UmbInputDocumentElement).selection.join(",")
-    );
+    const selection = (event.target as UmbInputDocumentElement).selection;
+    this.setValue(selection.length ? selection.join(",") : undefined);
   }
 
   render() {

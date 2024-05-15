@@ -143,7 +143,7 @@ export class WorkflowDiffModalElement extends UmbModalBaseElement<WorkflowDiffMo
       this.currentVersion = {
         name: "",
         tabs: [],
-        language: { name: "", isoCode: "" },
+        language: { name: "", isoCode: "", isDefault: false, },
       };
     }
 

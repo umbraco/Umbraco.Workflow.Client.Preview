@@ -9,8 +9,8 @@ import {
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
 import { UMB_NOTIFICATION_CONTEXT } from "@umbraco-cms/backoffice/notification";
+import { WORKFLOW_HISTORY_CLEANUP_MODAL } from './modal/history-cleanup-modal.token.js';
 import { HistoryCleanupService } from "@umbraco-workflow/generated";
-import { WORKFLOW_HISTORY_CLEANUP_MODAL } from "@umbraco-workflow/modal";
 
 const elementName = "workflow-history-cleanup";
 
