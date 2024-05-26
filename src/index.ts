@@ -5,20 +5,19 @@ import {
 import { UMB_AUTH_CONTEXT } from "@umbraco-cms/backoffice/auth";
 import { manifests } from "./manifests.js";
 // eslint-disable-next-line local-rules/ensure-relative-import-use-js-extension
-import styles from "./css/workflow.css?inline";
-import {
-  WorkflowFilterPickerContext,
-  WORKFLOW_FILTERPICKER_CONTEXT,
-} from "@umbraco-workflow/components";
+import styles from "./core/css/workflow.css?inline";
 import { OpenAPI } from "@umbraco-workflow/generated";
-import { WORKFLOW_CONTEXT, WorkflowContext } from "@umbraco-workflow/context";
+import {
+  WORKFLOW_CONTEXT,
+  WORKFLOW_SIGNALR_CONTEXT,
+  WorkflowContext,
+  WorkflowSignalRContext,
+} from "@umbraco-workflow/context";
 
 document.head.insertAdjacentHTML("beforeend", `<style>${styles}</style>`);
 
-export * from "./components/index.js";
+export * from "./core/index.js";
 export * from "./editor-view/index.js";
-// TODO => why does this need exporting when other dashboards do not?
-export * from "./dashboards/advanced-search/advanced-search.dashboard.element.js";
 
 export const onInit: UmbEntryPointOnInit = (host, extensionRegistry) => {
   new UmbExtensionsApiInitializer(
@@ -42,9 +41,8 @@ export const onInit: UmbEntryPointOnInit = (host, extensionRegistry) => {
   });
 
   host.provideContext(WORKFLOW_CONTEXT, new WorkflowContext(host));
-
   host.provideContext(
-    WORKFLOW_FILTERPICKER_CONTEXT,
-    new WorkflowFilterPickerContext(host)
+    WORKFLOW_SIGNALR_CONTEXT,
+    new WorkflowSignalRContext(host)
   );
 };

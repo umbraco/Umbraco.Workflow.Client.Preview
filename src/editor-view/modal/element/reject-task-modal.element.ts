@@ -26,10 +26,6 @@ export class WorkflowRejectTaskModalElement extends UmbModalBaseElement<
     this.modalContext?.submit();
   }
 
-  #handleClose() {
-    this.modalContext?.reject();
-  }
-
   #handleSelection(e: UUIInputEvent) {
     e.stopPropagation();
     if (e.target.value) this.assignTo = e.target.value;
@@ -44,7 +40,7 @@ export class WorkflowRejectTaskModalElement extends UmbModalBaseElement<
       headline=${this.localize.term("workflow_assignTo")}
     >
       <div id="main">
-        <umb-workspace-property-layout
+        <umb-property-layout
           label=${this.localize.term("workflow_originalEditor")}
         >
           <uui-radio
@@ -53,8 +49,8 @@ export class WorkflowRejectTaskModalElement extends UmbModalBaseElement<
             .value=${"user"}
             label=${this.data?.requestedBy ?? ""}
           ></uui-radio>
-        </umb-workspace-property-layout>
-        <umb-workspace-property-layout
+        </umb-property-layout>
+        <umb-property-layout
           label=${this.localize.term("workflow_previousGroup")}
         >
           <uui-radio-group @change=${this.#handleSelection} slot="editor">
@@ -66,19 +62,17 @@ export class WorkflowRejectTaskModalElement extends UmbModalBaseElement<
               </uui-radio>`
             )}
           </uui-radio-group>
-        </umb-workspace-property-layout>
+        </umb-property-layout>
       </div>
       <div slot="actions">
         <uui-button
-          id="close"
-          label="Close"
-          @click="${this.#handleClose}"
+          label=${this.localize.term("general_close")}
+          @click=${this._rejectModal}
         ></uui-button>
         <uui-button
-          id="submit"
           color="positive"
           look="primary"
-          label="Ok"
+          label=${this.localize.term("general_submit")}
           @click=${this.#handleSubmit}
           ?disabled=${!this.assignTo}
         ></uui-button>

@@ -13,8 +13,8 @@ import type { UmbDocumentDetailModel } from "node_modules/@umbraco-cms/backoffic
 import { UMB_MEDIA_TREE_PICKER_MODAL } from "@umbraco-cms/backoffice/media";
 import type { WorkflowAction, DatePickerData } from "../../types.js";
 import {
+  WORKFLOW_MANAGER_CONTEXT,
   type WorkflowState,
-  WorkflowManagerContext,
 } from "@umbraco-workflow/context";
 import type { WorkflowTaskModel } from "@umbraco-workflow/generated";
 
@@ -23,8 +23,8 @@ const elementName = "workflow-submit-modal";
 @customElement(elementName)
 export class WorkflowSubmitModalElement extends UmbModalBaseElement {
   #documentWorkspace?: typeof UMB_DOCUMENT_WORKSPACE_CONTEXT.TYPE;
+  #workflowManager?: typeof WORKFLOW_MANAGER_CONTEXT.TYPE;
   #documentData?: UmbDocumentDetailModel;
-  #workflowManager = new WorkflowManagerContext(this);
 
   @state()
   state?: WorkflowState;
@@ -55,25 +55,19 @@ export class WorkflowSubmitModalElement extends UmbModalBaseElement {
       UMB_DOCUMENT_WORKSPACE_CONTEXT
     );
 
-    this.observe(this.#workflowManager!.state, (state) => {
+    this.#workflowManager = await this.getContext(WORKFLOW_MANAGER_CONTEXT);
+
+    this.observe(this.#workflowManager.state, (state) => {
       this.state = state;
     });
 
-    this.observe(this.#workflowManager!.currentTask, (currentTask) => {
+    this.observe(this.#workflowManager.currentTask, (currentTask) => {
       this.currentTask = currentTask;
     });
 
     this.#documentData = this.#documentWorkspace.getData();
 
-    this.#workflowManager.init(
-      undefined,
-      this.#documentData?.unique,
-      this.#documentData?.documentType.unique
-    );
-  }
-
-  #close() {
-    this.modalContext?.reject();
+    this.#workflowManager.init(this.#documentWorkspace.getUnique());
   }
 
   #submit() {
@@ -116,7 +110,7 @@ export class WorkflowSubmitModalElement extends UmbModalBaseElement {
       attachmentId: this.attachmentId,
     });
 
-    this.#close();
+    this._submitModal();
   }
 
   #handleCommentChange(e: CustomEvent) {
@@ -215,18 +209,14 @@ export class WorkflowSubmitModalElement extends UmbModalBaseElement {
               @click=${this.#filepicker}
               look="primary"
               color="default"
-              label="Select file"
-            >
-              ${this.localize.term("workflow_addFile")}
-            </uui-button>`,
+              label=${this.localize.term("workflow_addFile")}
+            ></uui-button>`,
             () => html` <uui-button
               @click=${this.#filepicker}
               look="primary"
               color="default"
-              label="Select file"
-            >
-              ${this.attachmentId}
-            </uui-button>`
+              label=${this.attachmentId!}
+            ></uui-button>`
           )}
         </div>
         ${when(
@@ -249,15 +239,14 @@ export class WorkflowSubmitModalElement extends UmbModalBaseElement {
       .label=${this.localize.term("workflow_publishOn")}
       .description=${this.localize.term("workflow_optional")}
     >
-      <div slot="editor">
-        <umb-input-date
-          type="datetime-local"
-          .value=${this.releaseDate.raw}
-          .min=${this.releaseDate.min}
-          .max=${this.releaseDate.max}
-          @change=${(e) => this.#handleDatePickerChange(e, "publish")}
-        ></umb-input-date>
-      </div>
+      <umb-input-date
+        slot="editor"
+        type="datetime-local"
+        .value=${this.releaseDate.raw}
+        .min=${this.releaseDate.min}
+        .max=${this.releaseDate.max}
+        @change=${(e) => this.#handleDatePickerChange(e, "publish")}
+      ></umb-input-date>
     </umb-property-layout>`;
   }
 
@@ -266,15 +255,14 @@ export class WorkflowSubmitModalElement extends UmbModalBaseElement {
       .label=${this.localize.term("workflow_unPublishOn")}
       .description=${this.localize.term("workflow_optional")}
     >
-      <div slot="editor">
-        <umb-input-date
-          type="datetime-local"
-          .value=${this.expireDate.raw}
-          .min=${this.expireDate.min}
-          .max=${this.expireDate.max}
-          @change=${(e) => this.#handleDatePickerChange(e, "unpublish")}
-        ></umb-input-date>
-      </div>
+      <umb-input-date
+        slot="editor"
+        type="datetime-local"
+        .value=${this.expireDate.raw}
+        .min=${this.expireDate.min}
+        .max=${this.expireDate.max}
+        @change=${(e) => this.#handleDatePickerChange(e, "unpublish")}
+      ></umb-input-date>
     </umb-property-layout>`;
   }
 
@@ -321,18 +309,20 @@ export class WorkflowSubmitModalElement extends UmbModalBaseElement {
       </uui-box>
 
       <div slot="actions">
-        <uui-button id="close" label="Close" @click="${this.#close}"
-          >Close</uui-button
-        >
-        <uui-button id="submit" label="Submit" @click="${
-          this.#submit
-        }" color="positive" look="primary"
-          ><umb-localize .key=${
+        <uui-button
+          label=${this.localize.term("general_close")}
+          @click=${this._rejectModal}
+        ></uui-button>
+        <uui-button
+          color="positive"
+          look="primary"
+          label=${this.localize.term(
             this.action === "publish"
               ? "workflow_publishButton"
               : "workflow_unpublishButton"
-          }></uui-button
-        >
+          )}
+          @click=${this.#submit}
+        ></uui-button>
       </div>
     </umb-body-layout>`;
   }

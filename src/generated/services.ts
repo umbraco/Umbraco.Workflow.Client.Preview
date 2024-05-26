@@ -1,7 +1,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { ActionData, AdvancedSearchData, ApprovalGroupData, ChartData, ConfigData, ContentReviewData, ContentData, EmailTemplateData, GlobalVariablesData, HistoryCleanupData, InstanceData, LicenseData, ScaffoldData, SettingsData, TaskData } from './models';
+import type { ActionData, AdvancedSearchData, ApprovalGroupData, ChartData, ConfigData, ContentReviewData, ContentData, EmailTemplateData, HistoryCleanupData, InstanceData, ScaffoldData, ServerInformationData, SettingsData, TaskData } from './models';
 
 export class ActionService {
 
@@ -661,27 +661,6 @@ export class EmailTemplateService {
 
 }
 
-export class GlobalVariablesService {
-
-	/**
-	 * @returns unknown Success
-	 * @throws ApiError
-	 */
-	public static getGlobal(): CancelablePromise<GlobalVariablesData['responses']['GetGlobal']> {
-		
-		return __request(OpenAPI, {
-			method: 'GET',
-			url: '/umbraco/workflow/api/v1/global',
-			errors: {
-				400: `Bad Request`,
-				401: `The resource is protected and requires an authentication token`,
-				500: `Server Error`,
-			},
-		});
-	}
-
-}
-
 export class HistoryCleanupService {
 
 	/**
@@ -890,25 +869,6 @@ export class InstanceService {
 
 }
 
-export class LicenseService {
-
-	/**
-	 * @returns any Success
-	 * @throws ApiError
-	 */
-	public static getLicense(): CancelablePromise<LicenseData['responses']['GetLicense']> {
-		
-		return __request(OpenAPI, {
-			method: 'GET',
-			url: '/umbraco/workflow/api/v1/license',
-			errors: {
-				401: `The resource is protected and requires an authentication token`,
-			},
-		});
-	}
-
-}
-
 export class ScaffoldService {
 
 	/**
@@ -933,6 +893,27 @@ variant
 			},
 			errors: {
 				401: `The resource is protected and requires an authentication token`,
+			},
+		});
+	}
+
+}
+
+export class ServerInformationService {
+
+	/**
+	 * @returns unknown Success
+	 * @throws ApiError
+	 */
+	public static getInformation(): CancelablePromise<ServerInformationData['responses']['GetInformation']> {
+		
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/umbraco/workflow/api/v1/information',
+			errors: {
+				400: `Bad Request`,
+				401: `The resource is protected and requires an authentication token`,
+				500: `Server Error`,
 			},
 		});
 	}

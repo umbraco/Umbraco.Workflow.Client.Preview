@@ -6,14 +6,9 @@ import {
   state,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
-import { SortDirection, type TableQueryModel } from "@umbraco-workflow/core";
-import { BoxHeaderFlexStyles } from "@umbraco-workflow/css";
+import { type TableQueryModel } from "@umbraco-workflow/core";
 import { InstanceService } from "@umbraco-workflow/generated";
-import {
-  InstanceFilters,
-  type FilterPickerElement,
-  type PageSizeDropdownElement,
-} from "@umbraco-workflow/components";
+import { InstanceFilters } from "@umbraco-workflow/components";
 
 const elementName = "workflow-workspace-history";
 
@@ -21,15 +16,12 @@ const elementName = "workflow-workspace-history";
 export class WorkflowWorkspaceHistoryElement extends UmbElementMixin(
   LitElement
 ) {
-  @state()
-  model!: TableQueryModel;
 
-  #perPage = 5;
+  @state()
+  private _model!: TableQueryModel;
+
   #init: Promise<unknown>;
   #unique?: string;
-
-  filters?;
-  #filterConfig = new InstanceFilters(undefined, ["nodeId"]);
 
   constructor() {
     super();
@@ -46,56 +38,29 @@ export class WorkflowWorkspaceHistoryElement extends UmbElementMixin(
     super.connectedCallback();
 
     await this.#init;
-    this.#fetch();
-  }
 
-  #fetch(event?: CustomEvent) {
-    this.#perPage =
-      (event?.target as PageSizeDropdownElement)?.value ?? this.#perPage;
-
-    this.model = {
-      page: 1,
-      count: this.#perPage,
+    this._model = {
       handler: InstanceService.postInstanceAll,
-      filters: this.filters,
-      direction: SortDirection.DESC,
-      meta: {
-        historyOnly: true,
-        nodeId: this.#unique,
-      },
+      filterConfig: new InstanceFilters(
+        { historyOnly: true, unique: this.#unique },
+        ["unique"]
+      ),
     };
   }
 
-  #handleFilterChange(event: CustomEvent) {
-    const filters = (event.target as FilterPickerElement).value;
-    if (!filters) return;
-
-    this.filters = filters;
-    this.#fetch();
-  }
-
   render() {
-    return html`<uui-box>
-      <div slot="header-actions">
-        <workflow-filter-picker
-          @change=${this.#handleFilterChange}
-          .config=${this.#filterConfig}
-        >
-        </workflow-filter-picker>
-        <workflow-page-size
-          @change=${this.#fetch}
-          .value=${this.#perPage}
-        ></workflow-page-size>
-      </div>
-      <workflow-instances-table .model=${this.model}></workflow-instances-table>
+    if (!this._model) return;
+
+    return html`<workflow-table .config=${this._model}>
+      <workflow-instances-table></workflow-instances-table>
       <workflow-history-cleanup
         .unique=${this.#unique}
       ></workflow-history-cleanup>
-    </uui-box>`;
+    </workflow-table>`;
   }
-
-  static styles = [BoxHeaderFlexStyles];
 }
+
+export default WorkflowWorkspaceHistoryElement;
 
 declare global {
   interface HTMLElementTagNameMap {

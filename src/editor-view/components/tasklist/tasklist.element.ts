@@ -48,7 +48,9 @@ export class WorkflowTaskListElement extends UmbElementMixin(LitElement) {
   }
 
   #observeCurrentTask() {
-    this.observe(this.#workflowManagerContext!.ready, (ready) => {
+    if (!this.#workflowManagerContext) return;
+
+    this.observe(this.#workflowManagerContext.ready, (ready) => {
       if (!ready) return;
       this.#fetch();
     });
@@ -278,6 +280,8 @@ export class WorkflowTaskListElement extends UmbElementMixin(LitElement) {
     `,
   ];
 }
+
+export default WorkflowTaskListElement;
 
 declare global {
   interface HTMLElementTagNameMap {

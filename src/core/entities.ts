@@ -1,5 +1,8 @@
 import type { UmbCollectionConfiguration } from "@umbraco-cms/backoffice/collection";
-import type { FilterModel } from "@umbraco-workflow/generated";
+import type { WorkflowFilterConfig } from "@umbraco-workflow/components";
+import type { FilterModel, LanguageModel } from "@umbraco-workflow/generated";
+
+export type SelectableLanguageModel = LanguageModel & { selected: boolean };
 
 export interface SettingsStatusModel {
   someDisabled: boolean;
@@ -41,6 +44,7 @@ export interface ContentReviewsFilterModel extends FilterModelBase {
 export interface TableQueryModel extends UmbCollectionConfiguration {
   handler: (o: object) => any;
   filters?: FilterModel;
+  filterConfig?: WorkflowFilterConfig;
   count?: number;
   page?: number;
   hiddenColumns?: Array<string>;

@@ -41,21 +41,19 @@ export class WorkflowVariantSelectorElement extends UmbElementMixin(
 
   constructor() {
     super();
-    this.consumeContext(WORKFLOW_CONTEXT, (instance) => {
-      this.#workflowGlobalContext = instance;
-      this.#observeGlobalVariables();
-    });
-  }
 
-  #observeGlobalVariables() {
-    if (!this.#workflowGlobalContext) return;
-    this.observe(
-      this.#workflowGlobalContext.globalVariables,
-      (globalVariables) => {
-        this.#languages = globalVariables?.availableLanguages;
-        this.#defaultCultureName = globalVariables?.defaultCultureName;
-      }
-    );
+    this.consumeContext(WORKFLOW_CONTEXT, (context) => {
+      if (!context) return;
+      this.#workflowGlobalContext = context;
+
+      this.observe(
+        this.#workflowGlobalContext.globalVariables,
+        (globalVariables) => {
+          this.#languages = globalVariables?.availableLanguages;
+          this.#defaultCultureName = globalVariables?.defaultCultureName;
+        }
+      );
+    });
   }
 
   #handleSelectionChange(
@@ -127,17 +125,11 @@ export class WorkflowVariantSelectorElement extends UmbElementMixin(
           ${when(!inWorkflow, () => html`${variant.state}`)}
           ${when(
             inWorkflow && canEdit,
-            () =>
-              html`<umb-localize key="workflow_docIsActive"
-                >Document is currently in a workflow</umb-localize
-              >`
+            () => html`${this.localize.term("workflow_docIsActive")}`
           )}
           ${when(
             !canEdit,
-            () =>
-              html`<umb-localize key="workflow_notAllowed"
-                >Send for workflow approval is not allowed</umb-localize
-              >`
+            () => html`${this.localize.term("workflow_notAllowed")}`
           )}
         </small>
       </div></uui-checkbox
@@ -156,15 +148,12 @@ export class WorkflowVariantSelectorElement extends UmbElementMixin(
             @change=${this.#handleInvariantSelectorChange}
           >
             <div>
-              <umb-localize key="workflow_invariantWorkflow"
-                >Invariant workflow</umb-localize
-              >
-              <small>
-                <umb-localize
-                  key="workflow_invariantDesc"
-                  .tokens=${[this.#defaultCultureName]}
-                  >Invariant workflow</umb-localize
-                >
+              ${this.localize.term("workflow_invariantWorkflow")}s
+              <small
+                >${this.localize.term(
+                  "workflow_invariantDesc",
+                  this.#defaultCultureName
+                )}
               </small>
             </div></uui-checkbox
           >`
@@ -181,6 +170,8 @@ export class WorkflowVariantSelectorElement extends UmbElementMixin(
     `,
   ];
 }
+
+export default WorkflowVariantSelectorElement;
 
 declare global {
   interface HTMLElementTagNameMap {

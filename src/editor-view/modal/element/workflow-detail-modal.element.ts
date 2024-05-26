@@ -6,35 +6,28 @@ import {
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 import type { WorkflowDetailModalData } from "../token/index.js";
 import {
-  WORKFLOW_MANAGER_CONTEXT,
   WorkflowManagerContext,
+  type WORKFLOW_MANAGER_CONTEXT,
 } from "@umbraco-workflow/context";
 
 const elementName = "workflow-detail-modal";
 
 @customElement(elementName)
 export class WorkflowDetailModalElement extends UmbModalBaseElement<WorkflowDetailModalData> {
-  #workflowManagerContext = new WorkflowManagerContext(this);
+  #workflowManagerContext?: typeof WORKFLOW_MANAGER_CONTEXT.TYPE;
 
   @state()
   headline = "";
 
-  #close() {
-    this.modalContext?.reject();
-  }
-
   connectedCallback() {
     super.connectedCallback();
 
-    const item = this.data?.item;
+    this.#workflowManagerContext = new WorkflowManagerContext(this);
 
     this.#workflowManagerContext.init(
-      item,
-      item?.node?.key ?? this.data?.unique,
-      item?.node?.contentTypeKey ?? this.data?.contentTypeId
+      this.data?.documentUnique,
+      this.data?.instanceUnique
     );
-
-    this.provideContext(WORKFLOW_MANAGER_CONTEXT, this.#workflowManagerContext);
 
     this.observe(this.#workflowManagerContext.currentTask, (currentTask) => {
       if (!currentTask) return;
@@ -50,14 +43,12 @@ export class WorkflowDetailModalElement extends UmbModalBaseElement<WorkflowDeta
   render() {
     return html`
       <umb-body-layout .headline=${this.headline}>
-        <div id="editor-box">
-          <workflow-workspace-action></workflow-workspace-action>
-        </div>
-        <div slot="actions">
-          <uui-button id="close" label="Close" @click="${this.#close}"
-            >Close</uui-button
-          >
-        </div>
+        <workflow-workspace-action></workflow-workspace-action>
+        <uui-button
+          slot="actions"
+          label=${this.localize.term("general_close")}
+          @click=${this._rejectModal}
+        ></uui-button>
       </umb-body-layout>
     `;
   }

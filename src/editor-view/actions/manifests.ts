@@ -59,10 +59,7 @@ const workspaceActionManifests: Array<ManifestWorkspaceAction> = [
           WORKFLOW_DOCUMENT_WORKSPACE_VARIANT_SHOW_WORKFLOW_DETAIL_CONDITION,
       },
     ],
-    overwrites: [
-      "Umb.WorkspaceAction.Document.SaveAndPublish",
-      "Umb.WorkspaceAction.Document.Save",
-    ],
+    overwrites: ["Umb.WorkspaceAction.Document.SaveAndPublish"],
   },
 ];
 

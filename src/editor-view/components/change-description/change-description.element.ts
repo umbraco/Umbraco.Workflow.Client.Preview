@@ -41,9 +41,9 @@ export class WorkflowChangeDescriptionElement extends UmbElementMixin(
   constructor() {
     super();
 
-    this.consumeContext(WORKFLOW_CONTEXT, (instance) => {
-      if (!instance) return;
-      this.observe(instance.license, (license) => {
+    this.consumeContext(WORKFLOW_CONTEXT, (context) => {
+      if (!context) return;
+      this.observe(context.license, (license) => {
         this.unlicensed = !license?.isLicensed && !license?.isImpersonating;
       });
     });
@@ -93,9 +93,8 @@ export class WorkflowChangeDescriptionElement extends UmbElementMixin(
       color="default"
       .href=${this.item?.instance?.attachment}
       target="_blank"
-    >
-      ${this.localize.term("workflow_viewAttachment")}
-    </uui-button>`;
+      label=${this.localize.term("workflow_viewAttachment")}
+    ></uui-button>`;
   }
 
   render() {
@@ -128,9 +127,8 @@ export class WorkflowChangeDescriptionElement extends UmbElementMixin(
           <uui-button
             look="primary"
             @click=${this.#preview}
-            label="Preview"
-          >${this.localize.term("general_preview")}
-          </uui-button>
+            label=${this.localize.term("general_preview")}
+          ></uui-button>
 
           ${this.#renderAttachmentButton()}         
 
@@ -139,11 +137,9 @@ export class WorkflowChangeDescriptionElement extends UmbElementMixin(
             () => html`
               <uui-button
                 @click=${this.#showDiff}
-                label="Show diff"
+                label=${this.localize.term("workflow_showDiff")}
                 look="primary"
-              >
-                ${this.localize.term("workflow_showDiff")}...
-              </uui-button>
+              ></uui-button>
             `
           )}
         </div>

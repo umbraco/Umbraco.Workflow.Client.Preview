@@ -3,14 +3,21 @@ import type {
   UmbConditionControllerArguments,
   UmbExtensionCondition,
 } from "@umbraco-cms/backoffice/extension-api";
-import {
-  Subscription,
-  combineLatest,
-} from "@umbraco-cms/backoffice/external/rxjs";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { UmbConditionBase } from "@umbraco-cms/backoffice/extension-registry";
-import type { WorkflowDocumentWorkspaceVariantShowWorkflowDetailConditionConfig } from "./manifests.js";
+import { observeMultiple } from "@umbraco-cms/backoffice/observable-api";
+import {
+  WORKFLOW_DOCUMENT_WORKSPACE_VARIANT_SHOW_WORKFLOW_DETAIL_CONDITION,
+  type WorkflowDocumentWorkspaceVariantShowWorkflowDetailConditionConfig,
+} from "./manifests.js";
 import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
+import {
+  WorkflowStatusModel,
+  type GlobalVariablesModel,
+  type WorkflowScaffoldResponseModel,
+  type WorkflowTaskModel,
+} from "@umbraco-workflow/generated";
+import { WorkflowStatus } from "@umbraco-workflow/core";
 
 export class WorkflowDocumentWorkspaceVariantShowWorkflowDetailCondition
   extends UmbConditionBase<WorkflowDocumentWorkspaceVariantShowWorkflowDetailConditionConfig>
@@ -19,7 +26,9 @@ export class WorkflowDocumentWorkspaceVariantShowWorkflowDetailCondition
   #init: Promise<unknown>;
   #workspaceContext?: typeof UMB_DOCUMENT_WORKSPACE_CONTEXT.TYPE;
   #workflowContext?: typeof WORKFLOW_CONTEXT.TYPE;
-  #subscription = new Subscription();
+
+  #globalVariables?: GlobalVariablesModel;
+  #scaffold?: WorkflowScaffoldResponseModel;
 
   constructor(
     host: UmbControllerHost,
@@ -28,11 +37,11 @@ export class WorkflowDocumentWorkspaceVariantShowWorkflowDetailCondition
     super(host, args);
 
     this.#init = Promise.all([
-      this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (instance) => {
-        this.#workspaceContext = instance;
+      this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (context) => {
+        this.#workspaceContext = context;
       }).asPromise(),
-      this.consumeContext(WORKFLOW_CONTEXT, (instance) => {
-        this.#workflowContext = instance;
+      this.consumeContext(WORKFLOW_CONTEXT, (context) => {
+        this.#workflowContext = context;
       }).asPromise(),
     ]);
   }
@@ -43,36 +52,105 @@ export class WorkflowDocumentWorkspaceVariantShowWorkflowDetailCondition
 
     if (!this.#workflowContext || !this.#workspaceContext) return;
 
-    const observable = combineLatest({
-      activeDocumentVariants:
+    this.observe(
+      observeMultiple([
         this.#workspaceContext.splitView.activeVariantsInfo,
-      scaffold: this.#workflowContext?.scaffold,
-    });
+        this.#workflowContext?.scaffold,
+        this.#workflowContext?.globalVariables,
+      ]),
+      ([activeDocumentVariants, scaffold, globalVariables]) => {
+        if (!scaffold || !globalVariables) return;
 
-    // TODO => where is the actual active variant? Is it always first?
-    this.#subscription.add(
-      observable.subscribe({
-        next: (value) => {
-          let culture = value.activeDocumentVariants[0]?.culture ?? "*";
-          culture = culture === "invariant" ? "*" : culture;
+        this.#scaffold = scaffold;
+        this.#globalVariables = globalVariables;
 
-          if (value.scaffold?.activeVariants?.length === 0) {
-            this.permitted = false;
-          } else if (value.scaffold?.activeVariants?.includes("*")) {
-            this.permitted = true;
-          } else if (value.scaffold?.activeVariants?.includes(culture)) {
-            this.permitted = true;
-          }
+        let culture = activeDocumentVariants[0]?.culture ?? "*";
+        culture = culture === "invariant" ? "*" : culture;
 
-          if (this.permitted) {
-            this.#workflowContext?.removeWorkspaceActions(this.config.alias);
-          }
-        },
-      })
+        if (this.#scaffold.activeVariants?.length === 0) {
+          this.permitted = false;
+        } else if (this.#scaffold.activeVariants?.includes("*")) {
+          this.permitted = true;
+        } else if (this.#scaffold.activeVariants?.includes(culture)) {
+          this.permitted = true;
+        }
+
+        if (this.permitted) {
+          const canEdit = this.#getCanEdit();
+          this.#workflowContext?.removeWorkspaceActions(
+            WORKFLOW_DOCUMENT_WORKSPACE_VARIANT_SHOW_WORKFLOW_DETAIL_CONDITION,
+            canEdit
+          );
+        }
+      }
     );
   }
 
-  hostDisconnected(): void {
-    this.#subscription.unsubscribe();
+  #getCanEdit() {
+    if (!this.#scaffold || !this.#scaffold.settings?.lockIfActive) {
+      return true;
+    }
+
+    const currentTask = this.#scaffold.tasks?.invariantTask;
+
+    if (!currentTask) {
+      return true;
+    }
+
+    const isAuthorUser =
+      this.#globalVariables?.currentUserUnique ===
+      currentTask?.instance?.requestedByKey;
+
+    // if locked, no one can edit, unless they have canResubmit permission
+    // OR isAdmin is true, and adminCanEdit is also true
+    // HOWEVER changeAuthor can edit, if the workflow has not had any approvals
+    const isAuthorUserAndNoApprovals =
+      isAuthorUser &&
+      currentTask.currentStep === 0 &&
+      currentTask.approvedByIds?.length === 0 &&
+      currentTask.status === WorkflowStatus.PENDING_APPROVAL;
+
+    if (isAuthorUserAndNoApprovals) return true;
+
+    const isAdminAndCanEdit =
+      this.#scaffold.settings?.adminCanEdit &&
+      this.#globalVariables?.currentUserIsAdmin;
+
+    if (isAdminAndCanEdit) return true;
+
+    return this.#canResubmit(isAuthorUser, currentTask);
+  }
+
+  #canResubmit(isAuthorUser: boolean, currentTask?: WorkflowTaskModel | null) {
+    if (!this.#scaffold) return false;
+
+    const userInAssignedGroup =
+      currentTask?.userGroup?.usersSummary?.indexOf(
+        `|${this.#globalVariables?.currentUserUnique}|`
+      ) !== -1 ?? false;
+
+    const rejected =
+      currentTask?.instance?.status === WorkflowStatusModel.REJECTED;
+
+    // if the task has been rejected and the current user requested the change, let them edit
+    // if the current user is a member of the group and task is pending, they can action, UNLESS...
+    // if the user requested the change, is a member of the current group, and flow type is exclude, they cannot action
+    // if the user has already approved the change in a task where the approval threshold is > 1, they cannot action
+    let canAction =
+      userInAssignedGroup &&
+      !rejected &&
+      !currentTask?.approvedByIds?.some(
+        (id) => id === this.#globalVariables?.currentUserUnique
+      );
+
+    if (this.#scaffold.settings?.flowType !== 0 && isAuthorUser && canAction) {
+      canAction = false;
+    }
+
+    const canResubmit =
+      (rejected && !currentTask.assignTo && isAuthorUser) ||
+      (!!currentTask?.assignTo && userInAssignedGroup);
+
+    return canResubmit;
   }
 }

@@ -7,3 +7,4 @@ export * from "./tasklist/tasklist.element.js";
 export * from "./actions/actions.element.js";
 export * from "./config-box/index.js";
 export * from "./variant-selector/workflow-variant-selector.element.js";
+export * from "./action-buttons/action-buttons.element.js";

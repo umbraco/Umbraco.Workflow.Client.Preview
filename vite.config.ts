@@ -10,6 +10,7 @@ export default defineConfig({
     },
     outDir: outputPath,
     sourcemap: true,
+    emptyOutDir: false,
     rollupOptions: {
       external: [/^@umbraco-cms/],
       onwarn: () => {},

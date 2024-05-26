@@ -6,16 +6,26 @@ import {
   html,
   state,
 } from "@umbraco-cms/backoffice/external/lit";
+import { observeMultiple } from "@umbraco-cms/backoffice/observable-api";
 import {
   type WorkflowState,
   WORKFLOW_MANAGER_CONTEXT,
+  WORKFLOW_CONTEXT,
 } from "@umbraco-workflow/context";
 import type { PermissionType } from "@umbraco-workflow/core";
-import type { NodePermissionsResponseModel } from "@umbraco-workflow/generated";
+import type {
+  GlobalVariablesModel,
+  NodePermissionsResponseModel,
+} from "@umbraco-workflow/generated";
 
 export class WorkflowConfigBoxBase extends UmbElementMixin(LitElement) {
   workflowManagerContext?: typeof WORKFLOW_MANAGER_CONTEXT.TYPE;
+
+  @state()
   workflowState?: WorkflowState;
+
+  @state()
+  globalVariables?: GlobalVariablesModel;
 
   @state()
   permissions?: NodePermissionsResponseModel;
@@ -26,33 +36,33 @@ export class WorkflowConfigBoxBase extends UmbElementMixin(LitElement) {
   constructor() {
     super();
 
-    this.consumeContext(WORKFLOW_MANAGER_CONTEXT, (instance) => {
-      if (!instance) return;
-      this.workflowManagerContext = instance;
-      this.#observeWorkflowState();
-      this.#observePermissions();
+    this.consumeContext(WORKFLOW_MANAGER_CONTEXT, (context) => {
+      if (!context) return;
+      this.workflowManagerContext = context;
+      this.observe(
+        observeMultiple([context.permissions, context.state]),
+        ([permissions, state]) => {
+          this.permissions = permissions;
+          this.workflowState = state;
+        }
+      );
     });
 
+    // TODO => solve for active variant
     this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (context) => {
       this.variant = context?.getData()?.variants?.at(0)?.culture ?? "en-us";
     });
-  }
 
-  #observePermissions() {
-    this.observe(this.workflowManagerContext!.permissions, (instance) => {
-      if (!instance) return;
-      this.permissions = instance;
+    this.consumeContext(WORKFLOW_CONTEXT, (context) => {
+      if (!context) return;
+      this.observe(context.globalVariables, (globalVariables) => {
+        this.globalVariables = globalVariables;
+      });
     });
   }
 
-  #observeWorkflowState() {
-    this.observe(this.workflowManagerContext!.state, (instance) => {
-      this.workflowState = instance;
-    });
-  }
-
-  renderActiveBadge(activeType: PermissionType) {
-    if (this.activeType !== activeType) return null;
+  renderActiveBadge(...activeTypes: Array<PermissionType>) {
+    if (!this.activeType || !activeTypes.includes(this.activeType)) return null;
 
     return html`<uui-badge look="outline" color="positive">
       ${this.localize.term("workflow_active")}

@@ -7,7 +7,7 @@ import {
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
 import { WorkflowConfigBoxBase } from "./index.js";
 import { PermissionType } from "@umbraco-workflow/core";
-import type { WorkflowApprovalGroupInputElement } from "@umbraco-workflow/components";
+import type { WorkflowApprovalGroupInputElement } from "@umbraco-workflow/approval-group";
 import { ConfigService } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-config-content";
@@ -53,9 +53,9 @@ export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
         : ""}
       headline=${this.localize.term("workflow_contentApprovalFlow")}
     >
-      ${this.renderActiveBadge(PermissionType.NODE)}
+      ${this.renderActiveBadge(PermissionType.NODE, PermissionType.NEW)}
       ${when(
-        this.workflowManagerContext?.isNew,
+        !this.workflowManagerContext?.isSaved,
         () => html`
           <workflow-alert key="workflow_newNodeConfig"> </workflow-alert>
         `
@@ -63,32 +63,28 @@ export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
       ${when(
         this.workflowManagerContext?.isNew && this.permissions?.new.length,
         () => html`
-          <alert-workflow
-            style="display:block; margin-top:var(--uui-size-space-5)"
-          >
+          <p>
             ${this.localize.term("workflow_newNodeApprovalFlowDescription")}
-            <uui-ref-list>
-              ${this.permissions?.new?.map(
-                (permission) =>
-                  html`<workflow-ref-group-permission .value=${permission}>
-                  </workflow-ref-group-permission>`
-              )}
-            </uui-ref-list>
-          </alert-workflow>
+          </p>
+          <uui-ref-list>
+            ${this.permissions?.new?.map(
+              (permission) =>
+                html`<workflow-ref-group-permission .value=${permission}>
+                </workflow-ref-group-permission>`
+            )}
+          </uui-ref-list>
         `
       )}
       ${when(
-        !this.workflowManagerContext?.isNew,
+        this.workflowManagerContext?.isSaved,
         () => html` <workflow-approval-group-input
             .config=${{
               multiple: true,
               document: this.workflowManagerContext!.getEntityId(),
               remove: true,
-              defaultThreshold:
-                this.workflowManagerContext?.settings?.approvalThreshold,
+              defaultThreshold: this.globalVariables?.defaultApprovalThreshold,
               configureThreshold:
-                this.workflowManagerContext?.settings
-                  ?.configureApprovalThreshold,
+                this.globalVariables?.configureApprovalThreshold,
               additionalData: {
                 variant: this.variant,
               },
@@ -124,6 +120,12 @@ export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
         display: flex;
         flex-direction: row-reverse;
         gap: var(--uui-size-space-2);
+      }
+
+      uui-ref-list {
+        margin-bottom: var(--uui-size-6);
+        border-bottom: 1px solid var(--uui-color-border);
+        pointer-events: none;
       }
     `,
   ];

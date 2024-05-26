@@ -205,7 +205,7 @@ newNodeApprovalFlow: SettingsPropertyDisplayModel
 documentTypeApprovalFlows: SettingsPropertyDisplayModel
     };
 
-export type GlobalVariablesResponseModel = {
+export type GlobalVariablesModel = {
         defaultCulture?: string | null
 defaultCultureName?: string | null
 currentUserLocale?: string | null
@@ -243,9 +243,7 @@ variant: Array<string>
 releaseDate?: string | null
 expireDate?: string | null
 attachmentId?: number | null
-variantToInitiate: string
 userId?: string | null
-type: WorkflowTypeModel
     };
 
 export type InstanceDetailModel = {
@@ -467,8 +465,8 @@ nodeKey?: string | null
 groupKey: string
 contentTypeKey?: string | null
 nodeId: number
-groupId: number
 groupName: string
+groupIcon: string
 contentTypeId: number
 permission: number
 condition?: string | null
@@ -536,6 +534,11 @@ export type WorkflowDiffsModel = {
 workflowVariants: Array<WorkflowContentDiffModel>
     };
 
+export type WorkflowInformationResponseModel = {
+        globalVariables: GlobalVariablesModel
+license?: WorkflowLicenseModel | null
+    };
+
 export type WorkflowInstanceResponseModel = {
         node?: NodeSlimModel | null
 instance?: InstanceDetailModel | null
@@ -564,8 +567,7 @@ activeVariants: Array<string>
     };
 
 export type WorkflowSearchRequestModel = {
-        groupId?: string | null
-skip?: number | null
+        skip?: number | null
 take: number
 variant?: string | null
 sortBy: string
@@ -581,6 +583,7 @@ adminCanEdit: boolean
 allowAttachments: boolean
 requireUnpublish: boolean
 allowScheduling: boolean
+extendPermissions: boolean
 approvalThreshold: number
 configureApprovalThreshold: boolean
     };
@@ -663,12 +666,6 @@ export type WorkflowTasksForInstanceResponseModel = {
 totalSteps: number
 currentStep: number
     };
-
-export enum WorkflowTypeModel {
-    BOTH = 'Both',
-    PUBLISH = 'Publish',
-    UNPUBLISH = 'Unpublish'
-}
 
 export type ActionData = {
         
@@ -893,16 +890,6 @@ export type EmailTemplateData = {
         
     }
 
-export type GlobalVariablesData = {
-        
-        
-        responses: {
-            GetGlobal: GlobalVariablesResponseModel
-                
-        }
-        
-    }
-
 export type HistoryCleanupData = {
         
         payloads: {
@@ -973,16 +960,6 @@ GetInstanceStatus: {
         
     }
 
-export type LicenseData = {
-        
-        
-        responses: {
-            GetLicense: any
-                
-        }
-        
-    }
-
 export type ScaffoldData = {
         
         payloads: {
@@ -1000,6 +977,16 @@ variant?: string
         
         responses: {
             GetScaffold: WorkflowScaffoldResponseModel
+                
+        }
+        
+    }
+
+export type ServerInformationData = {
+        
+        
+        responses: {
+            GetInformation: WorkflowInformationResponseModel
                 
         }
         

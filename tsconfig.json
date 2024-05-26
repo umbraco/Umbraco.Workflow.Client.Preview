@@ -32,16 +32,16 @@
         "./src/generated/index.ts"
       ],
       "@umbraco-workflow/context": [
-        "./src/context/index.ts"
+        "./src/core/context/index.ts"
       ],
       "@umbraco-workflow/components": [
-        "./src/components/index.ts"
+        "./src/core/components/index.ts"
       ],
       "@umbraco-workflow/css": [
-        "./src/css/index.ts"
+        "src/core/css/index.ts"
       ],
       "@umbraco-workflow/approval-group": [
-        "./src/section/approval-group/index.ts",
+        "./src/approval-group/index.ts",
       ],
       "@umbraco-workflow/collections": [
         "./src/collections/index.ts",
@@ -51,6 +51,9 @@
       ],
       "@umbraco-workflow/core": [
         "./src/core/index.ts",
+      ],
+      "@umbraco-workflow/repository": [
+        "./src/core/repository/index.ts",
       ]
     }
   },

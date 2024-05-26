@@ -7,16 +7,13 @@ import {
   state,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
+import { choose } from "lit/directives/choose.js";
+import { observeMultiple } from "@umbraco-cms/backoffice/observable-api";
 import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
-import {
-  Subscription,
-  combineLatest,
-} from "@umbraco-cms/backoffice/external/rxjs";
 import type { WorkflowTaskModel } from "@umbraco-workflow/generated";
 import {
   type WorkflowState,
   WORKFLOW_MANAGER_CONTEXT,
-  WorkflowManagerContext,
 } from "@umbraco-workflow/context";
 import { SubView } from "@umbraco-workflow/core";
 
@@ -26,8 +23,7 @@ const elementName = "workflow-document-workspace-view";
 export class WorkflowDocumentWorkspaceViewElement extends UmbElementMixin(
   LitElement
 ) {
-  #subscription = new Subscription();
-  #workflowManagerContext = new WorkflowManagerContext(this);
+  #workflowManagerContext?: typeof WORKFLOW_MANAGER_CONTEXT.TYPE;
 
   @state()
   activeView?: SubView;
@@ -41,59 +37,57 @@ export class WorkflowDocumentWorkspaceViewElement extends UmbElementMixin(
   @state()
   subViews: Array<{
     alias: SubView;
-    value: () => string;
+    label: string;
   }> = [
     {
       alias: SubView.CONFIG,
-      value: () => this.localize.term("workflow_configuration"),
+      label: "workflow_configuration",
     },
     {
       alias: SubView.HISTORY,
-      value: () => this.localize.term("general_history"),
+      label: "general_history",
     },
   ];
+
+  #documentUnique?: string;
+  #init: Promise<unknown>;
 
   constructor() {
     super();
 
-    this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (instance) => {
-      if (!instance) return;
-      const data = instance.getData();
+    this.#init = Promise.all([
+      this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (context) => {
+        if (!context) return;
+        this.#documentUnique = context.getUnique();
+      }).asPromise(),
 
-      this.#workflowManagerContext.init(
-        undefined,
-        data?.unique,
-        data?.documentType.unique
-      );
-
-      this.provideContext(
-        WORKFLOW_MANAGER_CONTEXT,
-        this.#workflowManagerContext
-      );
-    });
+      this.consumeContext(WORKFLOW_MANAGER_CONTEXT, (context) => {
+        this.#workflowManagerContext = context;
+      }).asPromise(),
+    ]);
   }
 
-  connectedCallback() {
+  async connectedCallback() {
     super.connectedCallback();
+    await this.#init;
 
-    const observable = combineLatest({
-      state: this.#workflowManagerContext.state,
-      currentTask: this.#workflowManagerContext.currentTask,
-    });
+    if (!this.#workflowManagerContext) return;
 
-    this.#subscription.add(
-      observable.subscribe({
-        next: (value) => {
-          this.workflowState = value.state;
-          this.currentTask = value.currentTask;
-          this.activeView = this.subViews[0].alias;
-        },
-      })
+    this.#workflowManagerContext.init(
+      this.#documentUnique,
     );
-  }
 
-  disconnectedCallback() {
-    this.#subscription.unsubscribe();
+    this.observe(
+      observeMultiple([
+        this.#workflowManagerContext.state,
+        this.#workflowManagerContext.currentTask,
+      ]),
+      ([state, currentTask]) => {
+        this.workflowState = state;
+        this.currentTask = currentTask;
+        this.activeView = this.subViews[0].alias;
+      }
+    );
   }
 
   render() {
@@ -103,9 +97,8 @@ export class WorkflowDocumentWorkspaceViewElement extends UmbElementMixin(
             (view) => html` <uui-tab
               ?active=${this.activeView === view.alias}
               @click=${() => (this.activeView = view.alias)}
-              label=${view.value()}
-              >${view.value()}</uui-tab
-            >`
+              label=${this.localize.term(view.label)}
+            ></uui-tab>`
           )}
         </uui-tab-group>
       </div>
@@ -116,17 +109,22 @@ export class WorkflowDocumentWorkspaceViewElement extends UmbElementMixin(
             <workflow-alert key="workflow_excludedNodeAlert"></workflow-alert>
           `
         )}
-        ${when(
-          this.activeView === SubView.CONFIG,
-          () =>
-            html`<workflow-workspace-config
-              ?disabled=${this.currentTask !== undefined ||
-              this.workflowState?.exclude}
-            ></workflow-workspace-config>`
-        )}
-        ${when(
-          this.activeView === SubView.HISTORY,
-          () => html`<workflow-workspace-history></workflow-workspace-history>`
+        ${choose(
+          this.activeView,
+          [
+            [
+              SubView.CONFIG,
+              () => html`<workflow-workspace-config
+                ?disabled=${this.currentTask || this.workflowState?.exclude}
+              ></workflow-workspace-config>`,
+            ],
+            [
+              SubView.HISTORY,
+              () =>
+                html`<workflow-workspace-history></workflow-workspace-history>`,
+            ],
+          ],
+          () => null
         )}
       </div>`;
   }

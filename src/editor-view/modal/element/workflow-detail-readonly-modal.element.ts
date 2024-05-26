@@ -6,10 +6,6 @@ const elementName = "workflow-detail-readonly-modal";
 
 @customElement(elementName)
 export class WorkflowDetailReadonlyModalElement extends UmbModalBaseElement<WorkflowDetailReadonlyModalData> {
-  #close() {
-    this.modalContext?.reject();
-  }
-
   #renderLanguageBlock() {
     if (!this.data?.item) return;
 
@@ -30,9 +26,10 @@ export class WorkflowDetailReadonlyModalElement extends UmbModalBaseElement<Work
 
     return html`
       <umb-body-layout
-        .headline=${this.localize.term("workflow_historyFor", [
-          this.data?.item.node?.name,
-        ])}
+        .headline=${this.localize.term(
+          "workflow_historyFor",
+          this.data?.item.node?.name
+        )}
       >
         <div id="editor-box">
           <workflow-change-description
@@ -48,11 +45,11 @@ export class WorkflowDetailReadonlyModalElement extends UmbModalBaseElement<Work
             .unique=${this.data?.item.instance?.key}
           ></workflow-task-list>
         </div>
-        <div slot="actions">
-          <uui-button id="close" label="Close" @click="${this.#close}"
-            >Close</uui-button
-          >
-        </div>
+        <uui-button
+          slot="actions"
+          label=${this.localize.term("general_close")}
+          @click=${this._rejectModal}
+        ></uui-button>
       </umb-body-layout>
     `;
   }

@@ -20,7 +20,7 @@ import {
   type WorkflowTaskModel,
   TaskStatusModel,
 } from "@umbraco-workflow/generated";
-import { WorkflowColorStyles } from "@umbraco-workflow/css";
+import { WorkflowColorStyles } from "src/core/css";
 
 const elementName = "workflow-status-block";
 
@@ -92,10 +92,8 @@ export class WorkflowStatusBlockElement extends UmbElementMixin(LitElement) {
               () => html`<div>
                 <uui-button
                   @click=${this.#showGroupDetails}
-                  label="Open group: ${this.task?.userGroup?.name}"
-                >
-                  ${this.task?.userGroup?.name}
-                </uui-button>
+                  .label=${this.task?.userGroup?.name}
+                ></uui-button>
               </div>`,
               () => html`${this.task?.userGroup?.name}`
             )

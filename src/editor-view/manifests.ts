@@ -19,7 +19,7 @@ const workspaceEditorViewManifest: ManifestWorkspaceView = {
   },
   name: "Document Workspace Workflow View",
   alias: "Workflow.WorkspaceView.Document",
-  js: () => import("./document-workspace-view-workflow.element.js"),
+  element: () => import("./document-workspace-view-workflow.element.js"),
 };
 
 export const manifests = [

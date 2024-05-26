@@ -6,7 +6,7 @@ const dashboards: Array<ManifestDashboard> = [
     alias: "workflow.admin.dashboard",
     name: "Workflow Admin Dashboard",
     elementName: "workflow-admin-dashboard",
-    element: () => import("./admin.dashboard.element.js"),
+    element: () => import("./admin/admin.dashboard.element.js"),
     meta: {
       label: "Admin",
       pathname: "admin",
@@ -28,24 +28,6 @@ const dashboards: Array<ManifestDashboard> = [
     meta: {
       label: "Workflow",
       pathname: "workflow",
-    },
-    conditions: [
-      {
-        alias: "Umb.Condition.SectionAlias",
-        match: "Umb.Section.Content",
-      },
-    ],
-  },
-  {
-    type: "dashboard",
-    alias: "workflow.advancedsearch.dashboard",
-    name: "Workflow Advanced Search Dashboard",
-    elementName: "workflow-advanced-search-dashboard",
-    weight: 100,
-    element: () => import("./advanced-search/advanced-search.dashboard.element.js"),
-    meta: {
-      label: "Advanced Search",
-      pathname: "advanced-search",
     },
     conditions: [
       {

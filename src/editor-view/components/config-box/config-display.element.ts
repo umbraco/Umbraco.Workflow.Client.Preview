@@ -1,4 +1,5 @@
 import {
+  css,
   customElement,
   html,
   property,
@@ -44,13 +45,11 @@ export class WorkflowConfigDisplayElement extends WorkflowConfigBoxBase {
     </p>`;
   }
 
-  // TODO => add group icon to permission view model
   #renderPermissions() {
     return html`<uui-ref-list>
       ${this.permissions?.[this.approvalType]?.map(
         (permission) =>
           html`<workflow-ref-group-permission .value=${permission}>
-            <span slot="icon"><uui-icon name="icon-users"></uui-icon> </span>
           </workflow-ref-group-permission>`
       )}
     </uui-ref-list>`;
@@ -75,7 +74,14 @@ export class WorkflowConfigDisplayElement extends WorkflowConfigBoxBase {
     </uui-box>`;
   }
 
-  static styles = [...WorkflowConfigBoxBase.styles];
+  static styles = [
+    ...WorkflowConfigBoxBase.styles,
+    css`
+      uui-ref-list {
+        pointer-events: none;
+      }
+    `,
+  ];
 }
 
 declare global {

@@ -60,7 +60,7 @@ export class WorkflowSchedulingBlockElement extends UmbElementMixin(
       <p>${this.#getScheduledMessage()}</p>
       ${when(
         this.scheduledDatePassed,
-        () => html` <div class="flex items-center">
+        () => html` <div>
           <uui-icon name="alert"></uui-icon>
           <small>${this.localize.term("workflow_schedulePassed")} </small>
         </div>`

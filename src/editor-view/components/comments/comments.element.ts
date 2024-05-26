@@ -89,18 +89,16 @@ export class WorkflowCommentsElement extends UmbElementMixin(LitElement) {
         ? ""
         : this.localize.term("workflow_optional")}
     >
-      <div slot="editor">
-        <uui-textarea
-          label="comment"
-          id="workflowComment"
-          .value=${this.comment}
-          @keyup=${this.#limitChars}
-          rows="5"
-          ?autoHeight=${true}
-          .maxlength=${this.#maxLength}
-          .maxlengthMessage=${this.info}
-        ></uui-textarea>
-      </div>
+      <uui-textarea
+        slot="editor"
+        label="comment"
+        .value=${this.comment}
+        @keyup=${this.#limitChars}
+        rows="5"
+        ?autoHeight=${true}
+        .maxlength=${this.#maxLength}
+        .maxlengthMessage=${this.info}
+      ></uui-textarea>
     </umb-property-layout>`;
   }
 
@@ -108,6 +106,7 @@ export class WorkflowCommentsElement extends UmbElementMixin(LitElement) {
     css`
       umb-property-layout {
         padding: 0;
+        --uui-textarea-min-height: 100%;
       }
     `,
   ];
