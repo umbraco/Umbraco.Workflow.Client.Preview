@@ -1,5 +1,6 @@
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
 import { UmbEntityActionBase } from "@umbraco-cms/backoffice/entity-action";
+import { UMB_COLLECTION_CONTEXT } from "@umbraco-cms/backoffice/collection";
 import { WorkflowApprovalGroupsDetailRepository } from "../repository/detail/approval-groups-detail.repository.js";
 import { WORKFLOW_CONFIRM_DELETE_GROUP_MODAL } from "../modal/index.js";
 
@@ -29,5 +30,8 @@ export class WorkflowDeleteGroupEntityAction extends UmbEntityActionBase<never> 
     );
 
     await modalHandler.onSubmit();
+
+    const collectionContext = await this.getContext(UMB_COLLECTION_CONTEXT);
+    collectionContext.requestCollection();
   }
 }

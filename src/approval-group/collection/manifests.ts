@@ -1,4 +1,5 @@
 import type { ManifestTypes } from "@umbraco-cms/backoffice/extension-registry";
+import { manifests as collectionConditionManifests } from "../conditions/manifests.js";
 import {
   WORKFLOW_APPROVALGROUP_COLLECTION_REPOSITORY_ALIAS,
   manifests as collectionRepositoryManifests,
@@ -24,4 +25,5 @@ export const manifests = [
   ...collectionRepositoryManifests,
   ...collectionViewsManifests,
   ...collectionActionManifests,
+  ...collectionConditionManifests,
 ];

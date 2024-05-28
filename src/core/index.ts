@@ -1,8 +1,6 @@
 export * from "./utils/index.js";
 export * from "./css/index.js";
-export * from "./repository/index.js";
 export * from "./components/index.js";
-export * from "./context/index.js"
 
 export * from "./entities.js";
 export * from "./enums.js";

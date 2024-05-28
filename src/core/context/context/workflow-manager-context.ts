@@ -14,19 +14,20 @@ import {
 } from "../index.js";
 import {
   PermissionType,
-  WorkflowActionRepository,
-  type InitiateWorkflowArgs,
   type ValidActionDescriptor,
 } from "@umbraco-workflow/core";
 import {
   WorkflowStatusModel,
-  type ActionWorkflowResponseModel,
   type NodePermissionsResponseModel,
   type UserGroupPermissionsModel,
   type WorkflowLicenseModel,
   type WorkflowScaffoldResponseModel,
   type WorkflowTaskModel,
 } from "@umbraco-workflow/generated";
+import {
+  WorkflowActionRepository,
+  type InitiateWorkflowArgs,
+} from "@umbraco-workflow/repository";
 
 export class WorkflowManagerContext extends UmbControllerBase {
   readonly IS_WORKFLOW_MANAGER_CONTEXT = true;
@@ -43,7 +44,7 @@ export class WorkflowManagerContext extends UmbControllerBase {
   #canAction?: boolean;
   #isChangeAuthor?: boolean;
   #rejected?: boolean;
-  #userId?: string;
+  #userUnique?: string | null;
   #isDashboard = false;
 
   #instanceUnique?: string;
@@ -102,6 +103,7 @@ export class WorkflowManagerContext extends UmbControllerBase {
       ([license, variables, scaffold]) => {
         this.#license = license;
         this.#isAdmin = variables?.currentUserIsAdmin;
+        this.#userUnique = variables?.currentUserUnique;
         this.#scaffold = scaffold;
       }
     );
@@ -158,7 +160,7 @@ export class WorkflowManagerContext extends UmbControllerBase {
       return;
     }
 
-    this.#updateAfterAction(data, args.variants);
+    this.#workflowContext?.scaffoldNode();
   }
 
   async action(
@@ -181,47 +183,7 @@ export class WorkflowManagerContext extends UmbControllerBase {
       return;
     }
 
-    this.#updateAfterAction(data);
-  }
-
-  #updateAfterAction(
-    data?: ActionWorkflowResponseModel,
-    variant?: Array<string>
-  ) {
-    this.#ready.setValue(false);
-
-    if (!data || !data.activeWorkflows?.length) {
-      this.#currentTask.setValue(undefined);
-      return;
-    }
-
-    let currentTask: WorkflowTaskModel | undefined;
-
-    // when initiating, might be multiple items returned but we only want the current variant
-    // TODO => this should be the current backoffice variant, not the variant used in the request
-    if (variant?.length) {
-      currentTask = data.activeWorkflows?.find((x) =>
-        // TODO => variant code should not be nullable, should always be the default
-        // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-        variant.includes(x.instance?.variantCode!)
-      );
-    } else {
-      currentTask = data.activeWorkflows?.at(0);
-    }
-
-    // handle complete
-    if (!currentTask) {
-      this.#ready.setValue(true);
-      return;
-    }
-
-    this.#currentTask.setValue(currentTask);
-
-    this.#setNodeState();
-    this.#setNodePermissions();
-    this.#buildConfigState();
-
-    this.#ready.setValue(true);
+    await this.#workflowContext?.scaffoldNode();
   }
 
   async happy(message: string, headline = "Workflow") {
@@ -268,7 +230,7 @@ export class WorkflowManagerContext extends UmbControllerBase {
     }
 
     const userInAssignedGroup =
-      currentTask.userGroup?.usersSummary?.indexOf(`|${this.#userId}|`) !==
+      currentTask.userGroup?.usersSummary?.indexOf(`|${this.#userUnique}|`) !==
         -1 ?? false;
 
     this.#rejected =
@@ -276,7 +238,7 @@ export class WorkflowManagerContext extends UmbControllerBase {
 
     // if the task has been rejected and the current user requested the change, let them edit
     this.#isChangeAuthor =
-      currentTask.instance?.requestedByKey === this.#userId;
+      currentTask.instance?.requestedByKey === this.#userUnique;
 
     // if the current user is a member of the group and task is pending, they can action, UNLESS...
     // if the user requested the change, is a member of the current group, and flow type is exclude, they cannot action
@@ -284,7 +246,7 @@ export class WorkflowManagerContext extends UmbControllerBase {
     this.#canAction =
       userInAssignedGroup &&
       !this.#rejected &&
-      !currentTask.approvedByIds?.some((id) => id === this.#userId);
+      !currentTask.approvedByIds?.some((id) => id === this.#userUnique);
 
     if (
       this.#scaffold?.settings?.flowType !== 0 &&
@@ -412,4 +374,4 @@ export class WorkflowManagerContext extends UmbControllerBase {
   }
 }
 
-export const api = WorkflowManagerContext;
+export { WorkflowManagerContext as api };

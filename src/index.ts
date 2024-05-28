@@ -14,9 +14,11 @@ import {
   WorkflowSignalRContext,
 } from "@umbraco-workflow/context";
 
+
 document.head.insertAdjacentHTML("beforeend", `<style>${styles}</style>`);
 
-export * from "./core/index.js";
+export * from "./approval-group/index.js";
+export * from "./settings/index.js";
 export * from "./editor-view/index.js";
 
 export const onInit: UmbEntryPointOnInit = (host, extensionRegistry) => {

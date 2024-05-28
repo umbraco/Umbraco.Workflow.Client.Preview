@@ -9,10 +9,7 @@ import {
   css,
   state,
 } from "@umbraco-cms/backoffice/external/lit";
-import type {
-  UUIBooleanInputEvent,
-  UUIToggleElement,
-} from "@umbraco-cms/backoffice/external/uui";
+import type { UUIBooleanInputEvent } from "@umbraco-cms/backoffice/external/uui";
 import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 import type { LanguageModel } from "@umbraco-workflow/generated";
 
@@ -22,7 +19,7 @@ const elementName = "workflow-variant-selector";
 export class WorkflowVariantSelectorElement extends UmbElementMixin(
   LitElement
 ) {
-  #workflowGlobalContext?: typeof WORKFLOW_CONTEXT.TYPE;
+  #workflowContext?: typeof WORKFLOW_CONTEXT.TYPE;
 
   @property({ type: Array })
   variants?: Array<UmbDocumentVariantModel> = [];
@@ -44,15 +41,12 @@ export class WorkflowVariantSelectorElement extends UmbElementMixin(
 
     this.consumeContext(WORKFLOW_CONTEXT, (context) => {
       if (!context) return;
-      this.#workflowGlobalContext = context;
+      this.#workflowContext = context;
 
-      this.observe(
-        this.#workflowGlobalContext.globalVariables,
-        (globalVariables) => {
-          this.#languages = globalVariables?.availableLanguages;
-          this.#defaultCultureName = globalVariables?.defaultCultureName;
-        }
-      );
+      this.observe(this.#workflowContext.globalVariables, (globalVariables) => {
+        this.#languages = globalVariables?.availableLanguages;
+        this.#defaultCultureName = globalVariables?.defaultCultureName;
+      });
     });
   }
 
@@ -60,19 +54,15 @@ export class WorkflowVariantSelectorElement extends UmbElementMixin(
     event: UUIBooleanInputEvent,
     variant: UmbDocumentVariantModel
   ) {
-    const target = event.composedPath()[0] as UUIToggleElement;
-    this.value[variant.culture!] = target.checked;
+    this.value[variant.culture!] = event.target.checked;
     this.value["*"] = false;
 
     this.dispatchEvent(new CustomEvent("change"));
   }
 
   #inWorkflow(variant: UmbDocumentVariantModel) {
-    const language = this.#getLanguageByCulture(variant.culture);
-    if (!language) return;
-
     // handle culture variant workflows
-    if (variant.culture && this.variantTasks?.includes(language.name))
+    if (variant.culture && this.variantTasks?.includes(variant.culture))
       return true;
 
     // handle invariant node - culture may be null or invariant (*)
@@ -101,9 +91,12 @@ export class WorkflowVariantSelectorElement extends UmbElementMixin(
     this.dispatchEvent(new CustomEvent("change"));
   }
 
-  #getLanguageByCulture(culture?: string | null) {
-    const language = this.#languages?.find((l) =>
-      l.isoCode.localeCompare(culture ?? "")
+  #getLanguageByCulture(culture: string | null) {
+    const language = this.#languages?.find(
+      (l) =>
+        l.isoCode.localeCompare(culture ?? "", undefined, {
+          sensitivity: "base",
+        }) === 0
     );
 
     return language;
@@ -120,7 +113,7 @@ export class WorkflowVariantSelectorElement extends UmbElementMixin(
       ?checked=${this.value[variant.culture!] === true}
       ?disabled=${!canSubmit || this.value["*"]}
       ><div>
-        ${language?.name}
+        ${language?.name} ${language?.isoCode}
         <small>
           ${when(!inWorkflow, () => html`${variant.state}`)}
           ${when(
@@ -164,6 +157,7 @@ export class WorkflowVariantSelectorElement extends UmbElementMixin(
 
   static styles = [
     css`
+      uui-checkbox,
       small {
         display: block;
       }

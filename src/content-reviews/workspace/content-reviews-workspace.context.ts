@@ -126,7 +126,6 @@ export class WorkflowContentReviewsWorkspaceContext
     this.#data.update({ settings: this.#settings.getValue() });
   }
 
-  // TODO => fix model to exclude last six properties - these are server-side concerns
   getSyncModel(
     r: ContentReviewConfigItem,
     type: ContentReviewType,
@@ -198,4 +197,4 @@ export class WorkflowContentReviewsWorkspaceContext
   }
 }
 
-export const api = WorkflowContentReviewsWorkspaceContext;
+export { WorkflowContentReviewsWorkspaceContext as api };

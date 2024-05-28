@@ -13,8 +13,8 @@ import {
   state,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import { Sorter } from "../sorter.js";
-import { Pagination } from "./pagination.js";
+import { UmbPaginationManager } from "@umbraco-cms/backoffice/utils";
+import { Sorter } from "./sorter.js";
 import { type TableQueryModel, SortDirection } from "@umbraco-workflow/core";
 import type {
   LanguageModel,
@@ -39,10 +39,9 @@ export abstract class WorkflowTableBase extends UmbElementMixin(LitElement) {
   tableItems: Array<UmbTableItem> = [];
 
   @state()
-  pagination = new Pagination(() => this.doFetch());
-
-  @state()
   sorter = new Sorter(() => this.doFetch());
+
+  pagination = new UmbPaginationManager();
 
   tableConfig: UmbTableConfig = {
     allowSelection: false,
@@ -51,7 +50,7 @@ export abstract class WorkflowTableBase extends UmbElementMixin(LitElement) {
   tableColumns: Array<UmbTableColumn> = [];
   availableLanguages: Array<LanguageModel> = [];
 
-  abstract map(result: any): Array<UmbTableItem>; 
+  abstract map(result: any): Array<UmbTableItem>;
   abstract buildTable(): void;
 
   connectedCallback() {
@@ -80,22 +79,22 @@ export abstract class WorkflowTableBase extends UmbElementMixin(LitElement) {
       this.model.direction === "down" ? SortDirection.DESC : SortDirection.ASC
     );
 
-    this.pagination.take = this.model.count;
+    this.pagination.setPageSize(this.model.count ?? 5);
 
-    const query: WorkflowSearchRequestModel = {
-      skip: this.pagination.skip,
-      take: this.pagination.take,
+    const requestBody: WorkflowSearchRequestModel = {
+      skip: this.pagination.getSkip(),
+      take: this.pagination.getPageSize(),
       sortBy: this.sorter.sortBy,
       sortDirection: this.sorter.sortDirectionString,
       filters: this.model.filters ?? {},
     };
 
-    // TODO => get rid of meta
-    Object.assign(query, this.model.meta);
+    // TODO => get rid of meta?
+    Object.assign(requestBody, this.model.meta);
 
-    const handlerResult = await this.model.handler({ requestBody: query });
+    const handlerResult = await this.model.handler({ requestBody });
     this.tableItems = this.map(handlerResult);
-    this.pagination.totalItems = handlerResult.totalItems;
+    this.pagination.setTotalItems(handlerResult.totalItems);
   }
 
   /**
@@ -116,16 +115,20 @@ export abstract class WorkflowTableBase extends UmbElementMixin(LitElement) {
     this.sorter.update(key);
   }
 
+  #onPageChange(e: UUIPaginationEvent) {
+    this.pagination.setCurrentPageNumber(e.target.current);
+    this.doFetch();
+  }
+
   renderPagination() {
-    if (this.pagination.totalPages < 2) {
+    if (this.pagination.getTotalPages() < 2) {
       return nothing;
     }
 
     return html`<uui-pagination
-      .total=${this.pagination.totalPages}
-      .current=${this.pagination.current}
-      @change=${(e: UUIPaginationEvent) =>
-        this.pagination.change(e.target.current)}
+      .total=${this.pagination.getTotalPages()}
+      .current=${this.pagination.getCurrentPageNumber()}
+      @change=${this.#onPageChange}
     ></uui-pagination>`;
   }
 

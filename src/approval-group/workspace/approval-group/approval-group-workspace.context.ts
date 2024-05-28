@@ -33,7 +33,7 @@ export class WorkflowApprovalGroupWorkspaceContext
   data = this.#data.asObservable();
   #getDataPromise?: Promise<any>;
 
-	readonly unique = this.#data.asObservablePart((data) => data?.unique);
+  readonly unique = this.#data.asObservablePart((data) => data?.unique);
 
   constructor(host: UmbControllerHostElement) {
     super(host, WORKFLOW_APPROVALGROUP_WORKSPACE_ALIAS);
@@ -45,6 +45,13 @@ export class WorkflowApprovalGroupWorkspaceContext
         component: ApprovalGroupWorkspaceEditorElement,
         setup: (_component, info) => {
           this.load(info.match.params.id);
+        },
+      },
+      {
+        path: "create",
+        component: ApprovalGroupWorkspaceEditorElement,
+        setup: () => {
+          this.create();
         },
       },
     ]);
@@ -114,17 +121,6 @@ export class WorkflowApprovalGroupWorkspaceContext
     this.#data.update({ properties: newProperties });
   }
 
-  removeUser(userId: string) {
-    const users = [...(this.getData()?.users ?? [])];
-
-    const idx = users.findIndex((u) => u.userId === userId) ?? -1;
-    if (idx < 0) return;
-
-    users?.splice(idx, 1);
-
-    this.set({ users });
-  }
-
   // TODO => validation?
   async submit() {
     const data = this.getData();
@@ -135,6 +131,8 @@ export class WorkflowApprovalGroupWorkspaceContext
     } else {
       await this.repository.save(data);
     }
+
+    await this.load(data.unique);
   }
 
   async delete() {
@@ -151,4 +149,4 @@ export class WorkflowApprovalGroupWorkspaceContext
   }
 }
 
-export const api = WorkflowApprovalGroupWorkspaceContext;
+export { WorkflowApprovalGroupWorkspaceContext as api };

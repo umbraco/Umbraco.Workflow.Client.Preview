@@ -6,7 +6,7 @@ export class WorkflowSignalRContext extends UmbControllerBase {
   #connection: signalR.HubConnection | null = null;
 
   public readonly refresh = new Subject<Array<string>>();
-  public readonly action = new Subject<object>();
+  public readonly action = new Subject<any>();
 
   hostConnected(): void {
     super.hostConnected();
@@ -32,7 +32,7 @@ export class WorkflowSignalRContext extends UmbControllerBase {
       this.refresh.next(data);
     });
 
-    this.#connection.on("workflowAction", (data: object) => {
+    this.#connection.on("workflowAction", (data: any) => {
       this.action.next(data);
     });
 

@@ -1,8 +1,6 @@
 import { UMB_COLLECTION_ALIAS_CONDITION } from "@umbraco-cms/backoffice/collection";
 import type { ManifestTypes } from "@umbraco-cms/backoffice/extension-registry";
-
-// TODO => condition to check if license allows adding a group. This could be deregistered so
-// will not replace any existing server-side checks
+import { WORKFLOW_APPROVAL_GROUP_WORKSPACE_SHOW_CREATE_GROUP_CONDITION } from '../../conditions/manifests.js';
 
 export const createManifest: ManifestTypes = {
   type: "collectionAction",
@@ -11,7 +9,7 @@ export const createManifest: ManifestTypes = {
   alias: "Workflow.CollectionAction.ApprovalGroup.Create",
   weight: 200,
   meta: {
-    label: "Create",
+    label: "#general_create",
     href: "section/workflow/workspace/approval-group/create",
   },
   conditions: [
@@ -19,6 +17,9 @@ export const createManifest: ManifestTypes = {
       alias: UMB_COLLECTION_ALIAS_CONDITION,
       match: "Umb.Workflow.Collection.ApprovalGroup",
     },
+    {
+      alias: WORKFLOW_APPROVAL_GROUP_WORKSPACE_SHOW_CREATE_GROUP_CONDITION,
+    }
   ],
 };
 

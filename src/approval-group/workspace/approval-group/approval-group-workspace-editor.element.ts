@@ -1,8 +1,4 @@
 import {
-  UUIInputEvent,
-  type UUIInputElement,
-} from "@umbraco-cms/backoffice/external/uui";
-import {
   css,
   html,
   customElement,
@@ -14,8 +10,8 @@ import {
   UMB_ICON_PICKER_MODAL,
   UMB_MODAL_MANAGER_CONTEXT,
 } from "@umbraco-cms/backoffice/modal";
-
-import { generateAlias } from "@umbraco-cms/backoffice/utils";
+import { umbFocus } from "@umbraco-cms/backoffice/lit-element";
+import type { UmbInputWithAliasElement } from "@umbraco-cms/backoffice/components";
 import type { WorkflowApprovalGroupDetailModel } from "../../types.js";
 import { WORKFLOW_APPROVAL_GROUP_WORKSPACE_CONTEXT } from "./approval-group-workspace.context-token.js";
 
@@ -30,12 +26,6 @@ export class ApprovalGroupWorkspaceEditorElement extends UmbElementMixin(
 
   @state()
   private _isNew?: boolean;
-
-  @state()
-  private _aliasLocked = true;
-
-  @state()
-  private _iconColorAlias?: string;
 
   #workspaceContext?: typeof WORKFLOW_APPROVAL_GROUP_WORKSPACE_CONTEXT.TYPE;
 
@@ -63,61 +53,31 @@ export class ApprovalGroupWorkspaceEditorElement extends UmbElementMixin(
     });
   }
 
-  // TODO. find a way where we don't have to do this for all workspaces.
-  #onNameChange(event: UUIInputEvent) {
-    if (event instanceof UUIInputEvent === false) return;
-
-    const target = event.composedPath()[0] as UUIInputElement;
-
-    if (typeof target?.value !== "string") return;
-
-    const oldName = this._group!.name;
-    const oldAlias = this._group!.alias;
-    const newName = event.target.value.toString();
-
-    if (this._aliasLocked) {
-      const expectedOldAlias = generateAlias(oldName ?? "");
-      // Only update the alias if the alias matches a generated alias of the old name (otherwise the alias is considered one written by the user.)
-      if (expectedOldAlias === oldAlias) {
-        this.#workspaceContext?.setAlias(generateAlias(newName));
-      }
-    }
-
-    this.#workspaceContext?.setName(target.value);
-  }
-
-  // TODO. find a way where we don't have to do this for all workspaces.
-  #onAliasChange(event: UUIInputEvent) {
-    if (event instanceof UUIInputEvent) {
-      const target = event.composedPath()[0] as UUIInputElement;
-
-      if (typeof target?.value === "string") {
-        this.#workspaceContext?.setAlias(target.value);
-      }
-    }
-
-    event.stopPropagation();
-  }
-
   async #handleIconClick() {
-    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-    const modalHandler = modalContext.open(this, UMB_ICON_PICKER_MODAL, {
+    const [alias, color] =
+      this._group?.icon?.replace("color-", "")?.split(" ") ?? [];
+    const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    const modalContext = modalManager.open(this, UMB_ICON_PICKER_MODAL, {
       value: {
-        icon: this._group!.icon ?? "users",
-        color: this._iconColorAlias,
+        icon: alias,
+        color: color,
       },
     });
 
-    const icon = await modalHandler.onSubmit().catch(() => undefined);
-    if (icon?.icon && icon.color) {
-      this.#workspaceContext?.setIcon(`${icon.icon} color-${icon.color}`);
-    } else if (icon?.icon) {
-      this.#workspaceContext?.setIcon(icon.icon);
-    }
+    modalContext?.onSubmit().then((saved) => {
+      if (saved.icon && saved.color) {
+        this.#workspaceContext?.setIcon(`${saved.icon} color-${saved.color}`);
+      } else if (saved.icon) {
+        this.#workspaceContext?.setIcon(saved.icon);
+      }
+    });
   }
 
-  #onToggleAliasLock() {
-    this._aliasLocked = !this._aliasLocked;
+  #onNameAndAliasChange(
+    event: InputEvent & { target: UmbInputWithAliasElement }
+  ) {
+    this.#workspaceContext?.setName(event.target.value ?? "");
+    this.#workspaceContext?.setAlias(event.target.alias ?? "");
   }
 
   render() {
@@ -137,41 +97,19 @@ export class ApprovalGroupWorkspaceEditorElement extends UmbElementMixin(
           label="icon"
           compact
         >
-          <uui-icon
-            name=${this._group?.icon ?? "icon-users"}
-            style="color: ${this._iconColorAlias}"
-          ></uui-icon>
+          <uui-icon name=${this._group?.icon ?? "icon-users"}></uui-icon>
         </uui-button>
 
-        <uui-input
+        <umb-input-with-alias
           id="name"
-          .value=${this._group?.name}
-          @input="${this.#onNameChange}"
           label="name"
+          .value=${this._group?.name}
+          .alias=${this._group?.alias}
+          ?auto-generate-alias=${this._isNew}
+          @change="${this.#onNameAndAliasChange}"
+          ${umbFocus()}
         >
-          <!-- TODO: should use UUI-LOCK-INPUT, but that does not fire an event when its locked/unlocked -->
-          <uui-input
-            name="alias"
-            slot="append"
-            label="alias"
-            @input=${this.#onAliasChange}
-            .value=${this._group?.alias}
-            placeholder="Enter alias..."
-            ?disabled=${this._aliasLocked}
-          >
-            <!-- TODO: validation for bad characters -->
-            <div
-              @click=${this.#onToggleAliasLock}
-              @keydown=${() => ""}
-              id="alias-lock"
-              slot="prepend"
-            >
-              <uui-icon
-                name=${this._aliasLocked ? "lock" : "unlocked"}
-              ></uui-icon>
-            </div>
-          </uui-input>
-        </uui-input>
+        </umb-input-with-alias>
       </div>
     </umb-workspace-editor>`;
   }
@@ -191,8 +129,6 @@ export class ApprovalGroupWorkspaceEditorElement extends UmbElementMixin(
 
       #name {
         width: 100%;
-        flex: 1 1 auto;
-        align-items: center;
       }
 
       #back-button {
@@ -200,21 +136,11 @@ export class ApprovalGroupWorkspaceEditorElement extends UmbElementMixin(
         margin-left: calc(var(--uui-size-space-4) * -1);
       }
 
-      #alias-lock {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-      }
-
-      #alias-lock uui-icon {
-        margin-bottom: 2px;
-      }
-
-      #icon {
-        font-size: calc(var(--uui-size-layout-3) / 2);
-        margin-right: var(--uui-size-space-2);
-      }
+			#icon {
+				font-size: calc(var(--uui-size-layout-3) / 2);
+				margin-right: var(--uui-size-space-2);
+				margin-left: calc(var(--uui-size-space-4) * -1);
+			}
     `,
   ];
 }

@@ -168,4 +168,4 @@ export class WorkflowSettingsWorkspaceContext
   }
 }
 
-export const api = WorkflowSettingsWorkspaceContext;
+export { WorkflowSettingsWorkspaceContext as api };

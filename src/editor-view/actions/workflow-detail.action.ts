@@ -18,7 +18,6 @@ export class WorkflowDetailWorkspaceAction extends UmbWorkspaceActionBase {
     );
 
     const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-
     if (!workspaceContext || !modalContext) return;
 
     const modalHandler = modalContext.open(this, WORKFLOW_DETAIL_MODAL, {

@@ -6,7 +6,7 @@ import {
   EmailTemplateService,
   type WorkflowSettingsPropertiesModel,
 } from "@umbraco-workflow/generated";
-import { WorkflowRepositoryBase } from "@umbraco-workflow/core";
+import { WorkflowRepositoryBase } from "@umbraco-workflow/repository";
 
 export class WorkflowSettingsRepository extends WorkflowRepositoryBase<WorkflowSettingsPropertiesModel> {
   constructor(host: UmbControllerHost) {

@@ -35,8 +35,9 @@ export class WorkflowApprovalGroupCollectionRepository
 
 		const { data, error } = await this.#collectionSource.getCollection(filter);
 
-		if (data) {
-			this.#detailStore?.appendItems(data.items);
+		if (data && this.#detailStore) {
+			this.#detailStore.appendItems(data.items);
+      this.#detailStore.setTotalItems(data.total);
 		}
 
 		return { data, error, asObservable: () => this.#detailStore!.all() };  }

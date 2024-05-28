@@ -51,7 +51,6 @@ export class WorkflowDocumentWorkspaceVariantShowRequestApprovalCondition
         const config = scaffold?.config;
 
         if (config) {
-          // TODO => not permitted when new and config.new exists
           if (
             (!config.contentType.length &&
               !config.inherited.length &&
@@ -80,8 +79,7 @@ export class WorkflowDocumentWorkspaceVariantShowRequestApprovalCondition
         } else {
           let culture = activeDocumentVariants[0]?.culture ?? "*";
           culture = culture === "invariant" ? "*" : culture;
-
-          hasActiveWorkflow = !scaffold?.activeVariants?.includes(culture);
+          hasActiveWorkflow = scaffold?.activeVariants?.includes(culture) ?? false;
         }
 
         // TODO => if not permitted, show the workflow detail button if a variant is active

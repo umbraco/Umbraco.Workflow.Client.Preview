@@ -26,6 +26,7 @@ export class WorkflowContext extends UmbControllerBase {
   globalVariables = this.#globalVariables.asObservable();
 
   _currentDocument?: string;
+  _currentVariant?: string;
 
   #scaffold = new UmbObjectState<WorkflowScaffoldResponseModel | undefined>(
     undefined
@@ -70,7 +71,7 @@ export class WorkflowContext extends UmbControllerBase {
           !t.alias.includes(".Workflow.")
       ),
       (actionItems) => {
-        this.#actionItemCache = actionItems;      
+        this.#actionItemCache = actionItems;
         this.#handleChangeState();
       }
     );
@@ -91,22 +92,36 @@ export class WorkflowContext extends UmbControllerBase {
       return;
     }
 
-    const currentDocument = pathname
+    const splitPathname = pathname
       .split(this.#documentEditSegment)[1]
-      .split("/")[0];
+      .split("/");
 
-    if (currentDocument === this._currentDocument) return;
+    const currentDocument = splitPathname[0];
+    const currentVariant = splitPathname[1];
+
+    if (
+      !currentVariant || !currentDocument ||
+      (currentDocument === this._currentDocument &&
+        currentVariant === this._currentVariant)
+    )
+      return;
+
     this._currentDocument = currentDocument;
+    this._currentVariant = currentVariant;
 
     this.#restoreWorkspaceActions();
     this.scaffoldNode();
   }
 
-  async scaffoldNode(nodeKey = this._currentDocument) {
+  async scaffoldNode(
+    nodeKey = this._currentDocument,
+    variant = this._currentVariant
+  ) {
     const { data } = await tryExecuteAndNotify(
       this,
       ScaffoldService.getScaffold({
         nodeKey,
+        variant,
       })
     );
 

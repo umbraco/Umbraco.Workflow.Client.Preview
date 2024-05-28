@@ -48,15 +48,23 @@ export class WorkflowActionRepository extends UmbControllerBase {
       })
     );
 
+    // TODO => localize these
     if (error) {
       this.#notify(
         "danger",
-        `Unable to initiate workflow on node '${args.nodeUnique}'`
+        `Unable to initiate workflow on document '${
+          args.nodeUnique
+        }' (${args.variants.join(",")})`
       );
       return;
     }
 
-    this.#notify("positive", `Message about new workflow being created`);
+    this.#notify(
+      "positive",
+      `Workflow ${
+        args.publish ? "publish" : "unpublish"
+      } approval requested (${args.variants.join(",")})`
+    );
     return data;
   }
 
@@ -92,7 +100,7 @@ export class WorkflowActionRepository extends UmbControllerBase {
       return;
     }
 
-    this.#notify("positive", `Message about workflow being actioned`);
+    this.#notify("positive", `Workflow action completed: ${ValidActionDescriptor[action].toString()}`);
     return data;
   }
 

@@ -1,7 +1,7 @@
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { WorkflowContentReviewsServerDataSource } from "./content-reviews.server.data.js";
 import { WORKFLOW_CONTENTREVIEWS_STORE_CONTEXT } from "./content-reviews.store.js";
-import { WorkflowRepositoryBase } from "@umbraco-workflow/core";
+import { WorkflowRepositoryBase } from "@umbraco-workflow/repository";
 import type {
   ContentReviewsConfigModel,
   ContentReviewsSaveSettingsModel,

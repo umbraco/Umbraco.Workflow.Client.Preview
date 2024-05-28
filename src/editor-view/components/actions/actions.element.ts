@@ -85,7 +85,7 @@ export class WorkflowActionsElement extends UmbElementMixin(LitElement) {
   }
 
   #action(action?: ValidActionDescriptor, assignTo?: string) {
-    if (!action) return;
+    if (action === undefined) return;
 
     this.#workflowManagerContext?.action(action, this.comment, assignTo);
     this.comment = "";
@@ -116,10 +116,10 @@ export class WorkflowActionsElement extends UmbElementMixin(LitElement) {
     });
 
     await modalHandler.onSubmit().catch(() => undefined);
-    const { assignTo } = modalHandler.getValue();
-    if (!assignTo) return;
+    const value = modalHandler.getValue();
+    if (!value.assignTo) return;
 
-    this.#action(ValidActionDescriptor.REJECT, assignTo);
+    this.#action(ValidActionDescriptor.REJECT, value.assignTo);
   }
 
   #renderWorkflowActions() {

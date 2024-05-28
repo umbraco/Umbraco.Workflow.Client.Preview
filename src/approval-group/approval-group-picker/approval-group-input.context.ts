@@ -1,6 +1,6 @@
 import { UmbPickerInputContext } from "@umbraco-cms/backoffice/picker-input";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
-import { WORKFLOW_APPROVAL_GROUP_ITEM_REPOSITORY_ALIAS } from "@umbraco-workflow/approval-group";
+import { WORKFLOW_APPROVAL_GROUP_ITEM_REPOSITORY_ALIAS } from "../repository/item/index.js";
 import { WORKFLOW_GROUP_PICKER_MODAL } from "./modal/group-picker-modal.token.js";
 import type { UserGroupBaseModel } from "@umbraco-workflow/generated";
 

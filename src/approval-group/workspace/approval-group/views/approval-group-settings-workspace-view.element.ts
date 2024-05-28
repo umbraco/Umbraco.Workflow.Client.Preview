@@ -60,23 +60,23 @@ export class ApprovalGroupSettingsWorkspaceViewElement
 
   render() {
     return html`<uui-box .headline=${this.localize.term("general_settings")}>
-        <div id="generalSettings">
-          <umb-property-dataset
-            .value=${this._group?.properties as Array<UmbPropertyValueData>}
-            @change=${this.#onDataChange}
-          >
-            ${this._group?.properties?.map(
-              (p) =>
-                html`<umb-property
-                  .label=${this.localize.term(p.label)}
-                  .description=${this.localize.term(p.description)}
-                  alias=${p.alias}
-                  .config=${p.config}
-                  property-editor-ui-alias=${p.editorUiAlias}
-                ></umb-property>`
-            )}</umb-property-dataset
-          >
-        </div>
+        <umb-property-dataset
+          id="generalSettings"
+          .value=${this._group?.properties as Array<UmbPropertyValueData>}
+          @change=${this.#onDataChange}
+        >
+          ${this._group?.properties?.map(
+            (p) =>
+              html`<umb-property
+                orientation="vertical"
+                .label=${this.localize.term(p.label)}
+                .description=${this.localize.term(`${p.label}Description`)}
+                alias=${p.alias}
+                .config=${p.config}
+                property-editor-ui-alias=${p.editorUiAlias}
+              ></umb-property>`
+          )}</umb-property-dataset
+        >
       </uui-box>
 
       ${when(!this._isNew && this._group?.unique, () =>
@@ -95,14 +95,15 @@ export class ApprovalGroupSettingsWorkspaceViewElement
         margin-top: var(--uui-size-layout-1);
       }
 
+      /* restore when property orientation is drilled
       #generalSettings {
         display: flex;
         gap: var(--uui-size-space-6);
       }
 
-      #generalSettings umb-workspace-property-layout {
+      #generalSettings umb-property {
         flex: 1;
-      }
+      }*/
     `,
   ];
 }

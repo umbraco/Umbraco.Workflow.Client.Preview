@@ -1,18 +1,15 @@
-import { css, html, customElement } from "@umbraco-cms/backoffice/external/lit";
+import {
+  css,
+  html,
+  customElement,
+  state,
+  when,
+} from "@umbraco-cms/backoffice/external/lit";
 import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/extension-registry";
 import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
-import {
-  UserGroupService,
-  type UserGroupResponseModel,
-} from "@umbraco-cms/backoffice/external/backend-api";
 import type { UmbUserInputElement } from "@umbraco-cms/backoffice/user";
 import { WorkflowApprovalGroupWorkspaceViewBase } from "./approval-group-workspace-view-base.element.js";
-import {
-  type User2UserGroupModel,
-  type WorkflowLicenseModel,
-  ApprovalGroupService,
-} from "@umbraco-workflow/generated";
-import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
+import { ApprovalGroupService } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-approval-group-history-workspace-view";
 
@@ -21,56 +18,38 @@ export class ApprovalGroupHistoryWorkspaceViewElement
   extends WorkflowApprovalGroupWorkspaceViewBase
   implements UmbWorkspaceViewElement
 {
-  #workflowGlobalContext?: typeof WORKFLOW_CONTEXT.TYPE;
-
-  inheritedGroups: Array<UserGroupResponseModel> = [];
-  allGroups: Array<UserGroupResponseModel> = [];
-
-  license?: WorkflowLicenseModel;
-
-  constructor() {
-    super();
-
-    this.consumeContext(WORKFLOW_CONTEXT, (instance) => {
-      this.#workflowGlobalContext = instance;
-      this.#observeLicense();
-    });
-  }
+  @state()
+  private _inheritedMembers?: Array<{
+    userId: string;
+    userName?: string;
+    username?: string | null;
+    disabled?: boolean;
+  }> = [];
 
   async connectedCallback() {
     super.connectedCallback();
     await this.init;
-    this.#getInheritedGroups();
-  }
 
-  #observeLicense() {
-    if (!this.#workflowGlobalContext) return;
-    this.observe(this.#workflowGlobalContext.license, (license) => {
-      this.license = license;
-    });
-  }
-
-  // TODO => userGroupResource import blow up
-  async #getInheritedGroups() {
-    const { data, error } = await tryExecuteAndNotify(
-      this,
-      UserGroupService.getUserGroup({ skip: 0, take: 1000 })
-    );
-    if (error || !data) {
-      return;
+    if (this._group) {
+      this._group = {
+        ...this._group,
+        ...{ users: this._group.users.filter((x) => !x.inherited) },
+      };
     }
 
-    this.allGroups = data.items;
-
-    const ids = this._group?.inheritMembers?.split(",");
-    this.inheritedGroups =
-      this.allGroups.filter((g) => ids?.includes(g.id!)) ?? [];
+    this.#getInheritedGroupMembers();
   }
 
   /**
    * */
   async #getInheritedGroupMembers() {
-    if (!this._group || !this._group?.inheritMembers) return;
+    if (!this._group) return;
+
+    // when no inheritance, also remove users from the UI
+    if (!this._group.inheritMembers) {
+      this._inheritedMembers = [];
+      return;
+    }
 
     const { data } = await tryExecuteAndNotify(
       this,
@@ -79,84 +58,34 @@ export class ApprovalGroupHistoryWorkspaceViewElement
       })
     );
 
-    // remove existing inherited members
-    const explicitMembers = [
-      ...(this._group.users?.filter((x) => !x.inherited) ?? []),
-    ];
-    this.workspaceContext?.set({ users: explicitMembers });
-
     // remove duplicates - user may be in multiple groups
-    let users: Array<User2UserGroupModel> = Array.from(new Set(data));
+    this._inheritedMembers = Array.from(new Set(data));
 
-    // only keep users not explicitly assigned
-    users = users.filter(
-      (u) => !this._group!.users?.some((x) => x.userId === u.userId)
-    );
-
-    // only keep those we have room for - explicit takes priority, then topped up from inherited
-    if (users.length && this.license?.maxGroups !== -1) {
-      const capacity =
-        this.license!.maxGroups - (this._group.users?.length ?? 0);
-      users = capacity ? users.slice(0, capacity - 1) : [];
-    }
-
-    this.workspaceContext?.set({
-      users: [...(this._group.users ?? []), ...users],
+    // finally, if the user is explicitly added, update ui to show as disabled;
+    this._inheritedMembers.forEach((u) => {
+      u.disabled = this._group?.users.some(
+        (x) => x.userId === u.userId && !x.inherited
+      );
     });
   }
-
-  // #removeUser(userId: string) {
-  //   this.workspaceContext?.removeUser(userId);
-
-  //   if (this.inheritedGroups.length) {
-  //     this.#getInheritedGroupMembers();
-  //   }
-  // }
-
-  // #removeInherited(groupId: string) {
-  //   const index = this.inheritedGroups.findIndex((g) => g.id === groupId);
-  //   this.inheritedGroups.splice(index, 1);
-
-  //   const groupIds = this._group?.inheritMembers
-  //     ?.split(",")
-  //     .filter((x) => x !== groupId);
-
-  //   this.workspaceContext?.set({ inheritMembers: groupIds?.join(",") });
-
-  //   this.#getInheritedGroupMembers();
-  // }
 
   #onUserSelectionChange(e: CustomEvent) {
     const selection = (e.target as UmbUserInputElement).selection;
 
-    selection.forEach((unique) => {
-      // if user is in group already, make sure they're not inherited
-      // then add the new user if not in the group
-      const existing = this._group?.users?.find((u) => u.userId === unique);
-
-      if (existing && existing.inherited) {
-        existing.inherited = false;
-      } else if (!existing) {
-        const newUser: User2UserGroupModel = {
-          userId: unique,
-          groupId: this._group!.unique,
-          inherited: false,
-          isActive: true,
-        };
-        const users = [...(this._group?.users ?? []), newUser];
-        this.workspaceContext?.set({ users });
-      }
+    this._inheritedMembers?.forEach((x) => {
+      x.disabled = selection.includes(x.userId);
     });
+
+    this.workspaceContext?.set({
+      users: selection.map((x) => ({ userId: x, inherited: false })),
+    });
+
+    this.requestUpdate();
   }
 
   async #onGroupSelectionChange(e: Event) {
-    const selection = (e.target as any).selection;
-
+    const selection = (e.target as UmbUserInputElement).selection;
     this.workspaceContext?.set({ inheritMembers: selection.join(",") });
-    this.inheritedGroups = this.allGroups.filter((x) =>
-      selection.includes(x.id!)
-    );
-
     this.#getInheritedGroupMembers();
   }
 
@@ -165,13 +94,28 @@ export class ApprovalGroupHistoryWorkspaceViewElement
       <uui-box .headline=${this.localize.term("workflow_membership")}>
         <umb-user-input
           @change=${this.#onUserSelectionChange}
-          .selection=${this._group?.users.map((u) => u.userId) ?? []}
+          .selection=${this._group?.users
+            .filter((x) => !x.inherited)
+            .map((u) => u.userId) ?? []}
         ></umb-user-input>
       </uui-box>
       <uui-box .headline=${this.localize.term("workflow_inheritedMembership")}>
         <umb-user-group-input
           @change=${this.#onGroupSelectionChange}
+          .value=${this._group?.inheritMembers}
         ></umb-user-group-input>
+        ${when(
+          this._inheritedMembers?.length,
+          () => html` <uui-ref-list>
+            ${this._inheritedMembers?.map(
+              (x) =>
+                html`<uui-ref-node-user
+                  .name=${x.userName ?? x.username ?? ""}
+                  ?disabled=${x.disabled ?? false}
+                ></uui-ref-node-user>`
+            )}
+          </uui-ref-list>`
+        )}
       </uui-box>
     </div>`;
   }
@@ -190,6 +134,11 @@ export class ApprovalGroupHistoryWorkspaceViewElement
 
       uui-box {
         flex: 1;
+        align-self: flex-start;
+      }
+
+      uui-ref-list {
+        margin-top: var(--uui-size-space-6);
       }
     `,
   ];

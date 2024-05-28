@@ -63,6 +63,7 @@ export class WorkflowDocumentWorkspaceVariantShowWorkflowDetailCondition
 
         this.#scaffold = scaffold;
         this.#globalVariables = globalVariables;
+        this.permitted = false;
 
         let culture = activeDocumentVariants[0]?.culture ?? "*";
         culture = culture === "invariant" ? "*" : culture;

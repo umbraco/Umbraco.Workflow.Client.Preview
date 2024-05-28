@@ -1,12 +1,6 @@
 import type { UmbLocalizationDictionary } from "@umbraco-cms/backoffice/localization-api";
 /// TODO => this is the master language, use the keys here to ensure other languages have no gaps
 export default {
-  dashboardTabs: {
-    workflow: `Workflow`,
-  },
-  sections: {
-    workflow: `Workflow`,
-  },
   workflow: {
     actionWorkflow: `Action workflow`,
     activeWorkflow: `Active workflow`,
@@ -34,6 +28,7 @@ export default {
     installedVersion: `Current installed version of Umbraco Workflow:`,
     invalidContent: `Invalid content can not be submitted for workflow approval`,
     groupLanguage: "Group language",
+    groupLanguageDescription: "Only required when group email is set",
     learnMoreAbout: `Learn more about`,
     newNodeApprovalFlow: `New node approval flow`,
     newNodeApprovalFlowDescription: `All new nodes use this workflow for initial publishing`,

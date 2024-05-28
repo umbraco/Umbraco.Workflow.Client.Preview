@@ -2,8 +2,10 @@ import type {
   ManifestWorkspaces,
   ManifestWorkspaceAction,
   ManifestWorkspaceViews,
+  ManifestTypes,
 } from "@umbraco-cms/backoffice/extension-registry";
 import { UmbSaveWorkspaceAction } from "@umbraco-cms/backoffice/workspace";
+import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT_ALIAS } from "./settings-workspace.context-token.js";
 
 export const WORKFLOW_SETTINGS_WORKSPACE_ALIAS = "Workflow.Workspace.Settings";
 
@@ -16,6 +18,19 @@ const workspace: ManifestWorkspaces = {
   meta: {
     entityType: "workflow-settings",
   },
+};
+
+const context: ManifestTypes = {
+  type: "workspaceContext",
+  name: "Workflow Settings Workspace Context",
+  alias: WORKFLOW_SETTINGS_WORKSPACE_CONTEXT_ALIAS,
+  api: () => import('./settings-workspace.context.js'),
+  conditions: [
+    {
+      alias: "Umb.Condition.WorkspaceAlias",
+      match: WORKFLOW_SETTINGS_WORKSPACE_ALIAS,
+    },
+  ],
 };
 
 const workspaceViews: Array<ManifestWorkspaceViews> = [
@@ -80,4 +95,4 @@ const workspaceActions: Array<ManifestWorkspaceAction> = [
   },
 ];
 
-export const manifests = [workspace, ...workspaceViews, ...workspaceActions];
+export const manifests = [workspace, ...workspaceViews, ...workspaceActions, context];
