@@ -1,7 +1,8 @@
-import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/extension-registry";
+import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/workspace";
 import { css, customElement, html } from "@umbraco-cms/backoffice/external/lit";
+import { spread } from "@open-wc/lit-helpers";
 import { WorkflowSettingsWorkspaceViewBase } from "./settings-workspace-view-base.element.js";
-import { WorkspaceWithSettingsViewBase } from "@umbraco-workflow/core";
+import { WorkspaceWithSettingsViewBaseElement } from "@umbraco-workflow/core";
 
 const elementName = "workflow-settings-settings-workspace-view";
 
@@ -25,12 +26,14 @@ export class WorkflowSettingsSettingsViewElement
   #renderNewNodeApprovalFlow() {
     if (!this.newNodeApprovalFlow) return;
 
-    return html`<uui-box>
+    return html`<uui-box
+      ${spread(this.getAttributes(this.newNodeApprovalFlow))}
+    >
       <div slot="headline">
-        ${this.localize.term("workflow_newNodeApprovalFlow")}
+        ${this.localize.term("workflow_settings_newNodeApprovalFlow")}
         <small slot="header"
           >${this.localize.term(
-            "workflow_newNodeApprovalFlowDescription"
+            "workflow_settings_newNodeApprovalFlowDescription"
           )}</small
         >
       </div>
@@ -41,26 +44,34 @@ export class WorkflowSettingsSettingsViewElement
   #renderDocumentTypeApprovalFlows() {
     if (!this.documentTypeApprovalFlows) return;
 
-    return html`<uui-box>
+    return html`<uui-box
+      ${spread(this.getAttributes(this.documentTypeApprovalFlows))}
+    >
       <div slot="headline">
-        ${this.localize.term("workflow_documentTypeApprovalFlows")}
+        ${this.localize.term("workflow_settings_documentTypeApprovalFlows")}
         <small
           >${this.localize.term(
-            "workflow_documentTypeApprovalFlowsDescription"
+            "workflow_settings_documentTypeApprovalFlowsDescription"
           )}</small
         >
       </div>
-      <workflow-document-type-flow></workflow-document-type-flow>
+      <workflow-document-type-flow
+        .config=${{ add: true }}
+      ></workflow-document-type-flow>
     </uui-box>`;
   }
 
   #renderExcludeNodes() {
     if (!this.excludeNodes) return;
 
-    return html` <uui-box>
+    return html` <uui-box ${spread(this.getAttributes(this.excludeNodes))}>
       <div slot="headline">
-        ${this.localize.term("workflow_excludeNodes")}
-        <small>${this.localize.term("workflow_excludeNodesDescription")}</small>
+        ${this.localize.term("workflow_settings_excludeNodes")}
+        <small
+          >${this.localize.term(
+            "workflow_settings_excludeNodesDescription"
+          )}</small
+        >
       </div>
       <workflow-exclude-nodes></workflow-exclude-nodes>
     </uui-box>`;
@@ -85,7 +96,7 @@ export class WorkflowSettingsSettingsViewElement
   }
 
   static styles = [
-    ...WorkspaceWithSettingsViewBase.styles,
+    ...WorkspaceWithSettingsViewBaseElement.styles,
     css`
       @media (min-width: 750px) and (max-width: 899px), (min-width: 1500px) {
         #main {

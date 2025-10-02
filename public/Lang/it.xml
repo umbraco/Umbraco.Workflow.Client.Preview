@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<language alias="it" intName="Italian" localName="Italiana" lcid="" culture="it">
+  <area alias="workflow">
+    <key alias="changeDescription">Cambia descrizione</key>
+    <key alias="changeDescriptionDetail">%0% richiesti da %1% su %2% a %3%</key>
+    <key alias="summary">Riepilogo</key>
+    <key alias="currentStatus">Stato attuale</key>
+    <key alias="stage">Fase</key>
+    <key alias="by">da</key>
+    <key alias="on">su</key>
+    <key alias="at">a</key>
+    <key alias="comment">Commento</key>
+
+    <key alias="status1">Approvato</key>
+    <key alias="status2">Rifiutato</key>
+    <key alias="status3">In attesa di approvazione</key>
+    <key alias="status4">Non richiesto</key>
+    <key alias="status5">Annullato</key>
+    <key alias="status6">Errore</key>
+    <key alias="status7">Reinviato</key>
+    <key alias="status8">Annullato da terzi</key>
+    <key alias="status9">Escluso</key>
+    <key alias="status10">In attesa di nuova presentazione</key>
+
+    <key alias="approved">Approvato</key>
+    <key alias="cancelled">Annullato</key>
+    <key alias="cancelledbythirdparty">Annullato da terzi</key>
+    <key alias="errored">Errore</key>
+    <key alias="excluded">Escluso</key>
+    <key alias="notrequired">Non richiesto</key>
+    <key alias="pendingapproval">In attesa di approvazione</key>
+    <key alias="rejected">Rifiutato</key>
+    <key alias="resubmitted">Reinviato</key>
+    <key alias="awaitingresubmission">In attesa di nuova presentazione</key>
+</area>
+</language>

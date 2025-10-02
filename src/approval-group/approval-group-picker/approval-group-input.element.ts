@@ -8,26 +8,20 @@ import {
 } from "@umbraco-cms/backoffice/external/lit";
 import { UUIFormControlMixin } from "@umbraco-cms/backoffice/external/uui";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
-import { splitStringToArray } from "@umbraco-cms/backoffice/utils";
 import { partialUpdateFrozenArray } from "@umbraco-cms/backoffice/observable-api";
 import { UmbSorterController } from "@umbraco-cms/backoffice/sorter";
-import type { WorkflowRefGroupPermissionElement } from "../refs/ref-group-permissions.element.js";
+import { firstValueFrom } from "@umbraco-cms/backoffice/external/rxjs";
+import type { WorkflowRefGroupPermissionElement } from "../refs/ref-group-permission.element.js";
+import { WORKFLOW_APPROVALGROUP_ENTITY_TYPE } from "../constants.js";
 import { WorkflowApprovalGroupPickerContext } from "./approval-group-input.context.js";
-import type {
-  UserGroupBaseModel,
-  UserGroupPermissionsModel,
+import type { ApprovalGroupInputConfig } from "./entities.js";
+import {
+  type ApprovalGroupDetailPermissionConfigModel,
+  ApprovalGroupItemResponseModel,
+  ApprovalThresholdModel,
 } from "@umbraco-workflow/generated";
-
-export interface ApprovalGroupInputConfig {
-  basic?: boolean;
-  multiple: boolean;
-  contentType?: string;
-  document?: string;
-  remove?: boolean;
-  defaultThreshold?: number;
-  configureThreshold?: boolean;
-  additionalData?: Record<string, any>;
-}
+import { WorkflowWorkspaceModalRouterController } from "@umbraco-workflow/core";
+import { UmbChangeEvent } from "@umbraco-cms/backoffice/event";
 
 const elementName = "workflow-approval-group-input";
 
@@ -36,13 +30,26 @@ export class WorkflowApprovalGroupInputElement extends UUIFormControlMixin(
   UmbLitElement,
   ""
 ) {
+  #pickerContext = new WorkflowApprovalGroupPickerContext(this);
+  #modalRouter = new WorkflowWorkspaceModalRouterController(
+    this,
+    WORKFLOW_APPROVALGROUP_ENTITY_TYPE
+  );
+
+  @state()
+  _editGroupPath = "";
+
+  @property({ type: Boolean, reflect: true })
+  readonly = false;
+
   @property({ type: Object })
   config: Partial<ApprovalGroupInputConfig> = {
-    basic: false,
     multiple: true,
+    edit: false,
     remove: false,
+    basic: false,
     configureThreshold: false,
-    defaultThreshold: 0,
+    defaultThreshold: ApprovalThresholdModel.ONE,
     additionalData: {},
   };
 
@@ -51,79 +58,58 @@ export class WorkflowApprovalGroupInputElement extends UUIFormControlMixin(
     this.#sorter.setModel(uniques);
   }
 
-  @state()
-  public get selection(): Array<string> {
+  public get selection(): Array<string> | undefined {
     return this.#pickerContext.getSelection();
   }
 
-  @property()
-  public set value(uniques: string) {
-    this.selection = splitStringToArray(uniques);
-  }
-  public get value(): string {
-    return this.selection.join(",");
-  }
-
-  #selectedPermissions: Array<UserGroupPermissionsModel> = [];
+  @state()
+  private _selectedPermissions: Array<ApprovalGroupDetailPermissionConfigModel> =
+    [];
 
   @property({ type: Array })
-  public set selectedPermissions(value: Array<UserGroupPermissionsModel>) {
-    this.selection = value.map((x) => x.groupKey);
-    this.#selectedPermissions = value;
+  public set selectedPermissions(
+    permissions: Array<ApprovalGroupDetailPermissionConfigModel>
+  ) {
+    this._selectedPermissions = permissions;
+    this.selection = permissions.map((p) => p.groupUnique);
   }
 
-  get selectedPermissions() {
-    return this.#selectedPermissions;
+  public get selectedPermissions(): Array<ApprovalGroupDetailPermissionConfigModel> {
+    return this._selectedPermissions;
   }
-
-  public items: Array<UserGroupBaseModel> = [];
-
-  #pickerContext: WorkflowApprovalGroupPickerContext;
 
   #sorter = new UmbSorterController<string>(this, {
-    getUniqueOfElement: (element) => {
-      return element.id;
-    },
-    getUniqueOfModel: (modelEntry) => {
-      return modelEntry;
-    },
+    getUniqueOfElement: (element) => element.id,
+    getUniqueOfModel: (modelEntry) => modelEntry,
     identifier: "Workflow.SorterIdentifier.InputApprovalGroup",
     itemSelector: "workflow-ref-group-permission",
     containerSelector: "uui-ref-list",
     onChange: ({ model }) => {
       this.selection = model;
-      this.#mapSelectedPermissions();
+      this._selectedPermissions = this._selectedPermissions.map((p) => ({
+        ...p,
+        permission: model.indexOf(p.groupUnique),
+      }));
+      this.dispatchEvent(new UmbChangeEvent());
     },
   });
 
   constructor() {
     super();
 
-    // TODO => how to set multiple/single?
-    this.#pickerContext = new WorkflowApprovalGroupPickerContext(
-      this,
-      this.config.multiple
-    );
-
-    this.observe(
-      this.#pickerContext.selection,
-      (selection) =>
-        (this.value = this.config.multiple
-          ? selection.join(",")
-          : selection.at(0) ?? ""),
-      "_observeSelection"
-    );
     this.observe(
       this.#pickerContext.selectedItems,
-      (selectedItems) => {
-        this.items = this.config.multiple
-          ? selectedItems
-          : selectedItems.slice(0, 1);
-        this.#mapSelectedPermissions();
-        this.requestUpdate("items");
+      async (selectedItems) => {
+        this.#mapSelectedPermissions(selectedItems);
       },
-      "_observeItems"
+      "_observeSelectedItems"
     );
+  }
+
+  async connectedCallback() {
+    super.connectedCallback();
+    this.#pickerContext.max = this.config.multiple ? Infinity : 1;
+    this._editGroupPath = await firstValueFrom(this.#modalRouter.path);
   }
 
   protected getFormElement() {
@@ -134,97 +120,98 @@ export class WorkflowApprovalGroupInputElement extends UUIFormControlMixin(
    * Merge selected into the provided value
    * If the selected item is already in the selection at the same index, ignore it
    */
-  #mapSelectedPermissions() {
-    const mapped: Array<UserGroupPermissionsModel> = [];
+  #mapSelectedPermissions(items: Array<ApprovalGroupItemResponseModel>) {
+    this._selectedPermissions = items
+      .map((item, i) => {
+        const existing = this.selectedPermissions.find(
+          (x) => x.groupUnique === item.unique
+        );
 
-    this.items?.forEach((item) => {
-      // TODO => make this work with repeated groups, maybe?
-      const existing = this.selectedPermissions.find(
-        (x) => x.groupKey === item.unique
-      );
-
-      mapped.push({
-        groupIcon: item.icon ?? "icon-users",
-        nodeKey: this.config.document,
-        contentTypeKey: this.config.contentType,
-        groupKey: item.unique,
-        approvalThreshold:
-          existing?.approvalThreshold ?? this.config.defaultThreshold ?? 0,
-        permission: 0,
-        id: 0,
-        variant: "",
-        nodeId: 0,
-        contentTypeId: 0,
-        groupName: item.name,
-        ...this.config.additionalData,
+        return {
+          icon: item.icon,
+          groupUnique: item.unique,
+          approvalThreshold:
+            existing?.approvalThreshold ??
+            this.config.defaultThreshold ??
+            ApprovalThresholdModel.ONE,
+          permission: i,
+          name: item.name,
+          ...this.config.additionalData,
+        };
       });
-    });
 
-    // must set permission number in a new loop, as we skip items in the first iteration
-    // so the index will not be the correct value
-    mapped.forEach((p, idx) => (p.permission = idx));
-    this.selectedPermissions = [...mapped];
-
-    this.dispatchEvent(new CustomEvent("updated"));
+    this.#sorter.setModel(this._selectedPermissions.map((x) => x.groupUnique));
+    this.dispatchEvent(new UmbChangeEvent());
   }
 
-  #updateApprovalThreshold(e: CustomEvent) {
+  #updateApprovalThreshold(e: Event) {
     const target = e.target as WorkflowRefGroupPermissionElement;
 
-    this.selectedPermissions = partialUpdateFrozenArray(
-      this.selectedPermissions,
+    this._selectedPermissions = partialUpdateFrozenArray(
+      this._selectedPermissions,
       {
         ...target.value,
       },
-      (x) => x.groupKey === target.value?.groupKey
+      (x) => x.groupUnique === target.value?.groupUnique
     );
 
-    this.dispatchEvent(new CustomEvent("change"));
+    this.dispatchEvent(new UmbChangeEvent());
+  }
+
+  #renderPermissionItem(item: ApprovalGroupDetailPermissionConfigModel) {
+    return html` <workflow-ref-group-permission
+      id=${item.groupUnique}
+      .value=${item}
+      .config=${this.config}
+      ?inert=${this.readonly}
+      @approvalThresholdChange=${this.#updateApprovalThreshold}
+    >
+      <umb-icon slot="icon" name=${item.icon ?? "icon-users"}></umb-icon>
+
+      <uui-action-bar slot="actions">
+        ${when(
+          this.config.edit,
+          () => html`<uui-button
+            href="${this._editGroupPath}edit/${item.groupUnique}"
+            .label=${this.localize.term("general_edit")}
+          ></uui-button>`
+        )}
+        ${when(
+          this.config.remove,
+          () => html` <uui-button
+            @click=${() =>
+              this.#pickerContext?.requestRemoveItem(item.groupUnique)}
+            label=${this.localize.term("general_remove")}
+          ></uui-button>`
+        )}
+      </uui-action-bar>
+    </workflow-ref-group-permission>`;
   }
 
   render() {
     return html`
       <uui-ref-list
         >${this.selectedPermissions?.map((item) =>
-          this._renderPermissionItem(item)
+          this.#renderPermissionItem(item)
         )}</uui-ref-list
       >
       ${when(
-        (this.config.multiple === false && this.selection.length === 0) ||
-          this.config.multiple,
+        !this.selectedPermissions.length && this.config.emptyLabel,
+        () =>
+          html`<workflow-alert light>${this.config.emptyLabel}</workflow-alert>`
+      )}
+      ${when(
+        ((this.config.multiple === false && this.selection?.length === 0) ||
+          this.config.multiple) &&
+          !this.readonly,
         () => html` <uui-button
           id="btn-add"
           look="placeholder"
-          @click=${() => this.#pickerContext.openPicker()}
+          @click=${() => this.#pickerContext?.openPicker()}
           label=${this.localize.term("general_choose")}
         ></uui-button>`
       )}
     `;
-  }
-
-  private _renderPermissionItem(
-    item: UserGroupPermissionsModel
-  ) {
-    return html` <workflow-ref-group-permission
-      id=${item.groupKey}
-      .value=${item}
-      .config=${{
-        configureThreshold: this.config.configureThreshold,
-        defaultThreshold: this.config.defaultThreshold,
-        basic: this.config.basic,
-      }}
-      @approvalThresholdChange=${this.#updateApprovalThreshold}
-    >
-      <uui-action-bar slot="actions">
-        ${when(
-          this.config.remove,
-          () => html` <uui-button
-            @click=${() => this.#pickerContext.requestRemoveItem(item.groupKey)}
-            label=${this.localize.term("general_remove")}
-          ></uui-button>`
-        )}
-      </uui-action-bar>
-    </workflow-ref-group-permission>`;
   }
 
   static styles = [

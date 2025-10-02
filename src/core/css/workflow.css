@@ -8,3 +8,7 @@
   --workflow-errored: var(--uui-color-danger);
   --workflow-default: var(--uui-color-border-emphasis);
 }
+
+[workflow-readonly="true"] umb-workspace-editor  {
+  pointer-events: none;
+}

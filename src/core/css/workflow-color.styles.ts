@@ -24,7 +24,6 @@ export const WorkflowColorStyles = css`
     color: var(--workflow-approved);
   }
 
-  .uui-badge--status-approved,
   .background-status-approved {
     background-color: var(--workflow-approved);
   }
@@ -32,7 +31,7 @@ export const WorkflowColorStyles = css`
   .color-status-rejected {
     color: var(--workflow-rejected);
   }
-  .uui-badge--status-rejected,
+
   .background-status-rejected {
     background-color: var(--workflow-rejected);
   }
@@ -40,14 +39,13 @@ export const WorkflowColorStyles = css`
   .color-status-pendingapproval,
   .color-status-awaitingresubmission,
   .background-status-cancelled,
-  .background-status-cancelledbythirdparty .background-status-notrequired,
+  .background-status-cancelledbythirdparty,
+  .background-status-notrequired,
   .background-status-excluded {
     color: var(--workflow-pending);
   }
 
-  .uui-badge--status-pendingapproval,
   .background-status-pendingapproval,
-  .uui-badge--status-awaitingresubmission,
   .background-status-awaitingresubmission {
     background-color: var(--workflow-pending);
   }
@@ -56,7 +54,6 @@ export const WorkflowColorStyles = css`
     color: var(--workflow-errored);
   }
 
-  .uui-badge--status-errored,
   .background-status-errored {
     background-color: var(--workflow-errored);
   }
@@ -65,15 +62,10 @@ export const WorkflowColorStyles = css`
     color: var(--workflow-resubmitted);
   }
 
-  .uui-badge--status-resubmitted,
   .background-status-resubmitted {
     background-color: var(--workflow-resubmitted);
   }
 
-  .uui-badge--status-notrequired,
-  .uui-badge--status-cancelled,
-  .uui-badge--status-cancelledbythirdparty,
-  .uui-badge--status-excluded,
   .background-status-notrequired,
   .background-status-cancelled,
   .background-status-cancelledbythirdparty,
@@ -98,12 +90,5 @@ export const WorkflowColorStyles = css`
   [class*="uui-badge--status-"] {
     color: #ffffff;
     --uui-button-contrast: #fff;
-  }
-
-  .uui-badge--status-notrequired,
-  .uui-badge--status-cancelled,
-  .uui-badge--status-cancelledbythirdparty,
-  .uui-badge--status-excluded {
-    color: var(--uui-color-default);
   }
 `;

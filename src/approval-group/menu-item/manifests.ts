@@ -1,16 +1,16 @@
-import type { ManifestMenuItem } from "@umbraco-cms/backoffice/extension-registry";
+import { WORKFLOW_SECTION_MENU_ALIAS } from '../../constants.js';
 
-const menuItem: ManifestMenuItem = {
-  type: "menuItem",
-  alias: "Workflow.MenuItem.ApprovalGroups",
-  name: "Approval Groups Menu Item",
-  weight: 600,
-  meta: {
-    label: "Approval Groups",
-    icon: "icon-users",
-    entityType: "approval-group-root",
-    menus: ["Umb.Menu.Workflow"],
+export const manifests: Array<UmbExtensionManifest> = [
+  {
+    type: "menuItem",
+    alias: "Workflow.MenuItem.ApprovalGroups",
+    name: "Approval Groups Menu Item",
+    weight: 900,
+    meta: {
+      label: "#workflow_treeHeaders_approvalGroups",
+      icon: "icon-users",
+      entityType: "approval-group-root",
+      menus: [WORKFLOW_SECTION_MENU_ALIAS],
+    },
   },
-};
-
-export const manifests = [menuItem];
+];

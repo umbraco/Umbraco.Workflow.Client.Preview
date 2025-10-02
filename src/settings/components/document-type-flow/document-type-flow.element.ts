@@ -2,98 +2,130 @@ import {
   css,
   customElement,
   html,
+  property,
+  repeat,
   state,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
-import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
 import {
   appendToFrozenArray,
   partialUpdateFrozenArray,
 } from "@umbraco-cms/backoffice/observable-api";
-import { WorkflowSettingsElementBase } from "../settings-component.base.js";
+import { UmbDocumentTypeItemRepository } from "@umbraco-cms/backoffice/document-type";
+import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "../../workspace/settings-workspace.context-token.js";
 import { WORKFLOW_DOCUMENT_TYPE_FLOW_MODAL } from "./index.js";
 import {
-  ContentService,
-  type WorkflowConfigUpdateRequestModel,
-  type ContentTypePropertyModel,
-  type WorkflowLicenseModel,
+  type DocumentTypeConfigResponseModel,
+  type DocumentTypePermissionConfigModel,
 } from "@umbraco-workflow/generated";
-
 import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
+
+export interface DocumentTypeApprovalFlowConfig {
+  add?: boolean;
+  group?: string;
+}
 
 const elementName = "workflow-document-type-flow";
 
 @customElement(elementName)
-export class DocumentTypeApprovalFlowElement extends WorkflowSettingsElementBase {
-  #license?: WorkflowLicenseModel;
+export class DocumentTypeApprovalFlowElement extends UmbLitElement {
+  #workspaceContext?: typeof WORKFLOW_SETTINGS_WORKSPACE_CONTEXT.TYPE;
+  #documentTypeItemRepo = new UmbDocumentTypeItemRepository(this);
+
+  @property({ type: Object })
+  config?: DocumentTypeApprovalFlowConfig = {
+    add: false,
+  };
 
   @state()
-  contentTypes: Array<ContentTypePropertyModel> = [];
+  value: Array<
+    DocumentTypeConfigResponseModel & { icon?: string; name?: string }
+  > = [];
 
   @state()
-  value: Array<WorkflowConfigUpdateRequestModel> = [];
+  private _allowUpdate = false;
 
   constructor() {
     super();
 
-    this.consumeContext(WORKFLOW_CONTEXT, (instance) => {
-      if (!instance) return;
-      this.observe(instance.license, (license) => (this.#license = license));
+    this.consumeContext(WORKFLOW_CONTEXT, (context) => {
+      this._allowUpdate = !context?.getLicense()?.isTrial;
+    });
+
+    this.consumeContext(WORKFLOW_SETTINGS_WORKSPACE_CONTEXT, (context) => {
+      if (!context) return;
+
+      this.#workspaceContext = context;
+
+      this.observe(
+        this.#workspaceContext.documentTypeApprovalFlows,
+        async (value) => {
+          if (!value) return;
+
+          await this.#setValues(
+            value.value as Array<DocumentTypeConfigResponseModel>
+          );
+        }
+      );
     });
   }
 
-  async connectedCallback() {
-    super.connectedCallback();
+  async #setValues(value?: Array<DocumentTypeConfigResponseModel>) {
+    if (!value) return;
 
-    const { data } = await tryExecuteAndNotify(
-      this,
-      ContentService.getContentContentTypes()
+    // if a filter is provided do not apply it here as we can't
+    // (yet) do a partial save of this data. Filter is applied at render-time,
+    // to ensure all data exists for saving.
+
+    const { data } = await this.#documentTypeItemRepo.requestItems(
+      value.filter((x) => x.key).map((x) => x.key!)
     );
 
-    this.contentTypes = data ?? [];
+    this.value = value.map((x) => {
+      const type = data?.find((d) => d.unique === x.key);
+      return {
+        ...x,
+        ...{ icon: type?.icon ?? "document", name: type?.name },
+      };
+    });
   }
 
-  init() {
-    this.value =
-      <Array<WorkflowConfigUpdateRequestModel>>(
-        this.generalSettings?.documentTypeApprovalFlows?.value
-      ) ?? [];
-  }
-
-  async #openOverlay(key?: string | null) {
-    if (this.#license?.isTrial) {
+  async #openOverlay(unique?: string | null) {
+    if (!this._allowUpdate || !this.#workspaceContext) {
       return;
     }
 
     const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    if (!modalContext) return;
+
     const modalHandler = modalContext.open(
       this,
       WORKFLOW_DOCUMENT_TYPE_FLOW_MODAL,
       {
         data: {
-          contentTypes: this.contentTypes,
-          existing: this.value.map((x) => x.key).filter((x) => x !== key),
-          key,
-          permissions: key
-            ? this.value.find((x) => x.key === key)?.permissions ?? []
-            : [],
-          isNew: !key,
-          configureThreshold: this.configureApprovalThreshold(),
-          defaultThreshold: this.defaultApprovalThreshold(),
+          existing: this.value.map((x) => x.key).filter((x) => x !== unique),
+          unique,
+          permissions: (unique
+            ? this.value.find((x) => x.key === unique)?.permissions ?? []
+            : []) as Array<DocumentTypePermissionConfigModel>,
+          configureThreshold:
+            this.#workspaceContext.getConfigureApprovalThreshold(),
+          defaultThreshold:
+            this.#workspaceContext.getDefaultApprovalThreshold(),
         },
       }
     );
 
-    const result = (await modalHandler
-      .onSubmit()
-      .catch(() => undefined)) as WorkflowConfigUpdateRequestModel;
+    await modalHandler.onSubmit().catch(() => undefined);
+    const result = modalHandler.getValue() as DocumentTypeConfigResponseModel;
 
     if (!result) return;
 
     let newValue = [...this.value];
 
-    if (!key) {
+    if (!unique) {
       newValue = appendToFrozenArray(newValue, result);
     } else {
       newValue = partialUpdateFrozenArray(
@@ -103,60 +135,88 @@ export class DocumentTypeApprovalFlowElement extends WorkflowSettingsElementBase
       );
     }
 
-    this.workspaceContext?.setValue(
+    this.#workspaceContext?.setValue(
       newValue,
       "documentTypeApprovalFlows",
       "generalSettings"
     );
-  }
 
-  #getProp(prop: "name" | "icon", key?: string | null) {
-    return this.contentTypes?.find((x) => x.key === key)?.[prop] ?? "";
+    await this.#setValues();
   }
 
   #remove(idx: number) {
     const newValue = [...this.value];
     newValue.splice(idx, 1);
 
-    this.workspaceContext?.setValue(
+    this.#workspaceContext?.setValue(
       newValue,
       "documentTypeApprovalFlows",
       "generalSettings"
     );
   }
 
+  /**
+   * Detail is shown when a group id is provided in config, as we
+   * are then viewing in a group context, and filtering value by group
+   */
+  #maybeRenderDetail(permissions: Array<DocumentTypePermissionConfigModel>) {
+    if (!this.config?.group) return "";
+
+    const permission = permissions.find(
+      (x) => x.group.unique === this.config?.group
+    );
+
+    if (!permission) return "";
+
+    return `${this.localize.term("workflow_stage", permission.permission + 1)}
+            | ${permission.culture}`;
+  }
+
   render() {
     return html`${when(
-        this.value?.length,
-        () => html`
-          <uui-ref-list>
-            ${this.value!.map(
-              (node, idx) =>
-                html`<uui-ref-node
-                  .name=${this.#getProp("name", node.key)}
-                  @open=${() => this.#openOverlay(node.key)}
-                >
-                  <uui-icon
-                    slot="icon"
-                    name=${this.#getProp("icon", node.key)}
-                  ></uui-icon>
-                  <uui-action-bar slot="actions">
-                    <uui-button
-                      @click=${() => this.#remove(idx)}
-                      label=${this.localize.term("general_remove")}
-                    ></uui-button
-                    >s
-                  </uui-action-bar>
-                </uui-ref-node>`
-            )}
-          </uui-ref-list>
-        `
-      )}
-      <uui-button
-        .label=${this.localize.term("workflow_addDocumentType")}
-        look="placeholder"
-        @click=${this.#openOverlay}
-      ></uui-button> `;
+      this.value.length,
+      () => html`
+        <uui-ref-list>
+          ${repeat(
+            this.value.filter((v) =>
+              this.config?.group
+                ? v.permissions.some(
+                    (x) => x.group.unique === this.config?.group
+                  )
+                : v
+            ),
+            (node) => node.key,
+            (node, idx) =>
+              html`<uui-ref-node
+                .name=${node.name ?? ""}
+                .detail=${this.#maybeRenderDetail(node.permissions)}
+              >
+                <umb-icon slot="icon" .name=${node.icon}></umb-icon>
+                <uui-action-bar slot="actions">
+                  <uui-button
+                    @click=${() => this.#openOverlay(node.key)}
+                    label=${this.localize.term("general_edit")}
+                  ></uui-button>
+                  <uui-button
+                    @click=${() => this.#remove(idx)}
+                    label=${this.localize.term("general_remove")}
+                  ></uui-button>
+                </uui-action-bar>
+              </uui-ref-node>`
+          )}
+        </uui-ref-list>
+      `
+    )}
+    ${when(
+      this.config?.add,
+      () => html`
+        <uui-button
+          .label=${this.localize.term("general_choose")}
+          look="placeholder"
+          @click=${() => this.#openOverlay()}
+        ></uui-button>
+      `
+    )}`;
   }
 
   static styles = css`

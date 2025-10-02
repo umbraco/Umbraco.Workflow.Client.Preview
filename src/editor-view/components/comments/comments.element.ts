@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
@@ -11,24 +10,21 @@ import {
 const elementName = "workflow-comments";
 
 @customElement(elementName)
-export class WorkflowCommentsElement extends UmbElementMixin(LitElement) {
-  @property()
-  comment? = "";
-
+export class WorkflowCommentsElement extends UmbLitElement {
   @property()
   labelKey!: string;
-
-  @property()
-  templateKey = "";
 
   @property({ type: Boolean })
   mandatory = true;
 
-  @state()
-  info = "";
-
   @property()
   orientation: "horizontal" | "vertical" = "vertical";
+
+  @property()
+  value = "";
+
+  @state()
+  info = "";
 
   #maxLength = 250;
 
@@ -39,21 +35,6 @@ export class WorkflowCommentsElement extends UmbElementMixin(LitElement) {
 
   connectedCallback() {
     super.connectedCallback();
-    // this.onActioned = this.eventsService.on(
-    //   constants.events.workflowActioned,
-    //   () => this.limitChars()
-    // );
-
-    // if (this.templateKey) {
-    //   const template = await this.localizationService.localize(
-    //     this.templateKey
-    //   );
-
-    //   if (!template.startsWith("[") && !template.endsWith("]")) {
-    //     this.comment = this.$sce.trustAsHtml(template);
-    //   }
-    // }
-
     this.#limitChars();
   }
 
@@ -63,22 +44,23 @@ export class WorkflowCommentsElement extends UmbElementMixin(LitElement) {
    * until it is modified, but does have a length
    */
   #limitChars(e?: InputEvent) {
-    this.comment = (e?.target as HTMLInputElement)?.value ?? this.comment;
-    const length = this.comment?.length ?? 0;
+    this.value = (e?.target as HTMLInputElement)?.value ?? this.value;
 
-    if (length > this.#maxLength) {
+    if (this.length > this.#maxLength) {
       this.info = this.#maxLengthStr;
-      this.comment = this.comment.substring(0, this.#maxLength);
+      this.value = this.value.substring(0, this.#maxLength);
     }
 
-    this.dispatchEvent(
-      new CustomEvent("change", {
-        detail: {
-          comment: this.comment,
-          invalid: length > this.#maxLength || (!length && this.mandatory),
-        },
-      })
-    );
+    this.dispatchEvent(new CustomEvent("change"));
+  }
+
+  get length() {
+    return this.value?.length ?? 0;
+  }
+
+  get invalid() {
+    const length = this.value?.length ?? 0;
+    return length > this.#maxLength || (!length && this.mandatory);
   }
 
   render() {
@@ -92,7 +74,7 @@ export class WorkflowCommentsElement extends UmbElementMixin(LitElement) {
       <uui-textarea
         slot="editor"
         label="comment"
-        .value=${this.comment}
+        .value=${this.value}
         @keyup=${this.#limitChars}
         rows="5"
         ?autoHeight=${true}

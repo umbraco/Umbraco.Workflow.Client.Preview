@@ -4,12 +4,12 @@ import {
   type UmbPickerModalData,
 } from "@umbraco-cms/backoffice/modal";
 import type { WorkflowApprovalGroupCollectionModel } from "@umbraco-workflow/approval-group";
-import type { UserGroupBaseModel } from "@umbraco-workflow/generated";
+import type { ApprovalGroupItemResponseModel } from "@umbraco-workflow/generated";
 
 export const WORKFLOW_GROUP_PICKER_MODAL_ALIAS = "Workflow.Modal.GroupPicker";
 
 export interface WorkflowGroupPickerModalData
-  extends UmbPickerModalData<UserGroupBaseModel> {}
+  extends UmbPickerModalData<ApprovalGroupItemResponseModel> {}
 
 export interface WorkflowGroupPickerModalResult extends UmbPickerModalValue {
   selectedItems: Array<WorkflowApprovalGroupCollectionModel>;

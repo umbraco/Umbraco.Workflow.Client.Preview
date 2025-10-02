@@ -1,0 +1,1 @@
+export const WORKFLOW_USER_PERMISSION_CONDITION_ALIAS = "Workflow.Condition.UserPermission";

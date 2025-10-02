@@ -1,21 +1,19 @@
-import {
-  UMB_NOTIFICATION_CONTEXT,
-  type UmbNotificationColor,
-} from "@umbraco-cms/backoffice/notification";
-
-import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
+import { tryExecute } from "@umbraco-cms/backoffice/resources";
 import type { UmbControllerHostElement } from "@umbraco-cms/backoffice/controller-api";
 import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
+import type { RequestResult } from "@hey-api/client-fetch";
 import { ValidActionDescriptor } from "../enums.js";
+import { WorkflowNotificationManagerController } from "@umbraco-workflow/core";
 import {
   ActionService,
+  PostActionApproveResponses,
   type ActionWorkflowRequestModel,
-  type ActionWorkflowResponseModel,
-  type CancelablePromise,
+  type ActionWorkflowResponseModelReadable,
 } from "@umbraco-workflow/generated";
 
 export interface InitiateWorkflowArgs {
   nodeUnique: string;
+  entityType: string;
   publish: boolean;
   comment: string;
   variants: Array<string>;
@@ -24,19 +22,27 @@ export interface InitiateWorkflowArgs {
   attachmentId?: string;
 }
 
+export interface ActionWorkflowArgs {
+  action: ValidActionDescriptor;
+  entityType: string;
+  instanceUnique: string;
+  comment?: string;
+  assignTo?: string;
+}
+
 export class WorkflowActionRepository extends UmbControllerBase {
-  #host: UmbControllerHostElement;
+  #notificationManager = new WorkflowNotificationManagerController(this);
 
   constructor(host: UmbControllerHostElement) {
     super(host);
-    this.#host = host;
   }
 
   async initiate(args: InitiateWorkflowArgs) {
-    const { data, error } = await tryExecuteAndNotify(
-      this.#host,
+    const { data, error } = await tryExecute(
+      this._host,
       ActionService.postActionInitiate({
-        requestBody: {
+          body: {
+            entityType: args.entityType,
           entityId: args.nodeUnique,
           comment: args.comment,
           releaseDate: args.releaseDate,
@@ -48,75 +54,59 @@ export class WorkflowActionRepository extends UmbControllerBase {
       })
     );
 
-    // TODO => localize these
+    // only show variant names for variant content - invariant selector is meaningless
+    const displayVariants = args.variants.includes("*") ? [] : args.variants;
+
     if (error) {
-      this.#notify(
-        "danger",
-        `Unable to initiate workflow on document '${
-          args.nodeUnique
-        }' (${args.variants.join(",")})`
-      );
+      this.#notificationManager.notify({
+        color: "danger",
+        key: 'workflow_unableToInitiate',
+        args: [args.nodeUnique, displayVariants],
+      });
       return;
     }
 
-    this.#notify(
-      "positive",
-      `Workflow ${
-        args.publish ? "publish" : "unpublish"
-      } approval requested (${args.variants.join(",")})`
-    );
     return data;
   }
 
-  async action(
-    action: ValidActionDescriptor,
-    instanceGuid: string,
-    offline: boolean,
-    comment?: string,
-    assignTo?: string
-  ) {
-    const actionMethod = this.#workflowActionSelector(action);
+  async action(args: ActionWorkflowArgs) {
+    const actionMethod = this.#workflowActionSelector(args.action);
 
     if (!actionMethod) {
       return;
     }
-    const { data, error } = await tryExecuteAndNotify(
-      this.#host,
+
+    const { data, error } = await tryExecute(
+      this._host,
       actionMethod({
-        requestBody: {
-          comment: comment ?? "",
-          instanceGuid,
-          offline,
-          assignTo,
-          taskId: 0,
-          groupId: 0,
-          isAdmin: false,
+        body: {
+          comment: args.comment ?? "",
+          instanceGuid: args.instanceUnique,
+          assignTo: args.assignTo,
+          entityType: args.entityType,
         },
       })
     );
 
     if (error) {
-      this.#notify("danger", `Unable to action workflow.`);
+      this.#notificationManager.notify({
+        color: "danger",
+        key: "workflow_unableToAction",
+      });
       return;
     }
 
-    this.#notify("positive", `Workflow action completed: ${ValidActionDescriptor[action].toString()}`);
     return data;
   }
 
-  async #notify(color: UmbNotificationColor, message: string) {
-    const notificationContext = await this.getContext(UMB_NOTIFICATION_CONTEXT);
-    notificationContext.peek(color, { data: { message } });
-  }
-
-  #workflowActionSelector(
+  #workflowActionSelector<ThrowOnError extends boolean = true>(
     action: ValidActionDescriptor
   ):
     | (({
-        requestBody,
+        body,
       }: {
-        requestBody?: ActionWorkflowRequestModel | undefined;
-      }) => CancelablePromise<ActionWorkflowResponseModel>)
+        body: ActionWorkflowRequestModel;
+      }) => RequestResult<PostActionApproveResponses, unknown, ThrowOnError>)
     | undefined {
     switch (action) {
       case ValidActionDescriptor.APPROVE:

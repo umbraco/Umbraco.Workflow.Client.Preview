@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
@@ -8,18 +7,18 @@ import {
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import { umbExtensionsRegistry } from "@umbraco-cms/backoffice/extension-registry";
-import type { SettingsSectionType } from "../types.js";
 import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "./settings-workspace.context-token.js";
 import { noneSomeAll } from "@umbraco-workflow/core";
 import type {
   GeneralSettingsModel,
   NotificationsSettingsModel,
+  WorkflowSettingsPropertiesModel,
 } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-settings-editor";
 
 @customElement(elementName)
-export class WorkflowSettingsEditorElement extends UmbElementMixin(LitElement) {
+export class WorkflowSettingsEditorElement extends UmbLitElement {
   #workspaceContext?: typeof WORKFLOW_SETTINGS_WORKSPACE_CONTEXT.TYPE;
 
   @state()
@@ -44,7 +43,7 @@ export class WorkflowSettingsEditorElement extends UmbElementMixin(LitElement) {
   #observeSettingsVisibility() {
     const updateViewVisibility = (
       settings: GeneralSettingsModel | NotificationsSettingsModel,
-      alias: SettingsSectionType
+      alias: keyof WorkflowSettingsPropertiesModel
     ) => {
       if (noneSomeAll(settings).allHidden === false) {
         return;
@@ -59,7 +58,7 @@ export class WorkflowSettingsEditorElement extends UmbElementMixin(LitElement) {
       }
 
       umbExtensionsRegistry.unregister(
-        `Umb.WorkspaceView.Workflow.Settings.${alias}`
+        `Workflow.WorkspaceView.Settings.${alias}`
       );
 
       if (this.generalSettingsHidden && this.notificationsSettingsHidden) {

@@ -1,20 +1,19 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   customElement,
   html,
   state,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
 import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "../../workspace/settings-workspace.context-token.js";
-import type { ExtendedWorkflowEmailConfigModel } from "../../types.js";
+import type { ExtendedWorkflowEmailConfigModel } from "./types.js";
 import { WORKFLOW_EMAIL_SENDTO_MODAL } from "./index.js";
 import type { ConfigTypeModel } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-email-templates";
 
 @customElement(elementName)
-export class WorkflowEmailTemplatesElement extends UmbElementMixin(LitElement) {
+export class WorkflowEmailTemplatesElement extends UmbLitElement {
   #workspaceContext?: typeof WORKFLOW_SETTINGS_WORKSPACE_CONTEXT.TYPE;
 
   @state()
@@ -23,7 +22,7 @@ export class WorkflowEmailTemplatesElement extends UmbElementMixin(LitElement) {
   @state()
   value: Array<ExtendedWorkflowEmailConfigModel> = [];
 
-  #sendToStr = this.localize.term("workflow_sendTo");
+  #sendToStr = this.localize.term("workflow_settings_sendTo");
 
   constructor() {
     super();
@@ -38,19 +37,20 @@ export class WorkflowEmailTemplatesElement extends UmbElementMixin(LitElement) {
   #observeValue() {
     if (!this.#workspaceContext) return;
 
-    this.observe(this.#workspaceContext.notificationsSettings, (notificationsSettings) => {
-      if (!notificationsSettings) return;
-      this.value = (<any>notificationsSettings?.emailTemplates?.value).map((v) => ({
-        ...v,
-        sendTo: "",
-      }));
-      this.config = notificationsSettings?.emailTemplates?.config;
-      this.#setSendTo();
-    });
-  }
-
-  #setSendTo() {
-    this.value.forEach((v) => this.#localize(v));
+    this.observe(
+      this.#workspaceContext.notificationsSettings,
+      (notificationsSettings) => {
+        if (!notificationsSettings) return;
+        this.value = (<Array<ExtendedWorkflowEmailConfigModel>>(
+          notificationsSettings?.emailTemplates?.value
+        )).map((v) => ({
+          ...v,
+          sendTo: "",
+        }));
+        this.config = notificationsSettings?.emailTemplates?.config;
+        this.value.forEach((v) => this.#localize(v));
+      }
+    );
   }
 
   #localize(v: ExtendedWorkflowEmailConfigModel) {
@@ -70,6 +70,8 @@ export class WorkflowEmailTemplatesElement extends UmbElementMixin(LitElement) {
 
   async #edit(emailType: ExtendedWorkflowEmailConfigModel) {
     const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    if (!modalContext) return;
+
     const modalHandler = modalContext.open(this, WORKFLOW_EMAIL_SENDTO_MODAL, {
       data: {
         config: this.config,
@@ -77,11 +79,10 @@ export class WorkflowEmailTemplatesElement extends UmbElementMixin(LitElement) {
       },
     });
 
-    await modalHandler.onSubmit().catch(() => undefined);
-    const selectedIds = modalHandler.getValue()?.selectedIds;
-    if (!selectedIds) return;
+    const data = await modalHandler.onSubmit().catch(() => undefined);
+    if (!data) return;
 
-    emailType.to = selectedIds;
+    emailType.to = data.selectedIds;
 
     this.#workspaceContext?.setValue(
       this.value,

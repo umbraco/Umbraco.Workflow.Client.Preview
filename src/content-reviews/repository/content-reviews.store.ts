@@ -9,5 +9,7 @@ export class ContentReviewsStore extends WorkflowObjectStore<ContentReviewsConfi
   }
 }
 
+export { ContentReviewsStore as api };
+
 export const WORKFLOW_CONTENTREVIEWS_STORE_CONTEXT =
   new UmbContextToken<ContentReviewsStore>("ContentReviewsStore");

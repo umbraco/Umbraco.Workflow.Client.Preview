@@ -1,4 +1,4 @@
-export * from "./workflow-state.js";
+export * from "./entities.js";
 
 export * from "./context/workflow-manager-context.js";
 export * from "./context/workflow-context.js";

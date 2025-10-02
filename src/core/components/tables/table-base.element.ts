@@ -1,4 +1,4 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import type {
   UmbTableColumn,
   UmbTableConfig,
@@ -6,7 +6,6 @@ import type {
 } from "@umbraco-cms/backoffice/components";
 import type { UUIPaginationEvent } from "@umbraco-ui/uui-pagination";
 import {
-  LitElement,
   html,
   nothing,
   property,
@@ -14,15 +13,14 @@ import {
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbPaginationManager } from "@umbraco-cms/backoffice/utils";
+import { UMB_APP_LANGUAGE_CONTEXT ,type  UmbLanguageDetailModel  } from "@umbraco-cms/backoffice/language";
 import { Sorter } from "./sorter.js";
 import { type TableQueryModel, SortDirection } from "@umbraco-workflow/core";
 import type {
-  LanguageModel,
   WorkflowSearchRequestModel,
 } from "@umbraco-workflow/generated";
-import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
-export abstract class WorkflowTableBase extends UmbElementMixin(LitElement) {
+export abstract class WorkflowTableBaseElement extends UmbLitElement {
   @property({ type: Object })
   set model(value: TableQueryModel) {
     this.#model = value;
@@ -41,6 +39,9 @@ export abstract class WorkflowTableBase extends UmbElementMixin(LitElement) {
   @state()
   sorter = new Sorter(() => this.doFetch());
 
+  @state()
+  loading = true;
+
   pagination = new UmbPaginationManager();
 
   tableConfig: UmbTableConfig = {
@@ -48,26 +49,26 @@ export abstract class WorkflowTableBase extends UmbElementMixin(LitElement) {
   };
 
   tableColumns: Array<UmbTableColumn> = [];
-  availableLanguages: Array<LanguageModel> = [];
+  availableLanguages: Array<UmbLanguageDetailModel> = [];
 
   abstract map(result: any): Array<UmbTableItem>;
   abstract buildTable(): void;
 
-  connectedCallback() {
-    super.connectedCallback();
+  constructor() {
+    super();
 
-    this.consumeContext(WORKFLOW_CONTEXT, (instance) => {
+    this.consumeContext(UMB_APP_LANGUAGE_CONTEXT, (instance) => {
       if (!instance) return;
 
-      this.observe(instance.globalVariables, (variables) => {
-        this.availableLanguages = variables?.availableLanguages ?? [];
+      this.observe(instance.languages, (languages) => {
+        this.availableLanguages = languages;
         this.buildTable();
       });
     });
   }
 
-  setTableColumns(columns: Array<UmbTableColumn>) {
-    this.tableColumns = columns.filter(
+  setTableColumns() {
+    this.tableColumns = this.tableColumns.filter(
       (c) => !this.model?.hiddenColumns?.includes(c.alias)
     );
   }
@@ -75,13 +76,13 @@ export abstract class WorkflowTableBase extends UmbElementMixin(LitElement) {
   protected async doFetch() {
     if (!this.model) return;
 
-    this.sorter.setDirection(
-      this.model.direction === "down" ? SortDirection.DESC : SortDirection.ASC
-    );
+    this.loading = true;
 
-    this.pagination.setPageSize(this.model.count ?? 5);
+    this.setTableColumns();
+    this.sorter.setDirection(this.model.direction ?? SortDirection.ASC);
+    this.pagination.setPageSize(this.model.pageSize ?? 5);
 
-    const requestBody: WorkflowSearchRequestModel = {
+    const body: WorkflowSearchRequestModel = {
       skip: this.pagination.getSkip(),
       take: this.pagination.getPageSize(),
       sortBy: this.sorter.sortBy,
@@ -89,26 +90,14 @@ export abstract class WorkflowTableBase extends UmbElementMixin(LitElement) {
       filters: this.model.filters ?? {},
     };
 
-    // TODO => get rid of meta?
-    Object.assign(requestBody, this.model.meta);
+    const { data } = await this.model.handler({
+      body: { ...body, ...this.model.meta },
+    });
 
-    const handlerResult = await this.model.handler({ requestBody });
-    this.tableItems = this.map(handlerResult);
-    this.pagination.setTotalItems(handlerResult.totalItems);
-  }
+    this.tableItems = this.map(data);
+    this.pagination.setTotalItems(data.totalItems);
 
-  /**
-   * If the comment has an error appended, split it off
-   * @param item
-   * @returns
-   */
-  getComment(item: any) {
-    const comment = (item.instance?.comment || item.comment || "").split(
-      " ["
-    )[0];
-    const trimmedComment = comment.substring(0, 140);
-
-    return `${trimmedComment}${comment.length > 140 ? "..." : ""}`;
+    this.loading = false;
   }
 
   sort(key: string) {
@@ -126,13 +115,14 @@ export abstract class WorkflowTableBase extends UmbElementMixin(LitElement) {
     }
 
     return html`<uui-pagination
+      style="display:block; margin-top: var(--uui-size-5)"
       .total=${this.pagination.getTotalPages()}
       .current=${this.pagination.getCurrentPageNumber()}
       @change=${this.#onPageChange}
     ></uui-pagination>`;
   }
 
-  render() {
+  #renderTable() {
     return when(
       this.tableItems.length,
       () => html`<umb-table
@@ -143,6 +133,14 @@ export abstract class WorkflowTableBase extends UmbElementMixin(LitElement) {
 
         ${this.renderPagination()}`,
       () => this.localize.term("content_noItemsToShow")
+    );
+  }
+
+  render() {
+    return when(
+      this.loading,
+      () => html`<uui-loader-bar></uui-loader-bar>`,
+      () => this.#renderTable()
     );
   }
 }

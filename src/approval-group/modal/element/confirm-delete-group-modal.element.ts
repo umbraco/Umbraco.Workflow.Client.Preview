@@ -44,8 +44,11 @@ export class WorkflowConfirmDeleteGroupModalElement extends UmbModalBaseElement<
   #observeMessages() {
     if (!this.#messenger) return;
 
-    this.observe(this.#messenger.action, (action: [string, number]) => {
-      this._messages.push({ key: `workflow_${action[0]}`, value: action[1] });
+    this.observe(this.#messenger.action, (action) => {
+      this._messages.push({
+        key: `workflow_${action[0]}`,
+        value: action[1] as number,
+      });
     });
   }
 
@@ -71,25 +74,20 @@ export class WorkflowConfirmDeleteGroupModalElement extends UmbModalBaseElement<
   }
 
   render() {
-    return html`<umb-body-layout headline="Confirm delete group">
-      <div id="main">
-        ${unsafeHTML(
-          this.localize.term(
-            "workflow_deleteGroupWarning",
-            this.data?.groupName
-          )
-        )}
-        <uui-input type="text" @input=${this.#handleInputChange}></uui-input>
+    return html`<uui-dialog-layout headline="Confirm delete group">
+      ${unsafeHTML(
+        this.localize.term("workflow_deleteGroupWarning", this.data?.groupName)
+      )}
+      <uui-input type="text" @input=${this.#handleInputChange}></uui-input>
 
-        ${when(
-          this._messages.length,
-          () => html` <ul>
-            ${this._messages.map(
-              (m) => html` <li>${this.localize.term(m.key)}: ${m.value}</li>`
-            )}
-          </ul>`
-        )}
-      </div>
+      ${when(
+        this._messages.length,
+        () => html` <ul>
+          ${this._messages.map(
+            (m) => html` <li>${this.localize.term(m.key)}: ${m.value}</li>`
+          )}
+        </ul>`
+      )}
       <div slot="actions">
         <uui-button
           label=${this.localize.term("general_close")}
@@ -103,7 +101,7 @@ export class WorkflowConfirmDeleteGroupModalElement extends UmbModalBaseElement<
           @click=${this.#handleSubmit}
         ></uui-button>
       </div>
-    </umb-body-layout>`;
+    </uui-dialog-layout>`;
   }
 
   static styles = [

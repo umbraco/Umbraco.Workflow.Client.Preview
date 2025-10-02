@@ -6,20 +6,20 @@ import {
   unsafeHTML,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import { WorkflowConfigBoxBase } from "./index.js";
+import { WorkflowConfigBoxBaseElement } from "./index.js";
 import { PermissionType } from "@umbraco-workflow/core";
 
 const elementName = "workflow-config-display";
 
 @customElement(elementName)
-export class WorkflowConfigDisplayElement extends WorkflowConfigBoxBase {
+export class WorkflowConfigDisplayElement extends WorkflowConfigBoxBaseElement {
   @property()
   approvalType!: PermissionType.CONTENT_TYPE | PermissionType.INHERITED;
 
   get headline() {
     return this.localize.term(
       this.approvalType === PermissionType.CONTENT_TYPE
-        ? "workflow_docTypeApprovalFlow"
+        ? "workflow_documentTypeApprovalFlow"
         : "workflow_inheritedApprovalFlow"
     );
   }
@@ -27,7 +27,7 @@ export class WorkflowConfigDisplayElement extends WorkflowConfigBoxBase {
   get empty() {
     return this.localize.term(
       this.approvalType === PermissionType.CONTENT_TYPE
-        ? "workflow_noDoctypeFlow"
+        ? "workflow_noDocumentTypeFlow"
         : "workflow_noInheritedFlow"
     );
   }
@@ -39,7 +39,7 @@ export class WorkflowConfigDisplayElement extends WorkflowConfigBoxBase {
       ${unsafeHTML(
         this.localize.term(
           "workflow_currentPageInheritsFrom",
-          this.permissions?.inherited?.at(0)?.nodeName ?? ""
+          this.permissions?.inheritedFrom ?? ""
         )
       )}
     </p>`;
@@ -50,6 +50,7 @@ export class WorkflowConfigDisplayElement extends WorkflowConfigBoxBase {
       ${this.permissions?.[this.approvalType]?.map(
         (permission) =>
           html`<workflow-ref-group-permission .value=${permission}>
+            <umb-icon slot="icon" name=${permission.icon ?? "icon-users"}></umb-icon>
           </workflow-ref-group-permission>`
       )}
     </uui-ref-list>`;
@@ -68,14 +69,14 @@ export class WorkflowConfigDisplayElement extends WorkflowConfigBoxBase {
         () =>
           when(
             this.empty,
-            () => html` <workflow-alert>${this.empty}</workflow-alert>`
+            () => html` <workflow-alert light>${this.empty}</workflow-alert>`
           )
       )}
     </uui-box>`;
   }
 
   static styles = [
-    ...WorkflowConfigBoxBase.styles,
+    ...WorkflowConfigBoxBaseElement.styles,
     css`
       uui-ref-list {
         pointer-events: none;

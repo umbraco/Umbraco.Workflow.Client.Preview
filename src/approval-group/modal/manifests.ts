@@ -1,7 +1,6 @@
-import type { ManifestModal } from "@umbraco-cms/backoffice/extension-registry";
 import { WORKFLOW_CONFIRM_DELETE_GROUP_MODAL_ALIAS } from "./token/confirm-delete-group-modal.token.js";
 
-const modals: Array<ManifestModal> = [
+export const manifests: Array<UmbExtensionManifest> = [
   {
     type: "modal",
     alias: WORKFLOW_CONFIRM_DELETE_GROUP_MODAL_ALIAS,
@@ -9,5 +8,3 @@ const modals: Array<ManifestModal> = [
     js: () => import("./element/confirm-delete-group-modal.element.js"),
   },
 ];
-
-export const manifests = [...modals];

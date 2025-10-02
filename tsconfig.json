@@ -3,7 +3,7 @@
     "module": "esnext",
     "target": "ES2020",
     "lib": [
-      "es2020",
+      "es2022",
       "dom",
       "dom.iterable"
     ],
@@ -23,13 +23,9 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "noImplicitAny": false,
-    "typeRoots": [
-      "src/types",
-      "./node_modules/@types"
-    ],
     "paths": {
       "@umbraco-workflow/generated": [
-        "./src/generated/index.ts"
+        "./generated/index.ts"
       ],
       "@umbraco-workflow/context": [
         "./src/core/context/index.ts"
@@ -41,21 +37,42 @@
         "src/core/css/index.ts"
       ],
       "@umbraco-workflow/approval-group": [
-        "./src/approval-group/index.ts",
-      ],
-      "@umbraco-workflow/collections": [
-        "./src/collections/index.ts",
+        "./src/approval-group/index.ts"
       ],
       "@umbraco-workflow/editor-view": [
-        "./src/editor-view/index.ts",
+        "./src/editor-view/index.ts"
       ],
       "@umbraco-workflow/core": [
-        "./src/core/index.ts",
+        "./src/core/index.ts"
+      ],
+      "@umbraco-workflow/settings": [
+        "./src/settings/index.ts"
       ],
       "@umbraco-workflow/repository": [
-        "./src/core/repository/index.ts",
-      ]
-    }
+        "./src/core/repository/index.ts"
+      ],
+      "@umbraco-workflow/content-reviews": [
+        "./src/content-reviews/index.ts"
+      ],
+      "@umbraco-workflow/release-sets": [
+        "./src/release-sets/index.ts"
+      ],
+      "@umbraco-workflow/alternate-versions": [
+        "./src/alternate-versions/index.ts"
+      ],
+      "@umbraco-workflow/calendar": [
+        "./src/content-calendar/index.ts"
+      ],
+      "@umbraco-workflow/document": [
+        "./src/document/index.ts"
+      ],
+    },
+    "types": [
+      "@umbraco-cms/backoffice/extension-registry",
+      "@umbraco-cms/backoffice/section",
+      "@umbraco-cms/backoffice/dashboard",
+      "@umbraco-cms/backoffice/localization"
+    ]
   },
   "include": [
     "src/**/*.ts"

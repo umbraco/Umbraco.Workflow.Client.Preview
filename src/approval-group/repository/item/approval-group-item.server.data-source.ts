@@ -3,11 +3,11 @@ import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import type { ApprovalGroupItemModel } from "./types.js";
 import {
   ApprovalGroupService,
-  type UserGroupItemResponseModel,
+  type ApprovalGroupItemResponseModel,
 } from "@umbraco-workflow/generated";
 
 export class WorkflowApprovalGroupItemServerDataSource extends UmbItemServerDataSourceBase<
-  UserGroupItemResponseModel,
+  ApprovalGroupItemResponseModel,
   ApprovalGroupItemModel
 > {
   constructor(host: UmbControllerHost) {
@@ -18,13 +18,14 @@ export class WorkflowApprovalGroupItemServerDataSource extends UmbItemServerData
   }
 }
 
-/* eslint-disable local-rules/no-direct-api-import */
 const getItems = (uniques: Array<string>) =>
-  ApprovalGroupService.getItemApprovalGroup({ id: uniques });
+  ApprovalGroupService.getItemApprovalGroup({ query: { id: uniques } });
 
-const mapper = (item: UserGroupItemResponseModel): ApprovalGroupItemModel => {
+const mapper = (
+  item: ApprovalGroupItemResponseModel
+): ApprovalGroupItemModel => {
   return {
-    unique: item.id,
+    unique: item.unique,
     name: item.name,
     icon: item.icon || null,
   };

@@ -1,16 +1,15 @@
 import type {
+  UmbConditionConfigBase,
   UmbConditionControllerArguments,
   UmbExtensionCondition,
 } from "@umbraco-cms/backoffice/extension-api";
 import { UmbConditionBase } from "@umbraco-cms/backoffice/extension-registry";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
-import { observeMultiple } from "@umbraco-cms/backoffice/observable-api";
 import { WORKFLOW_APPROVALGROUPS_DETAIL_STORE_CONTEXT } from "../repository/detail/approval-groups-detail.store.js";
-import type { WorkflowApprovalGroupWorkspaceShowCreateGroupConditionConfig } from "./manifests.js";
 import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
 export class WorkflowApprovalGroupWorkspaceShowCreateGroupCondition
-  extends UmbConditionBase<WorkflowApprovalGroupWorkspaceShowCreateGroupConditionConfig>
+  extends UmbConditionBase<UmbConditionConfigBase>
   implements UmbExtensionCondition
 {
   #init: Promise<unknown>;
@@ -19,7 +18,7 @@ export class WorkflowApprovalGroupWorkspaceShowCreateGroupCondition
 
   constructor(
     host: UmbControllerHost,
-    args: UmbConditionControllerArguments<WorkflowApprovalGroupWorkspaceShowCreateGroupConditionConfig>
+    args: UmbConditionControllerArguments<UmbConditionConfigBase>
   ) {
     super(host, args);
 
@@ -46,19 +45,17 @@ export class WorkflowApprovalGroupWorkspaceShowCreateGroupCondition
       return;
     }
 
-    this.observe(
-      observeMultiple([
-        this.#workflowContext.license,
-        this.#storeContext.totalItems,
-      ]),
-      ([license, totalItems]) => {
-        if (license?.isImpersonating || license?.isLicensed) {
-          this.permitted = true;
-          return;
-        }
+    const license = this.#workflowContext.getLicense();
 
-        this.permitted = totalItems <= (license?.maxGroups ?? 5);
+    this.observe(this.#storeContext.totalItems, (totalItems) => {
+      if (license?.isImpersonating || license?.isLicensed) {
+        this.permitted = true;
+        return;
       }
-    );
+
+      this.permitted = totalItems <= (license?.maxGroups ?? 5);
+    });
   }
 }
+
+export { WorkflowApprovalGroupWorkspaceShowCreateGroupCondition as api };

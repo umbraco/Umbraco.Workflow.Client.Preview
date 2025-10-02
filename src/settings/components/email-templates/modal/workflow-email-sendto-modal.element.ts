@@ -39,16 +39,14 @@ export class WorkflowEmailSendToModalElement extends UmbModalBaseElement<
   }
 
   render() {
-    return html`<umb-body-layout
+    return html`<uui-dialog-layout
       headline="Send to: ${this.data?.emailType.name}"
     >
-      <div id="main">
-        <umb-input-checkbox-list
-          @change=${this.#handleChange}
-          .selection=${this.#value}
-          .list=${this.#items}
-        ></umb-input-checkbox-list>
-      </div>
+      <umb-input-checkbox-list
+        @change=${this.#handleChange}
+        .selection=${this.#value}
+        .list=${this.#items}
+      ></umb-input-checkbox-list>
       <div slot="actions">
         <uui-button
           label=${this.localize.term("general_cancel")}
@@ -61,7 +59,7 @@ export class WorkflowEmailSendToModalElement extends UmbModalBaseElement<
           @click=${this._submitModal}
         ></uui-button>
       </div>
-    </umb-body-layout>`;
+    </uui-dialog-layout>`;
   }
 }
 

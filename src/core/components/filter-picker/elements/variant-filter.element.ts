@@ -1,6 +1,6 @@
 import { css, customElement, html } from "@umbraco-cms/backoffice/external/lit";
+import { UMB_APP_LANGUAGE_CONTEXT } from "@umbraco-cms/backoffice/language";
 import { WorkflowBaseFilterElement } from "./base-filter.element.js";
-import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
 const elementName = "workflow-variant-filter";
 
@@ -9,13 +9,14 @@ export class WorkflowVariantFilterElement extends WorkflowBaseFilterElement<stri
   constructor() {
     super();
 
-    this.consumeContext(WORKFLOW_CONTEXT, (instance) => {
-      if (!instance) return;
-      this.observe(instance.globalVariables, (variables) => {
-        this.options = variables?.availableLanguages.map((l) => ({
+    this.consumeContext(UMB_APP_LANGUAGE_CONTEXT, (context) => {
+      if (!context) return;
+
+      this.observe(context.languages, (languages) => {
+        this.options = languages.map((l) => ({
           name: l.name,
-          value: l.isoCode,
-          selected: l.isoCode === this.value,
+          value: l.unique,
+          selected: l.unique === this.value,
         }));
       });
     });

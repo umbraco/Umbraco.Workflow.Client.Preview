@@ -2,21 +2,22 @@ import {
   css,
   customElement,
   html,
+  repeat,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
-import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
-import * as Diff from "diff";
+import { tryExecute } from "@umbraco-cms/backoffice/resources";
+import { diffWords, type UmbDiffChange } from "@umbraco-cms/backoffice/utils";
 import type { WorkflowDiffModalData } from "../token/index.js";
 import {
-  InstanceService,
+  ContentService,
   type WorkflowContentDiffModel,
   type WorkflowDiffPropertyModel,
 } from "@umbraco-workflow/generated";
 
 interface WorkflowDiff {
   label: string;
-  diff: Array<Diff.Change>;
+  diff: Array<UmbDiffChange>;
   isObject: boolean;
 }
 
@@ -32,19 +33,15 @@ export class WorkflowDiffModalElement extends UmbModalBaseElement<WorkflowDiffMo
 
   diffs: Array<WorkflowDiff> = [];
 
-  #handleClose() {
-    this.modalContext?.reject();
-  }
-
   connectedCallback() {
     super.connectedCallback();
     this.#getDiff();
   }
 
   async #getDiff() {
-    const { data } = await tryExecuteAndNotify(
+    const { data } = await tryExecute(
       this,
-      InstanceService.getInstanceDiff({ guid: this.data?.instanceKey })
+      ContentService.getContentDiff({ query: { guid: this.data?.instanceKey } })
     );
 
     if (!data) {
@@ -73,8 +70,8 @@ export class WorkflowDiffModalElement extends UmbModalBaseElement<WorkflowDiffMo
 
     if (this.currentVersion?.name !== this.workflowVersion?.name) {
       this.diffs.push({
-        label: "Name",
-        diff: Diff.diffWords(
+        label: this.localize.term("general_name"),
+        diff: diffWords(
           this.currentVersion?.name || "",
           this.workflowVersion?.name || ""
         ),
@@ -95,12 +92,11 @@ export class WorkflowDiffModalElement extends UmbModalBaseElement<WorkflowDiffMo
     };
 
     // extract all properties from the tabs and create new object for the diff
-    // TODO => diff json if data is object
-    this.workflowVersion?.tabs?.forEach((tab, tabIndex) => {
-      tab.properties?.forEach((workflowProperty, propertyIndex) => {
-        const currentProperty = this.currentVersion?.tabs
-          ?.at(tabIndex)
-          ?.properties?.at(propertyIndex) ?? { value: "" };
+    this.workflowVersion?.properties?.forEach(
+      (workflowProperty, propertyIndex) => {
+        const currentProperty = this.currentVersion?.properties?.at(
+          propertyIndex
+        ) ?? { value: "" };
 
         let isObject = false;
 
@@ -114,18 +110,19 @@ export class WorkflowDiffModalElement extends UmbModalBaseElement<WorkflowDiffMo
 
         this.diffs.push({
           label: workflowProperty.label ?? "",
-          diff: Diff.diffWords(
+          diff: diffWords(
             <string>currentProperty.value,
             <string>workflowProperty.value
           ),
           isObject,
         });
-      });
-    });
+      }
+    );
   }
 
   #hasDiffs() {
-    const filter = (x: WorkflowContentDiffModel) => x.name && x.tabs?.length;
+    const filter = (x: WorkflowContentDiffModel) =>
+      x.name && x.properties?.length;
     return (
       this.workflowVersions?.some(filter) && this.currentVersions?.some(filter)
     );
@@ -142,8 +139,8 @@ export class WorkflowDiffModalElement extends UmbModalBaseElement<WorkflowDiffMo
     if (!this.currentVersion) {
       this.currentVersion = {
         name: "",
-        tabs: [],
-        language: { name: "", isoCode: "", isDefault: false, },
+        properties: [],
+        language: { name: "", culture: "" },
       };
     }
 
@@ -166,10 +163,10 @@ export class WorkflowDiffModalElement extends UmbModalBaseElement<WorkflowDiffMo
               >
             </small>
             <uui-select
-              .options=${this.workflowVersions!.map((x) => ({
+              .options=${this.workflowVersions?.map((x) => ({
                 name: x.language!.name!,
-                value: x.language!.isoCode!,
-              }))}
+                value: x.language!.culture,
+              })) ?? []}
               @change=${this.#variantDiff}
             ></uui-select>
           `
@@ -178,7 +175,9 @@ export class WorkflowDiffModalElement extends UmbModalBaseElement<WorkflowDiffMo
           this.#hasDiffs(),
           () => html`
             <uui-table>
-              ${this.diffs.map(
+              ${repeat(
+                this.diffs,
+                (diff) => diff,
                 (diff) => html` <uui-table-row>
                   <uui-table-cell class="bold">${diff.label}</uui-table-cell>
                   <uui-table-cell
@@ -219,13 +218,11 @@ export class WorkflowDiffModalElement extends UmbModalBaseElement<WorkflowDiffMo
           ></workflow-alert> `
         )}
       </div>
-      <div slot="actions">
-        <uui-button
-          id="close"
-          label="Close"
-          @click="${this.#handleClose}"
-        ></uui-button>
-      </div>
+      <uui-button
+        slot="actions"
+        label=${this.localize.term("general_close")}
+        @click=${this._rejectModal}
+      ></uui-button>
     </umb-body-layout>`;
   }
 
@@ -237,6 +234,14 @@ export class WorkflowDiffModalElement extends UmbModalBaseElement<WorkflowDiffMo
 
       uui-table {
         margin-bottom: var(--uui-size-space-6);
+      }
+
+      ins {
+        color: green;
+      }
+
+      del {
+        color: red;
       }
 
       .bold {

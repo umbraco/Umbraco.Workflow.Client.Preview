@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<language alias="en" intName="English (US)" localName="English (US)" lcid="" culture="en-US">
+  <area alias="workflow">
+    <key alias="changeDescription">Change description</key>
+    <key alias="changeDescriptionDetail">%0% requested by %1% on %2% at %3%</key>
+    <key alias="summary">Summary</key>
+    <key alias="currentStatus">Current status</key>
+    <key alias="stage">Stage</key>
+    <key alias="by">by</key>
+    <key alias="on">on</key>
+    <key alias="at">at</key>
+    <key alias="comment">comment</key>
+
+    <key alias="status1">Approved</key>
+    <key alias="status2">Rejected</key>
+    <key alias="status3">Pending approval</key>
+    <key alias="status4">Not required</key>
+    <key alias="status5">Cancelled</key>
+    <key alias="status6">Errored</key>
+    <key alias="status7">Resubmitted</key>
+    <key alias="status8">Cancelled by third party</key>
+    <key alias="status9">Excluded</key>
+    <key alias="status10">Awaiting resubmission</key>
+
+    <key alias="approved">Approved</key>
+    <key alias="cancelled">Cancelled</key>
+    <key alias="cancelledbythirdparty">Cancelled by third party</key>
+    <key alias="errored">Errored</key>
+    <key alias="excluded">Excluded</key>
+    <key alias="notrequired">Not required</key>
+    <key alias="pendingapproval">Pending approval</key>
+    <key alias="rejected">Rejected</key>
+    <key alias="resubmitted">Resubmitted</key>
+    <key alias="awaitingresubmission">Awaiting resubmission</key>
+ </area>
+</language>

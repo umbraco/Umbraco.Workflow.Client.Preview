@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
@@ -8,9 +7,6 @@ import {
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import { choose } from "lit/directives/choose.js";
-import { observeMultiple } from "@umbraco-cms/backoffice/observable-api";
-import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
-import type { WorkflowTaskModel } from "@umbraco-workflow/generated";
 import {
   type WorkflowState,
   WORKFLOW_MANAGER_CONTEXT,
@@ -20,9 +16,7 @@ import { SubView } from "@umbraco-workflow/core";
 const elementName = "workflow-document-workspace-view";
 
 @customElement(elementName)
-export class WorkflowDocumentWorkspaceViewElement extends UmbElementMixin(
-  LitElement
-) {
+export class WorkflowDocumentWorkspaceViewElement extends UmbLitElement {
   #workflowManagerContext?: typeof WORKFLOW_MANAGER_CONTEXT.TYPE;
 
   @state()
@@ -30,9 +24,6 @@ export class WorkflowDocumentWorkspaceViewElement extends UmbElementMixin(
 
   @state()
   workflowState?: WorkflowState;
-
-  @state()
-  currentTask?: WorkflowTaskModel;
 
   @state()
   subViews: Array<{
@@ -49,18 +40,12 @@ export class WorkflowDocumentWorkspaceViewElement extends UmbElementMixin(
     },
   ];
 
-  #documentUnique?: string;
   #init: Promise<unknown>;
 
   constructor() {
     super();
 
     this.#init = Promise.all([
-      this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (context) => {
-        if (!context) return;
-        this.#documentUnique = context.getUnique();
-      }).asPromise(),
-
       this.consumeContext(WORKFLOW_MANAGER_CONTEXT, (context) => {
         this.#workflowManagerContext = context;
       }).asPromise(),
@@ -73,21 +58,10 @@ export class WorkflowDocumentWorkspaceViewElement extends UmbElementMixin(
 
     if (!this.#workflowManagerContext) return;
 
-    this.#workflowManagerContext.init(
-      this.#documentUnique,
-    );
-
-    this.observe(
-      observeMultiple([
-        this.#workflowManagerContext.state,
-        this.#workflowManagerContext.currentTask,
-      ]),
-      ([state, currentTask]) => {
-        this.workflowState = state;
-        this.currentTask = currentTask;
-        this.activeView = this.subViews[0].alias;
-      }
-    );
+    this.observe(this.#workflowManagerContext.state, (state) => {
+      this.workflowState = state;
+      this.activeView = this.subViews[0].alias;
+    });
   }
 
   render() {
@@ -115,7 +89,8 @@ export class WorkflowDocumentWorkspaceViewElement extends UmbElementMixin(
             [
               SubView.CONFIG,
               () => html`<workflow-workspace-config
-                ?disabled=${this.currentTask || this.workflowState?.exclude}
+                ?disabled=${this.workflowState?.active ||
+                this.workflowState?.exclude}
               ></workflow-workspace-config>`,
             ],
             [

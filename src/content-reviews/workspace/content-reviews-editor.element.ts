@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   customElement,
   html,
 } from "@umbraco-cms/backoffice/external/lit";
@@ -8,13 +7,11 @@ import {
 const elementName = "workflow-content-reviews-editor";
 
 @customElement(elementName)
-export class WorkflowContentReviewsEditorElement extends UmbElementMixin(
-  LitElement
-) {
+export class WorkflowContentReviewsEditorElement extends UmbLitElement {
   render() {
     return html`<umb-workspace-editor
       alias="Workflow.Workspace.ContentReviews"
-      .headline=${this.localize.term("treeHeaders_contentReviews")}
+      .headline=${this.localize.term("workflow_treeHeaders_contentReviews")}
     >
     </umb-workspace-editor>`;
   }

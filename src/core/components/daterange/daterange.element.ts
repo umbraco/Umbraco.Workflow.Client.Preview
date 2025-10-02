@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
@@ -13,7 +12,7 @@ const elementName = "workflow-daterange";
 
 @customElement(elementName)
 export class WorkflowDateRangeElement extends UUIFormControlMixin(
-  UmbElementMixin(LitElement),
+  UmbLitElement,
   undefined
 ) {
   getFormElement() {
@@ -62,7 +61,7 @@ export class WorkflowDateRangeElement extends UUIFormControlMixin(
   }
 
   #handleChange(e: InputEvent, i: number) {
-    const value = (e.target as HTMLInputElement).value ?? "";
+    const value = (e.target as HTMLInputElement).value ?? null;
     const newDates = [...this.dates];
     newDates[i] = value;
     this.dates = [...newDates];
@@ -107,7 +106,7 @@ export class WorkflowDateRangeElement extends UUIFormControlMixin(
     css`
       :host {
         display: flex;
-        align-items:flex-start;
+        align-items: flex-start;
         column-gap: var(--uui-size-3);
       }
 

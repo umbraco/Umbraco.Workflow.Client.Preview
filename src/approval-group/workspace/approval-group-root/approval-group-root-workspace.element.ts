@@ -1,17 +1,14 @@
 import {
-  LitElement,
   customElement,
   html,
 } from "@umbraco-cms/backoffice/external/lit";
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
-import { WORKFLOW_APPROVALGROUP_COLLECTION_ALIAS } from "../../collection/manifests.js";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
+import { WORKFLOW_APPROVALGROUP_COLLECTION_ALIAS } from "../../collection/constants.js";
 
 const elementName = "workflow-approval-group-root-workspace";
 
 @customElement(elementName)
-export class ApprovalGroupRootWorkspaceElement extends UmbElementMixin(
-  LitElement
-) {
+export class ApprovalGroupRootWorkspaceElement extends UmbLitElement {
   render() {
     return html`<umb-body-layout
       main-no-padding

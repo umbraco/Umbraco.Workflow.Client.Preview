@@ -3,19 +3,19 @@ import {
   html,
   state,
 } from "@umbraco-cms/backoffice/external/lit";
+import { InstanceService } from "@umbraco-workflow/generated";
 import {
-  SectionRootBase,
+  SectionRootBaseElement,
   WorkflowDetailModalRouterController,
   type TableQueryModel,
 } from "@umbraco-workflow/core";
-import { InstanceService } from "@umbraco-workflow/generated";
 import { InstanceFilters } from "@umbraco-workflow/components";
 
 const elementName = "active-workflows-root-workspace";
 
 @customElement(elementName)
-export class ActiveWorkflowsRootWorkspaceElement extends SectionRootBase {
-  headline = this.localize.term("treeHeaders_active");
+export class ActiveWorkflowsRootWorkspaceElement extends SectionRootBaseElement {
+  headline = this.localize.term("workflow_treeHeaders_active");
 
   constructor() {
     super();

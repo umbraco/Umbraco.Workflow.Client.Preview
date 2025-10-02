@@ -1,127 +1,88 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
-import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
-  nothing,
   property,
   state,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
+import { TaskStatusModel } from "@umbraco-workflow/generated";
 import {
   getCommentParts,
-  getStatusFromString,
-  TaskStatus,
+  WorkflowColorStyles,
+  WorkflowTagColorStyles,
 } from "@umbraco-workflow/core";
-import { WORKFLOW_GROUP_DETAIL_MODAL } from "@umbraco-workflow/editor-view";
-import {
-  type WorkflowTaskModel,
-  TaskStatusModel,
-} from "@umbraco-workflow/generated";
-import { WorkflowColorStyles } from "src/core/css";
 
 const elementName = "workflow-status-block";
 
 @customElement(elementName)
-export class WorkflowStatusBlockElement extends UmbElementMixin(LitElement) {
-  @property({ type: Boolean })
-  isAdmin = false;
+export class WorkflowStatusBlockElement extends UmbLitElement {
+  @property()
+  comment?: string | null;
 
-  @property({ type: Object })
-  task?: WorkflowTaskModel;
+  @property({ type: String })
+  status?: string | null;
 
   @state()
-  errorMessage?: string;
+  private _errorMessage?: string;
 
-  @property()
-  status?: string;
+  @state()
+  private _text = "";
 
-  protected firstUpdated() {
-    const { errorMessage } = getCommentParts(this.task?.comment);
-    this.errorMessage = errorMessage;
+  connectedCallback() {
+    super.connectedCallback();
+    const { errorMessage } = getCommentParts(this.comment);
+    this._errorMessage = errorMessage;
 
-    if (this.task?.status) {
-      if (this.task.status === TaskStatus.REJECTED) {
-        this.status = TaskStatusModel.AWAITING_RESUBMISSION;
-      } else {
-        this.status = Object.values(TaskStatusModel)[this.task.status];
-      }
+    if (this.status === TaskStatusModel.REJECTED) {
+      this.status = TaskStatusModel.AWAITING_RESUBMISSION;
     }
-  }
 
-  async #showGroupDetails() {
-    if (!this.task) throw new Error("task is missing");
+    if (!this.status) return;
 
-    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-    modalContext.open(this, WORKFLOW_GROUP_DETAIL_MODAL, {
-      data: {
-        group: this.task.userGroup!,
-        isAdmin: this.isAdmin,
-      },
-    });
+    this._text = this.localize.term(
+      `workflow_${this.status?.[0].toLowerCase() + this.status?.slice(1)}`
+    );
   }
 
   render() {
-    return html`<uui-box class="background-status-${this.status?.toLowerCase()}"
-      ><div
-        class="status-block ${this.status !== TaskStatusModel.ERRORED &&
-        !this.errorMessage
-          ? "--centered"
-          : nothing}"
-      >
-        <p
-          .class=${this.status === TaskStatusModel.ERRORED && this.errorMessage
-            ? "--bordered"
-            : nothing}
-        >
-          ${this.localize.term(getStatusFromString(this.status))}
-        </p>
-
-        ${when(
-          this.status === TaskStatusModel.ERRORED && this.errorMessage,
-          () => html` <div>${this.errorMessage}</div>`
-        )}
-        ${when(
-          this.status === TaskStatusModel.PENDING_APPROVAL ||
-            this.status === TaskStatusModel.AWAITING_RESUBMISSION,
-          () =>
-            when(
-              this.task?.userGroup?.users?.length,
-              () => html`<div>
-                <uui-button
-                  @click=${this.#showGroupDetails}
-                  .label=${this.task?.userGroup?.name}
-                ></uui-button>
-              </div>`,
-              () => html`${this.task?.userGroup?.name}`
-            )
-        )}
-      </div></uui-box
-    > `;
+    return html` <uui-tag workflow-color=${this.status?.toLowerCase() ?? ""}>
+        ${this._text}
+      </uui-tag>
+      ${when(
+        this.status === TaskStatusModel.ERRORED && this._errorMessage,
+        () => html` <small>${this._errorMessage}</small>`
+      )}`;
   }
 
   static styles = [
     WorkflowColorStyles,
+    WorkflowTagColorStyles,
     css`
-      .status-block {
-        display: flex;
-        flex-direction: column;
+      :host {
+        --tag-padding: var(--uui-size-space-3);
+        --tag-font-size: var(--uui-size-5);
       }
 
-      .--centered {
-        justify-content: center;
-        align-items: center;
-      }
+      uui-tag {
+        font-size: var(--tag-font-size);
+        line-height: 1;
+        padding: var(--tag-padding, 3px) calc(var(--tag-padding, 3px) + 0.5em);
 
-      .--bordered {
-        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-      }
-
-      p {
+        user-select: none;
+        border-radius: var(--uui-size-4, 12px);
+        background-color: var(--color);
+        color: var(--color-contrast);
+        text-align: center;
+        font-weight: 700;
+        display: block;
+        margin-bottom: var(--uui-size-6);
         text-transform: uppercase;
-        margin: 0;
+      }
+
+      small {
+        margin-top: var(--uui-size-2);
       }
     `,
   ];

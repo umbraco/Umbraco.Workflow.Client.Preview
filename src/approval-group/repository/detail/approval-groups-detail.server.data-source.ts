@@ -1,17 +1,13 @@
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
-import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
+import { tryExecute } from "@umbraco-cms/backoffice/resources";
 import type { UmbDetailDataSource } from "@umbraco-cms/backoffice/repository";
 import {
-  WORKFLOW_APPROVALGROUP_ENTITY_TYPE,
-  type WorkflowApprovalGroupDetailModel,
-} from "../../types.js";
-import {
   ApprovalGroupService,
-  type UserGroupModel,
+  type ApprovalGroupDetailResponseModelReadable,
 } from "@umbraco-workflow/generated";
 
 export class WorkflowApprovalGroupsDetailServerDataSource
-  implements UmbDetailDataSource<WorkflowApprovalGroupDetailModel>
+  implements UmbDetailDataSource<ApprovalGroupDetailResponseModelReadable>
 {
   #host: UmbControllerHost;
 
@@ -27,30 +23,20 @@ export class WorkflowApprovalGroupsDetailServerDataSource
    */
   async read(unique: string) {
     if (!unique) throw new Error("Group ID is missing");
-    const { data, error } = await tryExecuteAndNotify(
+    const { data, error } = await tryExecute(
       this.#host,
       ApprovalGroupService.getApprovalGroupById({
-        id: unique,
+        path: {
+          id: unique,
+        },
       })
     );
 
-    if (error || !data) {
+    if (!data || error) {
       return { error };
     }
 
-    const group: WorkflowApprovalGroupDetailModel = {
-      unique: data.unique,
-      entityType: WORKFLOW_APPROVALGROUP_ENTITY_TYPE,
-      name: data.name,
-      users: data.users,
-      alias: data.alias,
-      icon: data.icon ?? "",
-      properties: data.properties,
-      permissions: data.permissions,
-      inheritMembers: data.inheritMembers,
-    };
-
-    return { data: group };
+    return { data };
   }
 
   /**
@@ -58,26 +44,12 @@ export class WorkflowApprovalGroupsDetailServerDataSource
    * @param {number?} skip
    * @param {number?} take
    * @param {string?} filter
-   * @returns {PagedUserGroupModel}
+   * @returns {PagedApprovalGroupModel}
    */
   list(skip = 0, take = 5, filter?) {
-    return tryExecuteAndNotify(
+    return tryExecute(
       this.#host,
-      ApprovalGroupService.getApprovalGroup({ skip, take, filter })
-    );
-  }
-
-  /**
-   * @description - Get the approval groups overview
-   * @param {number?} skip
-   * @param {number?} take
-   * @param {string?} filter
-   * @returns {PagedUserGroupBaseModel}
-   */
-  listSlim(skip = 0, take = 5, filter?) {
-    return tryExecuteAndNotify(
-      this.#host,
-      ApprovalGroupService.getApprovalGroupSlim({ skip, take, filter })
+      ApprovalGroupService.getApprovalGroup({ query: { skip, take, filter } })
     );
   }
 
@@ -88,28 +60,16 @@ export class WorkflowApprovalGroupsDetailServerDataSource
    * @memberof WorkflowApprovalGroupsServerDataSource
    */
   async createScaffold() {
-    const { data, error } = await tryExecuteAndNotify(
+    const { data, error } = await tryExecute(
       this.#host,
       ApprovalGroupService.getApprovalGroupScaffold()
     );
 
-    if (error || !data) {
+    if (!data || error) {
       return { error };
     }
 
-    const group: WorkflowApprovalGroupDetailModel = {
-      unique: data.unique,
-      entityType: WORKFLOW_APPROVALGROUP_ENTITY_TYPE,
-      name: data.name,
-      users: data.users,
-      alias: data.alias,
-      icon: data.icon ?? "",
-      properties: data.properties,
-      permissions: data.permissions,
-      inheritMembers: data.inheritMembers,
-    };
-
-    return { data: group };
+    return { data };
   }
 
   /**
@@ -118,34 +78,21 @@ export class WorkflowApprovalGroupsDetailServerDataSource
    * @return {*}
    * @memberof WorkflowApprovalGroupsServerDataSource
    */
-  async create(group: WorkflowApprovalGroupDetailModel) {
+  async create(group: ApprovalGroupDetailResponseModelReadable) {
     if (!group) {
       throw new Error("Group is missing");
     }
 
-    // TODO => mapping
-    const requestBody: UserGroupModel = {
-      unique: group.unique,
-      name: group.name,
-      users: group.users.map((u) => ({
-        userId: u.userId,
-        groupId: u.groupId,
-        inherited: u.inherited,
-        isActive: u.isActive,
-      })),
-      properties: group.properties,
-    } as UserGroupModel;
-
-    const { data, error } = await tryExecuteAndNotify(
+    const { data, error } = await tryExecute(
       this.#host,
-      ApprovalGroupService.postApprovalGroup({ requestBody: requestBody })
+      ApprovalGroupService.postApprovalGroup({ body: group })
     );
 
-    if (data) {
-      return this.read(data);
+    if (!data || error) {
+      return { error };
     }
 
-    return { error };
+    return this.read(group.unique);
   }
 
   /**
@@ -154,42 +101,20 @@ export class WorkflowApprovalGroupsDetailServerDataSource
    * @return {*}
    * @memberof WorkflowApprovalGroupsServerDataSource
    */
-  async update(group: WorkflowApprovalGroupDetailModel) {
+  async update(group: ApprovalGroupDetailResponseModelReadable) {
     if (!group.unique) {
       throw new Error("Group ID is missing");
     }
 
-    // TODO => mapping
-    const requestBody: UserGroupModel = {
-      unique: group.unique,
-      alias: group.alias,
-      icon: group.icon,
-      inheritMembers: group.inheritMembers,
-      permissions: group.permissions,
-      properties: group.properties.map((p) => ({
-        alias: p.alias,
-        value: p.value,
-      })),
-      name: group.name,
-      users: group.users.map((u) => ({
-        userId: u.userId,
-        groupId: u.groupId,
-        inherited: u.inherited,
-        isActive: u.isActive,
-      })),
-    } as UserGroupModel;
-
-    const { data, error } = await tryExecuteAndNotify(
+    const { error } = await tryExecute(
       this.#host,
       ApprovalGroupService.putApprovalGroupById({
-        id: group.unique,
-        requestBody,
+        path: {
+          id: group.unique,
+        },
+        body: group,
       })
     );
-
-    if (data) {
-      return this.read(data);
-    }
 
     return { error };
   }
@@ -202,9 +127,9 @@ export class WorkflowApprovalGroupsDetailServerDataSource
    */
   async delete(key: string) {
     if (!key) throw new Error("Group ID is missing");
-    return tryExecuteAndNotify(
+    return tryExecute(
       this.#host,
-      ApprovalGroupService.deleteApprovalGroupById({ id: key })
+      ApprovalGroupService.deleteApprovalGroupById({ path: { id: key } })
     );
   }
 }

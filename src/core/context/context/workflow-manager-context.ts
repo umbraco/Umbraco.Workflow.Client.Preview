@@ -1,150 +1,139 @@
-import type { UmbControllerHostElement } from "@umbraco-cms/backoffice/controller-api";
-import { UMB_NOTIFICATION_CONTEXT } from "@umbraco-cms/backoffice/notification";
+import { type UmbControllerHostElement } from "@umbraco-cms/backoffice/controller-api";
+import { UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
+import { UmbContextBase } from "@umbraco-cms/backoffice/class-api";
+import { UMB_ENTITY_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/workspace";
+import { umbExtensionsRegistry } from "@umbraco-cms/backoffice/extension-registry";
+import { loadManifestApi } from "@umbraco-cms/backoffice/extension-api";
+import { tryExecute } from "@umbraco-cms/backoffice/resources";
 import {
-  UmbObjectState,
-  observeMultiple,
-} from "@umbraco-cms/backoffice/observable-api";
-import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
-import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
-import { UmbVariantId } from "@umbraco-cms/backoffice/variant";
-import {
-  WORKFLOW_CONTEXT,
   WORKFLOW_MANAGER_CONTEXT,
-  WorkflowState,
+  type ScaffoldArgsModel,
+  type WorkflowState,
 } from "../index.js";
+import { WorkflowStateController } from "../workflow-state.controller.js";
+import type { WorkflowEntityWorkflowInitializer } from "../../initializers/entity-workflow-initializer.manifest.js";
+import { PermissionType, type ValidActionDescriptor } from "../../enums.js";
 import {
-  PermissionType,
-  type ValidActionDescriptor,
-} from "@umbraco-workflow/core";
-import {
-  WorkflowStatusModel,
+  ScaffoldService,
+  type WorkflowScaffoldResponseModelReadable,
   type NodePermissionsResponseModel,
-  type UserGroupPermissionsModel,
-  type WorkflowLicenseModel,
-  type WorkflowScaffoldResponseModel,
-  type WorkflowTaskModel,
+  type ApprovalGroupDetailPermissionConfigModel,
 } from "@umbraco-workflow/generated";
 import {
   WorkflowActionRepository,
   type InitiateWorkflowArgs,
 } from "@umbraco-workflow/repository";
 
-export class WorkflowManagerContext extends UmbControllerBase {
+export class WorkflowManagerContext extends UmbContextBase {
   readonly IS_WORKFLOW_MANAGER_CONTEXT = true;
 
-  #workflowContext?: typeof WORKFLOW_CONTEXT.TYPE;
-  workspaceContext?: typeof UMB_DOCUMENT_WORKSPACE_CONTEXT.TYPE;
-
-  #scaffold?: WorkflowScaffoldResponseModel;
-  #repo?: WorkflowActionRepository;
-  #license?: WorkflowLicenseModel;
-
-  #isAdmin?: boolean;
-  #canResubmit?: boolean;
-  #canAction?: boolean;
-  #isChangeAuthor?: boolean;
-  #rejected?: boolean;
-  #userUnique?: string | null;
-  #isDashboard = false;
-
-  #instanceUnique?: string;
-  #documentUnique?: string;
-
-  #state = new UmbObjectState<WorkflowState | undefined>(undefined);
-  #currentTask = new UmbObjectState<WorkflowTaskModel | undefined>(undefined);
-  #ready = new UmbObjectState<boolean | undefined>(undefined);
-
-  state = this.#state.asObservable();
-  currentTask = this.#currentTask.asObservable();
-  ready = this.#ready.asObservable();
-
-  #defaultPermissions = {
-    nodeId: 0,
+  readonly #defaultPermissions = {
     node: [],
     new: [],
     contentType: [],
     inherited: [],
     excluded: false,
+    locked: false,
   };
+
+  #repo: WorkflowActionRepository;
+  #stateController: WorkflowStateController;
+
+  #workflowInitializer?: WorkflowEntityWorkflowInitializer;
+  #currentScaffoldArgs?: ScaffoldArgsModel;
+
+  #state = new UmbObjectState<WorkflowState | undefined>(undefined);
   #permissions = new UmbObjectState<NodePermissionsResponseModel>(
     this.#defaultPermissions
   );
+  #scaffold = new UmbObjectState<
+    WorkflowScaffoldResponseModelReadable | undefined
+  >(undefined);
+
+  state = this.#state.asObservable();
   permissions = this.#permissions.asObservable();
-
-  /* variant is new if never published as it will use the new-workflow (if defined) on initial publish request */
-  get isNew() {
-    const activeVariant = this.getActiveVariant();
-    return !activeVariant?.publishDate;
-  }
-
-  /* workflow considers a document new if never published, but needs to 
-  know if the document has been saved, which reflects the CMS' isNew property */
-  get isSaved() {
-    const activeVariant = this.getActiveVariant();
-    return activeVariant?.createDate;
-  }
+  scaffold = this.#scaffold.asObservable();
 
   constructor(host: UmbControllerHostElement) {
     super(host, WORKFLOW_MANAGER_CONTEXT.toString());
 
-    this.provideContext(WORKFLOW_MANAGER_CONTEXT, this);
     this.#repo = new WorkflowActionRepository(host);
+    this.#stateController = new WorkflowStateController(this);
+
+    // handles workspace-workflows only. dashboard is managed by the detail modal
+    this.consumeContext(UMB_ENTITY_WORKSPACE_CONTEXT, (context) => {
+      if (!context) return;
+
+      this.observe(context.unique, async (unique) => {
+        if (!unique) return;
+        await this.loadWorkflowInitializer({
+          entityType: context.getEntityType(),
+        });
+      });
+    });
   }
 
-  #observe() {
-    if (!this.#workflowContext) return;
+  async loadWorkflowInitializer(args: {
+    entityType: string | undefined | null;
+    initializerArgs?: ScaffoldArgsModel;
+  }) {
+    if (!args.entityType) throw new Error("Entity type is missing");
+
+    const manifests = umbExtensionsRegistry.getByTypeAndFilter(
+      "workflowInitializer",
+      (x) => x.entityType === args.entityType
+    );
+
+    const manifest = manifests.at(0);
+    if (!manifest?.api) return;
+
+    const api = await loadManifestApi<WorkflowEntityWorkflowInitializer>(
+      manifest.api
+    );
+    if (!api) return;
+
+    // context is shared, initializer is not. if we don't destroy
+    // we build a queue of state controllers
+    this.#workflowInitializer?.destroy();
+    this.#workflowInitializer = new api(this, args.initializerArgs);
 
     this.observe(
-      observeMultiple([
-        this.#workflowContext.license,
-        this.#workflowContext.globalVariables,
-        this.#workflowContext.scaffold,
-      ]),
-      ([license, variables, scaffold]) => {
-        this.#license = license;
-        this.#isAdmin = variables?.currentUserIsAdmin;
-        this.#userUnique = variables?.currentUserUnique;
-        this.#scaffold = scaffold;
+      this.#workflowInitializer?.initializerArgs,
+      async (initializerArgs) => {
+        if (!initializerArgs) return;
+        await this.initializeContext(initializerArgs);
       }
     );
   }
 
-  async init(documentUnique?: string, instanceUnique?: string) {
-    if (!instanceUnique && !documentUnique) return;
-
-    /* instanceUnqiue indicate a dashboard or history item, where
-   the workspaceContext will not be available, so should not be awaited */
-    const promises: Array<Promise<any>> = [
-      this.consumeContext(WORKFLOW_CONTEXT, (context) => {
-        this.#workflowContext = context;
-        this.#observe();
-      }).asPromise(),
-    ];
-
-    if (!instanceUnique) {
-      promises.push(
-        this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (context) => {
-          this.workspaceContext = context;
-        }).asPromise()
-      );
+  async initializeContext(args: ScaffoldArgsModel) {
+    if (
+      args.isNew ||
+      (args.instanceUnique &&
+        args.instanceUnique === this.#currentScaffoldArgs?.instanceUnique)
+    ) {
+      this.#scaffold.setValue(undefined);
+      return;
     }
 
-    await Promise.all(promises);
+    const requestArgs = { ...args };
 
-    this.#instanceUnique = instanceUnique;
-    this.#documentUnique = documentUnique;
-    this.#isDashboard = instanceUnique !== undefined;
-
-    if (!this.#scaffold || this.#instanceUnique) {
-      await this.#workflowContext?.scaffoldNode(this.#documentUnique);
+    if (!requestArgs.variant || requestArgs.variant === "*") {
+      requestArgs.variant = "invariant";
     }
 
-    this.#currentTask.setValue(undefined);
-    this.#permissions.setValue(this.#defaultPermissions);
+    if (
+      this.#currentScaffoldArgs?.variant === requestArgs.variant &&
+      this.#currentScaffoldArgs.nodeKey === requestArgs.nodeKey &&
+      this.#currentScaffoldArgs.entityType === requestArgs.entityType
+    ) {
+      // avoids observers consuming the previous scaffold value
+      // means we need to ensure checking and returning early for undefined
+      return;
+    }
 
-    this.#hasValidConfig();
-    this.#buildState();
-    this.#ready.setValue(true);
+    this.#currentScaffoldArgs = requestArgs;
+    await this.refreshScaffold();
   }
 
   async initiate(args: InitiateWorkflowArgs) {
@@ -160,7 +149,41 @@ export class WorkflowManagerContext extends UmbControllerBase {
       return;
     }
 
-    this.#workflowContext?.scaffoldNode();
+    await this.refreshScaffold();
+  }
+
+  async refreshScaffold() {
+    if (!this.#currentScaffoldArgs) return;
+
+    const variant =
+      this.#currentScaffoldArgs.variant === "invariant"
+        ? "*"
+        : this.#currentScaffoldArgs.variant;
+
+    const { data } = await tryExecute(
+      this._host,
+      ScaffoldService.postScaffold({
+        body: { ...this.#currentScaffoldArgs, variant },
+      })
+    );
+
+    this.#scaffold.setValue(data);
+
+    this.#currentScaffoldArgs.instanceUnique =
+      data?.tasks?.invariantTask?.instance?.key;
+
+    const { state, valid } = await this.#stateController.generate(
+      this.#currentScaffoldArgs.isDashboard,
+      this.getIsPublished()
+    );
+
+    this.#permissions.setValue(this.#defaultPermissions);
+
+    if (valid) {
+      this.#setNodePermissions();
+    }
+
+    this.#state.setValue(state);
   }
 
   async action(
@@ -168,39 +191,41 @@ export class WorkflowManagerContext extends UmbControllerBase {
     comment?: string,
     assignTo?: string
   ) {
-    const state = this.#state.getValue();
-    const instanceUnique = this.getInstanceUnique();
-    if (!state || !instanceUnique) return;
+    if (
+      !this.#currentScaffoldArgs?.instanceUnique ||
+      !this.#currentScaffoldArgs?.entityType
+    )
+      return;
 
-    const data = await this.#repo?.action(
+    const data = await this.#repo?.action({
       action,
-      instanceUnique,
-      state.offline ?? false,
+      instanceUnique: this.#currentScaffoldArgs.instanceUnique,
       comment,
-      assignTo
-    );
+      assignTo,
+      entityType: this.#currentScaffoldArgs.entityType,
+    });
+
     if (!data) {
       return;
     }
 
-    await this.#workflowContext?.scaffoldNode();
-  }
-
-  async happy(message: string, headline = "Workflow") {
-    const notificationContext = await this.getContext(UMB_NOTIFICATION_CONTEXT);
-    notificationContext?.peek("positive", { data: { headline, message } });
+    await this.refreshScaffold();
   }
 
   getEntityId() {
-    return this.#documentUnique;
+    return this.#currentScaffoldArgs?.nodeKey;
   }
 
-  getInstanceUnique() {
-    return this.#instanceUnique ?? this.getCurrentTask()?.instance?.key;
+  getState() {
+    return this.#state.getValue();
   }
 
-  getCurrentTask(): WorkflowTaskModel | undefined {
-    return this.#currentTask.getValue();
+  getIsPublished() {
+    return this.#workflowInitializer?.getIsPublished();
+  }
+
+  getIsNew() {
+    return this.#workflowInitializer?.getIsNew();
   }
 
   getPermissions(): NodePermissionsResponseModel {
@@ -208,86 +233,36 @@ export class WorkflowManagerContext extends UmbControllerBase {
   }
 
   getActiveVariant() {
-    const activeVariant =
-      this.workspaceContext?.splitView.getActiveVariants()[0];
-
-    // TODO => how should this be handled? Maybe an error is more appropriate
-    if (!activeVariant) return;
-
-    return this.workspaceContext?.getVariant(
-      new UmbVariantId(activeVariant.culture)
-    );
+    return this.#currentScaffoldArgs?.variant;
   }
 
-  #setNodeState() {
-    this.#rejected = false;
-    this.#isChangeAuthor = false;
-    this.#canAction = false;
-
-    const currentTask = this.getCurrentTask();
-    if (!currentTask) {
-      return;
-    }
-
-    const userInAssignedGroup =
-      currentTask.userGroup?.usersSummary?.indexOf(`|${this.#userUnique}|`) !==
-        -1 ?? false;
-
-    this.#rejected =
-      currentTask.instance?.status === WorkflowStatusModel.REJECTED;
-
-    // if the task has been rejected and the current user requested the change, let them edit
-    this.#isChangeAuthor =
-      currentTask.instance?.requestedByKey === this.#userUnique;
-
-    // if the current user is a member of the group and task is pending, they can action, UNLESS...
-    // if the user requested the change, is a member of the current group, and flow type is exclude, they cannot action
-    // if the user has already approved the change in a task where the approval threshold is > 1, they cannot action
-    this.#canAction =
-      userInAssignedGroup &&
-      !this.#rejected &&
-      !currentTask.approvedByIds?.some((id) => id === this.#userUnique);
-
-    if (
-      this.#scaffold?.settings?.flowType !== 0 &&
-      this.#isChangeAuthor &&
-      this.#canAction
-    ) {
-      this.#canAction = false;
-    }
-
-    this.#canResubmit =
-      (this.#rejected && !currentTask.assignTo && this.#isChangeAuthor) ||
-      (!!currentTask.assignTo && userInAssignedGroup);
-  }
-
-  setNodePermissions(newValue: Array<UserGroupPermissionsModel>) {
+  setNodePermissions(
+    newValue: Array<ApprovalGroupDetailPermissionConfigModel>
+  ) {
     this.#permissions.update({
       ...this.getPermissions(),
       ...{ node: newValue },
     });
   }
 
-  getActivePermissions(): Array<UserGroupPermissionsModel> {
+  getActivePermissions(): Array<ApprovalGroupDetailPermissionConfigModel> {
     const permissions = this.getPermissions();
-    if (!permissions) return [];
 
-    if (permissions.new?.length && this.isNew) return permissions.new;
-    if (permissions.node?.length) return permissions.node;
-    if (permissions.contentType?.length) return permissions.contentType;
-    if (permissions.inherited?.length) return permissions.inherited;
+    if (permissions.new.length && !this.getIsPublished()) return permissions.new;
+    if (permissions.node.length) return permissions.node;
+    if (permissions.contentType.length) return permissions.contentType;
+    if (permissions.inherited.length) return permissions.inherited;
 
     return [];
   }
 
   getActivePermissionType(): PermissionType | undefined {
     const permissions = this.getPermissions();
-    if (!permissions) return undefined;
 
-    if (permissions.new?.length && this.isNew) return PermissionType.NEW;
-    if (permissions.node?.length) return PermissionType.NODE;
-    if (permissions.contentType?.length) return PermissionType.CONTENT_TYPE;
-    if (permissions.inherited?.length) return PermissionType.INHERITED;
+    if (permissions.new.length && !this.getIsPublished()) return PermissionType.NEW;
+    if (permissions.node.length) return PermissionType.NODE;
+    if (permissions.contentType.length) return PermissionType.CONTENT_TYPE;
+    if (permissions.inherited.length) return PermissionType.INHERITED;
 
     return undefined;
   }
@@ -297,80 +272,15 @@ export class WorkflowManagerContext extends UmbControllerBase {
   }
 
   #setNodePermissions() {
-    if (!this.#scaffold?.config) return;
-    const config = this.#scaffold.config;
-
-    this.#permissions.update({
-      node: config.node ?? [],
-      contentType: config.contentType ?? [],
-      inherited: config.inherited ?? [],
-      new: config.new ?? [],
-    });
+    const scaffold = this.#scaffold.getValue();
+    if (!scaffold?.config) return;
+    this.#permissions.update(scaffold.config);
   }
 
-  #getBaseState() {
-    return {
-      isDashboard: this.#isDashboard,
-      isAdmin: this.#isAdmin ?? false,
-      exclude: this.#scaffold?.config?.excluded ?? false,
-      review: this.#scaffold?.review ?? undefined,
-    };
-  }
-
-  #buildConfigState() {
-    return {
-      ...this.#getBaseState(),
-      allowAttachments: this.#scaffold?.settings?.allowAttachments ?? false,
-      allowScheduling: this.#scaffold?.settings?.allowScheduling ?? false,
-      requireComment: this.#scaffold?.settings?.mandatoryComments ?? true,
-      requireUnpublish: this.#scaffold?.settings?.requireUnpublish ?? false,
-      variantTasks: this.#scaffold?.tasks?.variantTasks ?? [],
-      canAction: this.#canAction ?? false,
-      rejected: this.#rejected ?? false,
-      canResubmit: this.#canResubmit ?? false,
-      isChangeAuthor: this.#isChangeAuthor ?? false,
-      offline: false,
-    };
-  }
-
-  #buildState() {
-    if (this.#hasValidConfig()) {
-      if (this.#scaffold?.tasks?.invariantTask) {
-        this.#currentTask.setValue(this.#scaffold.tasks.invariantTask);
-      }
-
-      this.#setNodeState();
-
-      if (!this.#isDashboard) {
-        this.#setNodePermissions();
-      }
-
-      const state = this.#buildConfigState();
-      this.#state.setValue(new WorkflowState(state));
-      return;
-    }
-
-    const state = this.#getBaseState();
-    this.#state?.setValue(new WorkflowState(state));
-  }
-
-  /**
-   * Trial license must have node or inherited config and !excluded for config to be valid
-   * Other license types can have any of node, contentType or inherited, and !excluded
-   */
-  #hasValidConfig() {
-    const validConfig =
-      (this.#scaffold?.config?.node ?? []).length > 0 ||
-      (this.#scaffold?.config?.inherited ?? []).length > 0 ||
-      ((this.#scaffold?.config?.new ?? []).length > 0 && this.isNew);
-
-    if (this.#license === undefined || this.#license.isTrial) {
-      return validConfig;
-    }
-
-    return (
-      validConfig || (this.#scaffold?.config?.contentType ?? []).length > 0
-    );
+  public override destroy() {
+    this.#state.destroy();
+    this.#permissions.destroy();
+    super.destroy();
   }
 }
 

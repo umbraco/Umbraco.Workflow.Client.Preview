@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
@@ -13,22 +12,15 @@ import type { WorkflowLicenseModel } from "@umbraco-workflow/generated";
 const elementName = "workflow-license-alert";
 
 @customElement(elementName)
-export class WorkflowLicenseAlertElement extends UmbElementMixin(LitElement) {
-  #workflowContext?: typeof WORKFLOW_CONTEXT.TYPE;
-
+export class WorkflowLicenseAlertElement extends UmbLitElement {
   @state()
   license?: WorkflowLicenseModel;
 
   constructor() {
     super();
 
-    this.consumeContext(WORKFLOW_CONTEXT, (instance) => {
-      this.#workflowContext = instance;
-
-      this.observe(this.#workflowContext.license, (license) => {
-        if (!license) return;
-        this.license = license;
-      });
+    this.consumeContext(WORKFLOW_CONTEXT, (context) => {
+      this.license = context?.getLicense() ?? undefined;
     });
   }
 

@@ -3,29 +3,26 @@ import {
   html,
   customElement,
   state,
-  LitElement,
 } from "@umbraco-cms/backoffice/external/lit";
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
-import {
-  UMB_ICON_PICKER_MODAL,
-  UMB_MODAL_MANAGER_CONTEXT,
-} from "@umbraco-cms/backoffice/modal";
-import { umbFocus } from "@umbraco-cms/backoffice/lit-element";
+import { UmbLitElement, umbFocus } from "@umbraco-cms/backoffice/lit-element";
+import { umbOpenModal } from "@umbraco-cms/backoffice/modal";
 import type { UmbInputWithAliasElement } from "@umbraco-cms/backoffice/components";
-import type { WorkflowApprovalGroupDetailModel } from "../../types.js";
+import { UMB_ICON_PICKER_MODAL } from "@umbraco-cms/backoffice/icon";
 import { WORKFLOW_APPROVAL_GROUP_WORKSPACE_CONTEXT } from "./approval-group-workspace.context-token.js";
+import type { ApprovalGroupDetailResponseModelReadable } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-approval-group-workspace-editor";
 
 @customElement(elementName)
-export class ApprovalGroupWorkspaceEditorElement extends UmbElementMixin(
-  LitElement
-) {
+export class ApprovalGroupWorkspaceEditorElement extends UmbLitElement {
   @state()
-  private _group?: WorkflowApprovalGroupDetailModel;
+  private _group?: ApprovalGroupDetailResponseModelReadable;
 
   @state()
   private _isNew?: boolean;
+
+  @state()
+  private _icon?: string;
 
   #workspaceContext?: typeof WORKFLOW_APPROVAL_GROUP_WORKSPACE_CONTEXT.TYPE;
 
@@ -44,33 +41,44 @@ export class ApprovalGroupWorkspaceEditorElement extends UmbElementMixin(
   #observeGroup() {
     if (!this.#workspaceContext) return;
 
-    this.observe(this.#workspaceContext.data, (data) => {
-      this._group = data;
-    });
+    this.observe(
+      this.#workspaceContext.data,
+      (data) => {
+        this._group = data;
+      },
+      "_observeGroup"
+    );
 
-    this.observe(this.#workspaceContext.isNew, (isNew) => {
-      this._isNew = isNew;
-    });
+    this.observe(
+      this.#workspaceContext.isNew,
+      (isNew) => {
+        this._isNew = isNew;
+      },
+      "_observeIsNew"
+    );
+
+    this.observe(
+      this.#workspaceContext.icon,
+      (icon) => (this._icon = icon ?? "icon-users"),
+      "_observeIcon"
+    );
   }
 
   async #handleIconClick() {
-    const [alias, color] =
+    const [icon, color] =
       this._group?.icon?.replace("color-", "")?.split(" ") ?? [];
-    const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-    const modalContext = modalManager.open(this, UMB_ICON_PICKER_MODAL, {
-      value: {
-        icon: alias,
-        color: color,
-      },
-    });
 
-    modalContext?.onSubmit().then((saved) => {
-      if (saved.icon && saved.color) {
-        this.#workspaceContext?.setIcon(`${saved.icon} color-${saved.color}`);
-      } else if (saved.icon) {
-        this.#workspaceContext?.setIcon(saved.icon);
-      }
-    });
+    const saved = await umbOpenModal(this, UMB_ICON_PICKER_MODAL, {
+      value: {
+        icon,
+        color,
+      },
+    }).catch(() => {});
+
+    if (!saved?.icon) return;
+    this.#workspaceContext?.setIcon(
+      saved.color ? `${saved.icon} color-${saved.color}` : saved.icon
+    );
   }
 
   #onNameAndAliasChange(
@@ -81,6 +89,8 @@ export class ApprovalGroupWorkspaceEditorElement extends UmbElementMixin(
   }
 
   render() {
+    if (!this._group) return;
+
     return html`<umb-workspace-editor alias="Workflow.Workspace.ApprovalGroup">
       <div id="header" slot="header">
         <uui-button
@@ -89,15 +99,14 @@ export class ApprovalGroupWorkspaceEditorElement extends UmbElementMixin(
           href="section/workflow/workspace/approval-group-root"
           compact
         >
-          <uui-icon name="icon-arrow-left"></uui-icon>
+          <umb-icon name="icon-arrow-left"></umb-icon>
         </uui-button>
         <uui-button
           id="icon"
           @click=${this.#handleIconClick}
           label="icon"
           compact
-        >
-          <uui-icon name=${this._group?.icon ?? "icon-users"}></uui-icon>
+          ><umb-icon .name=${this._icon}></umb-icon>
         </uui-button>
 
         <umb-input-with-alias
@@ -106,7 +115,7 @@ export class ApprovalGroupWorkspaceEditorElement extends UmbElementMixin(
           .value=${this._group?.name}
           .alias=${this._group?.alias}
           ?auto-generate-alias=${this._isNew}
-          @change="${this.#onNameAndAliasChange}"
+          @change=${this.#onNameAndAliasChange}
           ${umbFocus()}
         >
         </umb-input-with-alias>
@@ -125,6 +134,8 @@ export class ApprovalGroupWorkspaceEditorElement extends UmbElementMixin(
       #header {
         display: flex;
         flex: 1 1 auto;
+        align-items: center;
+        gap: var(--uui-size-space-2);
       }
 
       #name {
@@ -136,11 +147,13 @@ export class ApprovalGroupWorkspaceEditorElement extends UmbElementMixin(
         margin-left: calc(var(--uui-size-space-4) * -1);
       }
 
-			#icon {
-				font-size: calc(var(--uui-size-layout-3) / 2);
-				margin-right: var(--uui-size-space-2);
-				margin-left: calc(var(--uui-size-space-4) * -1);
-			}
+      #icon {
+        font-size: var(--uui-size-8);
+        height: 60px;
+        width: 60px;
+        --uui-button-border-color: transparent;
+        --uui-button-border-color-hover: var(--uui-color-border);
+      }
     `,
   ];
 }

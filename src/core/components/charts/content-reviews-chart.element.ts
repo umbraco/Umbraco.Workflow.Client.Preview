@@ -1,4 +1,4 @@
-import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
+import { tryExecute } from "@umbraco-cms/backoffice/resources";
 import {
   customElement,
   html,
@@ -9,7 +9,6 @@ import {
   ChartBaseElement,
   type ChartHeaderCard,
 } from "./chart-base.element.js";
-import { ChartBaseStyles } from "./chart-style.styles.js";
 import {
   ChartService,
   WorkflowStatusModel,
@@ -58,14 +57,12 @@ export class ContentReviewsChartElement extends ChartBaseElement {
 
     this.loaded = false;
 
-    const { data, error } = await tryExecuteAndNotify(
+    const { data, error } = await tryExecute(
       this,
-      ChartService.getChartContentReviewChart({
-        range: this.range,
-      })
+      ChartService.getChartContentReviewChart({ query: { range: this.range } })
     );
 
-    if (error) {
+    if (!data || error) {
       return;
     }
 
@@ -90,10 +87,10 @@ export class ContentReviewsChartElement extends ChartBaseElement {
         () => this.#renderChartHeader(),
         () => html` <umb-load-indicator></umb-load-indicator> `
       )}
-      <canvas id="chart" width="400" height="50"></canvas>`;
+      <div id="chartContainer">
+        <canvas id="chart" width="400" height="50"></canvas>
+      </div>`;
   }
-
-  static styles = [ChartBaseStyles];
 }
 
 declare global {

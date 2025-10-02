@@ -1,13 +1,41 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
-import { LitElement, css, html } from "@umbraco-cms/backoffice/external/lit";
-import { noneSomeAll } from "@umbraco-workflow/core";
+import {
+  css,
+  html,
+  state,
+} from "@umbraco-cms/backoffice/external/lit";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
+import { WORKFLOW_CONTEXT } from "./context/index.js";
+import {
+  PropertyModifierStyles,
+  getAttributes,
+  noneSomeAll,
+} from "@umbraco-workflow/core";
 import type {
   ContentReviewsSettingsModel,
   GeneralSettingsModel,
   NotificationsSettingsModel,
 } from "@umbraco-workflow/generated";
 
-export class WorkspaceWithSettingsViewBase extends UmbElementMixin(LitElement) {
+export class WorkspaceWithSettingsViewBaseElement extends UmbLitElement {
+
+  @state()
+  private _isTrial?: boolean;
+
+  connectedCallback() {
+    super.connectedCallback();
+
+    this.consumeContext(WORKFLOW_CONTEXT, (context) => {
+      this._isTrial = context?.getLicense()?.isTrial ?? true;
+
+      if (this._isTrial) {
+        document.body.style.setProperty(
+          "--workflowUnlicensed",
+          `'${this.localize.term("workflow_licensedFeature")}'`
+        );
+      }
+    });
+  }
+
   renderNoneSomeAllBanner(
     settings?:
       | GeneralSettingsModel
@@ -26,7 +54,16 @@ export class WorkspaceWithSettingsViewBase extends UmbElementMixin(LitElement) {
     ></workflow-settings-disabled-alert>`;
   }
 
+  getAttributes(arg: {
+    hidden: boolean;
+    readonly: boolean;
+    requiresLicense: boolean;
+  }) {
+    return getAttributes(arg, this._isTrial);
+  }
+
   static styles = [
+    PropertyModifierStyles,
     css`
       [slot="headline"] {
         display: flex;
@@ -35,6 +72,7 @@ export class WorkspaceWithSettingsViewBase extends UmbElementMixin(LitElement) {
 
       [slot="headline"] small {
         font-weight: 400;
+        line-height: 1.4;
       }
 
       :host {

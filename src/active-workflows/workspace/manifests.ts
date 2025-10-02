@@ -1,16 +1,11 @@
-import type { ManifestWorkspace } from "@umbraco-cms/backoffice/extension-registry";
+import { ACTIVE_WORKFLOWS_ROOT_ENTITY_TYPE } from "../constants.js";
 
-const ACTIVE_WORKFLOW_WORKSPACE_ALIAS = "Workflow.Workspace.ActiveWorkflows";
-export const ACTIVE_WORKFLOWS_ROOT_ENTITY_TYPE = "active-workflows-root";
-
-const workspace: ManifestWorkspace = {
+export const manifests: Array<UmbExtensionManifest> = [{
   type: "workspace",
-  alias: ACTIVE_WORKFLOW_WORKSPACE_ALIAS,
+  alias: "Workflow.Workspace.ActiveWorkflows",
   name: "Active Workflows Root Workspace",
   element: () => import("./active-workflows-root-workspace.element.js"),
   meta: {
     entityType: ACTIVE_WORKFLOWS_ROOT_ENTITY_TYPE,
   },
-};
-
-export const manifests = [workspace];
+}];

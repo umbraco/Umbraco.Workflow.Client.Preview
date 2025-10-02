@@ -1,32 +1,32 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
   property,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
-import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
-import { UMB_NOTIFICATION_CONTEXT } from "@umbraco-cms/backoffice/notification";
+import { tryExecute } from "@umbraco-cms/backoffice/resources";
 import { WORKFLOW_HISTORY_CLEANUP_MODAL } from "./modal/history-cleanup-modal.token.js";
 import { HistoryCleanupService } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-history-cleanup";
 
 @customElement(elementName)
-export class WorkflowHistoryCleanupElement extends UmbElementMixin(LitElement) {
+export class WorkflowHistoryCleanupElement extends UmbLitElement {
   @property()
-  unique?: string;
+  unique?: string | null;
 
   async #handleClick() {
     const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    if (!modalContext) return;
+
     const modalHandler = modalContext.open(
       this,
       WORKFLOW_HISTORY_CLEANUP_MODAL,
       {
         data: {
-          unique: this.unique,
+          unique: this.unique ?? undefined,
         },
       }
     );
@@ -35,21 +35,12 @@ export class WorkflowHistoryCleanupElement extends UmbElementMixin(LitElement) {
     const result = modalHandler.getValue();
     if (!result) return;
 
-    const { error } = await tryExecuteAndNotify(
+    await tryExecute(
       this,
       HistoryCleanupService.putHistoryCleanup({
-        requestBody: Object.assign({}, result.nodeRules, result.docTypeRules),
+        body: Object.assign({}, result.nodeRules, result.docTypeRules),
       })
     );
-
-    const notificationContext = await this.getContext(UMB_NOTIFICATION_CONTEXT);
-    notificationContext?.peek(error ? "danger" : "positive", {
-      data: {
-        message: error
-          ? "Unable to save workflow history cleanup rules"
-          : "Saved workflow history cleanup rules",
-      },
-    });
   }
 
   render() {

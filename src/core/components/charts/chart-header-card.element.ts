@@ -1,26 +1,23 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
   property,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import { WorkflowColorStyles } from "../../../core/css/workflow-color.styles.js";
 import type { ChartHeaderCard } from "./chart-base.element.js";
+import { WorkflowColorStyles } from "@umbraco-workflow/core";
 
 const elementName = "workflow-chart-header-card";
 
 @customElement(elementName)
-export class ChartHeaderCardElement extends UmbElementMixin(LitElement) {
+export class ChartHeaderCardElement extends UmbLitElement {
   @property({ type: Object })
   card!: ChartHeaderCard;
 
   cardClick(event: Event) {
-    if (this.card.action) {
-      this.card.action({ $event: event });
-    }
+    this.card.action?.({ $event: event });
   }
 
   render() {
@@ -41,7 +38,7 @@ export class ChartHeaderCardElement extends UmbElementMixin(LitElement) {
       >
         <uui-icon
           name="info"
-          title="Click to view history by state: ${this.card.label}"
+          title="Click to view workflows by state: ${this.card.label}"
         ></uui-icon>
         <span class="jumbo">${this.card.value}</span>
         <span>${this.localize.term(this.card.label)}</span>
@@ -57,12 +54,13 @@ export class ChartHeaderCardElement extends UmbElementMixin(LitElement) {
         display: flex;
         justify-content: center;
         flex-direction: column;
-        border-radius: var(--uui-size-1);
-        padding: 15px 20px;
+        border-radius: var(--uui-border-radius);
+        padding: var(--uui-size-5) var(--uui-size-6);
+        border: none;
         text-align: center;
-        border: 2px solid transparent;
         line-height: 1;
         text-transform: uppercase;
+        cursor: pointer;
       }
 
       uui-icon {

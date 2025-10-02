@@ -1,19 +1,19 @@
 import type { UmbTableItem } from "@umbraco-cms/backoffice/components";
 import { customElement } from "@umbraco-cms/backoffice/external/lit";
-import { firstValueFrom } from "@umbraco-cms/backoffice/external/rxjs";
 import { WorkflowTimelineTableBase } from "../timeline-table/timeline-table-base.element.js";
 import type { WorkflowTable } from "../workflow-table.interface.js";
-import type {
-  PagedWorkflowInstanceResponseModel,
-  WorkflowInstanceResponseModel,
-} from "@umbraco-workflow/generated";
 import {
-  WORKFLOW_CONTEXT,
-  WORKFLOW_SIGNALR_CONTEXT,
-} from "@umbraco-workflow/context";
+  WorkflowStatusModel,
+  type PagedWorkflowInstanceTableResponseModel,
+  type WorkflowInstanceTableResponseModel,
+} from "@umbraco-workflow/generated";
+import { WORKFLOW_SIGNALR_CONTEXT } from "@umbraco-workflow/context";
+import { getCommentParts } from "@umbraco-workflow/core";
 
 import "./instances-table-detail-column-layout.element.js";
-import "../base-table-name-column-layout.element.js";
+import "./instances-table-status-column-layout.element.js";
+import "../elements/base-table-name-column-layout.element.js";
+import "../elements/base-table-date-column-layout.element.js";
 import "../timeline-table/timeline-table-progress-column-layout.element.js";
 
 const elementName = "workflow-instances-table";
@@ -23,26 +23,16 @@ export class WorkflowInstancesTableElement
   extends WorkflowTimelineTableBase
   implements WorkflowTable
 {
-  async connectedCallback() {
-    super.connectedCallback();
-
-    const workflowContext = await this.getContext(WORKFLOW_CONTEXT);
-    const userUnique = (await firstValueFrom(workflowContext.globalVariables))
-      ?.currentUserUnique;
+  constructor() {
+    super();
 
     this.consumeContext(WORKFLOW_SIGNALR_CONTEXT, (context) => {
-      if (!context) return;
-
-      this.observe(context.refresh, (refresh) => {
-        if (userUnique && refresh?.includes(userUnique)) {
-          this.doFetch();
-        }
-      });
+      this.observe(context?.refresh, () => this.doFetch());
     });
   }
 
   buildTable() {
-    const columns = [
+    this.tableColumns = [
       {
         name: `${this.localize.term("headers_page")} ${
           this.availableLanguages.length > 1
@@ -54,7 +44,7 @@ export class WorkflowInstancesTableElement
       },
       {
         name: this.localize.term("content_type"),
-        alias: "type",
+        alias: "action",
       },
       {
         name: this.localize.term("workflow_requestedBy"),
@@ -63,10 +53,16 @@ export class WorkflowInstancesTableElement
       {
         name: this.localize.term("workflow_requestedOn"),
         alias: "requestedOn",
+        elementName: "base-table-date-column-layout",
       },
       {
         name: this.localize.term("general_comment"),
         alias: "comment",
+      },
+      {
+        name: this.localize.term("general_status"),
+        alias: "status",
+        elementName: "instances-table-status-column-layout",
       },
       {
         name: "",
@@ -79,49 +75,55 @@ export class WorkflowInstancesTableElement
         elementName: "timeline-table-progress-column-layout",
       },
     ];
-
-    this.setTableColumns(columns);
   }
 
-  map(result: PagedWorkflowInstanceResponseModel): Array<UmbTableItem> {
+  map(result: PagedWorkflowInstanceTableResponseModel): Array<UmbTableItem> {
     if (result.totalItems === 0 || !result.items) {
       return [];
     }
 
-    return result.items.map((item: WorkflowInstanceResponseModel) => {
-      if (!item.instance?.key) throw new Error("instance key is missing");
+    const actionFormatter = (item: WorkflowInstanceTableResponseModel) => {
+      if (!item.scheduled)
+        return this.localize.term(`actions_${item.action?.toLowerCase()}`);
+
+      return `${this.localize.term(`workflow_scheduled`)} ${this.localize
+        .term(`actions_${item.action?.toLowerCase()}`)
+        .toLowerCase()}`;
+    };
+
+    return result.items.map((item: WorkflowInstanceTableResponseModel) => {
+      if (!item.unique) throw new Error("unique is missing");
 
       return {
-        id: item.instance.key,
-        icon: item.node?.icon ?? "document",
+        id: item.unique,
+        icon:
+          (item.status as WorkflowStatusModel) === WorkflowStatusModel.ERRORED
+            ? "alert var(--workflow-errored)"
+            : item.document?.icon ?? "document",
         data: [
           {
             columnAlias: "page",
-            value: {
-              languages: this.availableLanguages,
-              nodeName: item.node?.name,
-              nodeKey: item.node?.key,
-              variantCode: item.instance?.variantCode,
-              defaultCulture: result.defaultCulture,
-            },
+            value: item.document,
           },
           {
-            columnAlias: "type",
-            value: this.localize.term(
-              `actions_${item.instance?.type?.toLowerCase()}`
-            ),
+            columnAlias: "action",
+            value: actionFormatter(item),
           },
           {
             columnAlias: "requestedBy",
-            value: item.instance?.requestedBy,
+            value: item.requestedBy,
           },
           {
             columnAlias: "requestedOn",
-            value: this.localize.date(item.instance?.requestedOn ?? "-"),
+            value: item.requestedOn,
           },
           {
             columnAlias: "comment",
-            value: item.instance?.comment,
+            value: getCommentParts(item.comment).comment,
+          },
+          {
+            columnAlias: "status",
+            value: item.status as WorkflowStatusModel,
           },
           {
             columnAlias: "detail",

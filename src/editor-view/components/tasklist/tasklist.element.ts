@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import {
-  LitElement,
+  classMap,
   css,
   customElement,
   html,
@@ -8,20 +7,23 @@ import {
   state,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
+import { tryExecute } from "@umbraco-cms/backoffice/resources";
 import { UmbHistoryItemElement } from "@umbraco-cms/backoffice/components";
-import { WorkflowStatus } from "@umbraco-workflow/core";
-import { WORKFLOW_MANAGER_CONTEXT } from "@umbraco-workflow/context";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
+  TaskService,
   type WorkflowTaskCollectionItemModel,
   type WorkflowTaskCollectionModel,
-  TaskService,
 } from "@umbraco-workflow/generated";
+import { WorkflowStatus } from "@umbraco-workflow/core";
+import { WORKFLOW_MANAGER_CONTEXT } from "@umbraco-workflow/context";
 
 const elementName = "workflow-task-list";
 
 @customElement(elementName)
-export class WorkflowTaskListElement extends UmbElementMixin(LitElement) {
+export class WorkflowTaskListElement extends UmbLitElement {
+  #workflowManagerContext?: typeof WORKFLOW_MANAGER_CONTEXT.TYPE;
+
   @state()
   loaded = false;
 
@@ -31,71 +33,51 @@ export class WorkflowTaskListElement extends UmbElementMixin(LitElement) {
   @property()
   unique?: string;
 
-  #workflowManagerContext?: typeof WORKFLOW_MANAGER_CONTEXT.TYPE;
+  @property()
+  comment?: string | null;
+
+  @property()
+  status?: string | null;
 
   connectedCallback() {
     super.connectedCallback();
 
-    if (!this.unique) {
-      this.consumeContext(WORKFLOW_MANAGER_CONTEXT, (instance) => {
-        if (!instance) return;
-        this.#workflowManagerContext = instance;
-        this.#observeCurrentTask();
-      });
-    } else {
+    if (this.unique) {
       this.#fetch();
+      return;
     }
-  }
 
-  #observeCurrentTask() {
-    if (!this.#workflowManagerContext) return;
-
-    this.observe(this.#workflowManagerContext.ready, (ready) => {
-      if (!ready) return;
-      this.#fetch();
+    this.consumeContext(WORKFLOW_MANAGER_CONTEXT, (context) => {
+      this.#workflowManagerContext = context;
+      this.#observeScaffold();
     });
   }
 
-  async #fetch() {
-    const id = this.unique ?? this.#workflowManagerContext?.getInstanceUnique();
-    if (!id) return;
+  #observeScaffold() {
+    if (!this.#workflowManagerContext) return;
 
-    const { data } = await tryExecuteAndNotify(
+    this.observe(this.#workflowManagerContext.scaffold, (scaffold) => {
+      if (!scaffold) return;
+
+      const instance = scaffold.tasks?.invariantTask?.instance;
+      this.comment = instance?.comment;
+      this.status = instance?.status;
+      this.unique = instance?.key;
+
+      this.#fetch();
+    }, 'scaffoldObserver');
+  }
+
+  async #fetch() {
+    if (!this.unique) return;
+
+    const { data } = await tryExecute(
       this,
-      TaskService.getTaskById({ id })
+      TaskService.getTaskById({ path: { id: this.unique }})
     );
 
     this.tasks = data?.taskCollection ?? [];
     this.loaded = true;
-  }
-
-  #getStageDescription(task: WorkflowTaskCollectionModel) {
-    if (!task.items?.length || !task.approvalsRequired) return null;
-
-    let description = this.localize.term(
-      "workflow_xOfYApprovalsCompleted",
-      task.approvalCount?.toString(),
-      task.approvalsRequired
-    );
-
-    if (
-      task.actionedByAdmin &&
-      task.status !== WorkflowStatus.PENDING_APPROVAL &&
-      task.status !== WorkflowStatus.REJECTED
-    ) {
-      description += ` - ${this.localize
-        .term("workflow_completedByAdmin")
-        .toLowerCase()}`;
-    }
-
-    return html`<small>${description}</small>`;
-  }
-
-  #getStageHeader(task: WorkflowTaskCollectionModel) {
-    return html`<strong
-      >${this.localize.term("workflow_stage")} ${task.approvalStep! + 1} -
-      ${task.groupName ?? this.localize.term("workflow_noGroup")}
-    </strong>`;
   }
 
   #getTagColor(status?: number | null) {
@@ -113,71 +95,50 @@ export class WorkflowTaskListElement extends UmbElementMixin(LitElement) {
   }
 
   #renderNestedTaskItem(task: WorkflowTaskCollectionItemModel) {
-    return html`<div
-      class="history-tasks ${task.linked ? "--linked" : ""} ${task.future ||
-      task.status === WorkflowStatus.NOT_REQUIRED ||
-      task.status === WorkflowStatus.EXCLUDED
-        ? "--future"
-        : ""}"
-    >
-      <div class="wrapper">
-        <div class="user-info">
-          <uui-avatar name=${task.actionedByName ?? ""}> </uui-avatar>
-          <div>
-            <span class="name"
-              >${task.actionedByName}
-              ${when(
-                task.actionedByAdmin,
-                () => html` (${this.localize.term("workflow_asAdmin")})`
-              )}</span
-            >
-            ${when(
-              task.actionedOn,
-              () => html` <span class="detail"> ${task.actionedOn} </span>`
-            )}
-          </div>
-        </div>
-        <uui-tag .color=${this.#getTagColor(task.status)}
+    const classes = {
+      "history-tasks": true,
+      linked: !!task.linked,
+      future: !!task.future,
+      "not-required":
+        task.status === WorkflowStatus.NOT_REQUIRED ||
+        task.status === WorkflowStatus.EXCLUDED,
+    };
+
+    return html`<div class=${classMap(classes)}>
+      <workflow-task-info
+        .name=${task.actionedByName}
+        .date=${task.actionedOn}
+        .comment=${task.status !== WorkflowStatus.NOT_REQUIRED
+          ? task.comment
+          : null}
+        ?admin=${task.actionedByAdmin}
+        indent
+      >
+        <uui-tag slot="tag" .color=${this.#getTagColor(task.status)}
           >${this.localize.term(`workflow_status${task.status}`)}
         </uui-tag>
-      </div>
-
-      ${when(
-        task.comment && task.status !== WorkflowStatus.NOT_REQUIRED,
-        () => html` <p class="comment">${task.comment}</p> `
-      )}
+      </workflow-task-info>
     </div>`;
   }
 
   #renderTaskListItem(task: WorkflowTaskCollectionModel) {
     return html`<li
       class="${task.future || task.status === WorkflowStatus.NOT_REQUIRED
-        ? "--future"
+        ? "future"
         : ""}"
     >
-      <div class="stage-header">
-        <div>
-          ${this.#getStageHeader(task)} ${this.#getStageDescription(task)}
-        </div>
-        ${when(
-          task.status === WorkflowStatus.NOT_REQUIRED,
-          () => html` <uui-tag class="status-4"
-            >${this.localize.term(`workflow_status${task.status}`)}
-          </uui-tag>`
-        )}
-      </div>
+      <workflow-task-list-stage-header
+        .task=${task}
+      ></workflow-task-list-stage-header>
 
-      ${when(task.status !== WorkflowStatus.NOT_REQUIRED, () =>
-        task.items?.map((t) => this.#renderNestedTaskItem(t))
-      )}
       ${when(
-        !task.items?.length && task.status !== WorkflowStatus.NOT_REQUIRED,
-        () => html` <div class="user-info">
-          <uui-avatar style="background-color:var(--uui-color-warning)" name="!"
-            >!</uui-avatar
-          >
-          ${this.localize.term("workflow_groupHasNoMembers")}
-        </div>`
+        task.items?.length,
+        () => task.items?.map((t) => this.#renderNestedTaskItem(t)),
+        () =>
+          html` <workflow-task-info
+            avatar="!"
+            name=${this.localize.term("workflow_groupHasNoMembers")}
+          ></workflow-task-info>`
       )}
     </li>`;
   }
@@ -188,9 +149,13 @@ export class WorkflowTaskListElement extends UmbElementMixin(LitElement) {
     >
       ${when(
         this.loaded,
-        () => html` <ul id="tasklist">
-          ${this.tasks.map((task) => this.#renderTaskListItem(task))}
-        </ul>`,
+        () => html` <workflow-status-block
+            .comment=${this.comment}
+            .status=${this.status}
+          ></workflow-status-block>
+          <ul id="tasklist">
+            ${this.tasks.map((task) => this.#renderTaskListItem(task))}
+          </ul>`,
         () => html`<uui-loader></uui-loader>`
       )}
     </uui-box>`;
@@ -201,18 +166,17 @@ export class WorkflowTaskListElement extends UmbElementMixin(LitElement) {
     css`
       :host {
         display: block;
-        margin-top: var(--uui-size-space-5);
+      }
+
+      workflow-status-block {
+        display: block;
+        margin-bottom: var(--uui-size-3);
       }
 
       #tasklist {
         padding: 0;
         margin: 0;
         list-style-type: none;
-      }
-
-      .comment {
-        font-style: italic;
-        margin: 12px 0 0 calc(2em + 4px + var(--uui-size-space-5));
       }
 
       li {
@@ -226,36 +190,19 @@ export class WorkflowTaskListElement extends UmbElementMixin(LitElement) {
         margin-bottom: 0;
       }
 
-      .wrapper,
-      .stage-header {
-        display: flex;
-      }
-
-      uui-tag {
-        margin-left: auto;
-        align-self: center;
-      }
-
-      .stage-header small {
-        line-height: 1;
-        margin-bottom: 6px;
-      }
-
-      .stage-header > div {
-        display: flex;
-        flex-direction: column;
-        margin-right: auto;
-      }
-
-      .--future {
+      .future {
         opacity: 0.5;
       }
 
-      .--future .--future {
+      .future .future {
         opacity: 1;
       }
 
-      .--linked::before {
+      .not-required {
+        opacity: 0.5;
+      }
+
+      .linked::before {
         content: "";
         display: block;
         position: absolute;
@@ -266,16 +213,16 @@ export class WorkflowTaskListElement extends UmbElementMixin(LitElement) {
         background: var(--uui-color-current);
       }
 
-      .user-info:not(:has(.detail)) {
-        align-items: center;
-      }
-
       .history-tasks {
         position: relative;
       }
 
       .history-tasks + .history-tasks {
         margin-top: var(--uui-size-space-3);
+      }
+
+      workflow-task-info + workflow-task-info {
+        margin-top: var(--uui-size-4);
       }
     `,
   ];

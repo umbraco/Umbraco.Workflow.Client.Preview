@@ -1,24 +1,18 @@
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
-import type {
-  WorkflowConfigUpdateRequestModel,
-  ContentTypePropertyModel,
-  UserGroupPermissionsModel,
-} from "@umbraco-workflow/generated";
+import type { ApprovalThresholdModel, DocumentTypeConfigResponseModel, DocumentTypePermissionConfigModel } from "@umbraco-workflow/generated";
 
 export const WORKFLOW_DOCUMENT_TYPE_FLOW_MODAL_ALIAS =
   "Workflow.Modal.DocumentTypeFlow";
 
 export interface WorkflowDocumentTypeFlowModalData {
-  contentTypes: Array<ContentTypePropertyModel>;
-  permissions: Array<UserGroupPermissionsModel>;
+  permissions: Array<DocumentTypePermissionConfigModel>;
   existing: Array<string | null | undefined>;
   configureThreshold: boolean;
-  defaultThreshold: number;
-  isNew: boolean;
-  key?: string | null;
+  defaultThreshold: ApprovalThresholdModel;
+  unique?: string | null;
 }
 
-export type WorkflowDocumentTypeFlowModalResult = WorkflowConfigUpdateRequestModel;
+export type WorkflowDocumentTypeFlowModalResult = DocumentTypeConfigResponseModel;
 
 export const WORKFLOW_DOCUMENT_TYPE_FLOW_MODAL = new UmbModalToken<
   WorkflowDocumentTypeFlowModalData,

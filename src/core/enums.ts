@@ -32,8 +32,8 @@ export enum PermissionType {
 }
 
 export enum SortDirection {
-  ASC = "up",
-  DESC = "down",
+  ASC = "asc",
+  DESC = "desc",
 }
 
 export enum SubView {
@@ -43,8 +43,8 @@ export enum SubView {
 }
 
 export enum ValidActionDescriptor {
-  APPROVE,
-  CANCEL,
-  REJECT,
-  RESUBMIT,
+  APPROVE = "approve",
+  CANCEL = "cancel",
+  REJECT = "reject",
+  RESUBMIT = "resubmit",
 }

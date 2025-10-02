@@ -16,6 +16,7 @@ export class WorkflowDeleteGroupEntityAction extends UmbEntityActionBase<never> 
     }
 
     const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    if (!modalManager) return;
 
     const modalHandler = modalManager.open(
       this,
@@ -32,6 +33,10 @@ export class WorkflowDeleteGroupEntityAction extends UmbEntityActionBase<never> 
     await modalHandler.onSubmit();
 
     const collectionContext = await this.getContext(UMB_COLLECTION_CONTEXT);
+    if (!collectionContext) return;
+    
     collectionContext.requestCollection();
   }
 }
+
+export { WorkflowDeleteGroupEntityAction as api };

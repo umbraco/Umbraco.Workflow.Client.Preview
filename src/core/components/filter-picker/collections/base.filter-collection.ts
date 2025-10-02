@@ -34,6 +34,7 @@ export class BaseFilters implements WorkflowFilterConfig {
 
   setFromDefaults() {
     this.filters.forEach((f) => {
+      if (!Object.hasOwn(f, "default")) return;
       f.value = f.default;
     });
   }

@@ -36,34 +36,32 @@ export class WorkflowRejectTaskModalElement extends UmbModalBaseElement<
   }
 
   render() {
-    return html`<umb-body-layout
+    return html`<uui-dialog-layout
       headline=${this.localize.term("workflow_assignTo")}
     >
-      <div id="main">
-        <umb-property-layout
-          label=${this.localize.term("workflow_originalEditor")}
-        >
-          <uui-radio
-            slot="editor"
-            @change=${this.#handleSelection}
-            .value=${"user"}
-            label=${this.data?.requestedBy ?? ""}
-          ></uui-radio>
-        </umb-property-layout>
-        <umb-property-layout
-          label=${this.localize.term("workflow_previousGroup")}
-        >
-          <uui-radio-group @change=${this.#handleSelection} slot="editor">
-            ${this.data?.groups.map(
-              (group, idx) => html` <uui-radio
-                .value=${group.groupKey!}
-                .label=${this.#getStageLabel(group.groupName!, idx)}
-              >
-              </uui-radio>`
-            )}
-          </uui-radio-group>
-        </umb-property-layout>
-      </div>
+      <umb-property-layout
+        label=${this.localize.term("workflow_originalEditor")}
+      >
+        <uui-radio
+          slot="editor"
+          @change=${this.#handleSelection}
+          .value=${"user"}
+          label=${this.data?.requestedBy ?? ""}
+        ></uui-radio>
+      </umb-property-layout>
+      <umb-property-layout
+        label=${this.localize.term("workflow_previousGroup")}
+      >
+        <uui-radio-group @change=${this.#handleSelection} slot="editor">
+          ${this.data?.groups.map(
+            (group, idx) => html` <uui-radio
+              .value=${group.groupUnique!}
+              .label=${this.#getStageLabel(group.name!, idx)}
+            >
+            </uui-radio>`
+          )}
+        </uui-radio-group>
+      </umb-property-layout>
       <div slot="actions">
         <uui-button
           label=${this.localize.term("general_close")}
@@ -77,12 +75,12 @@ export class WorkflowRejectTaskModalElement extends UmbModalBaseElement<
           ?disabled=${!this.assignTo}
         ></uui-button>
       </div>
-    </umb-body-layout>`;
+    </uui-dialog-layout>`;
   }
 
   static styles = [
     css`
-      #main {
+      uui-dialog-layout {
         max-width: 400px;
       }
     `,

@@ -1,31 +1,19 @@
-import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
-import {
-  LitElement,
-  css,
-  html,
-  state,
-} from "@umbraco-cms/backoffice/external/lit";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
+import { css, html, state } from "@umbraco-cms/backoffice/external/lit";
+import { UMB_APP_LANGUAGE_CONTEXT } from "@umbraco-cms/backoffice/language";
 import { observeMultiple } from "@umbraco-cms/backoffice/observable-api";
 import {
   type WorkflowState,
   WORKFLOW_MANAGER_CONTEXT,
-  WORKFLOW_CONTEXT,
 } from "@umbraco-workflow/context";
 import type { PermissionType } from "@umbraco-workflow/core";
-import type {
-  GlobalVariablesModel,
-  NodePermissionsResponseModel,
-} from "@umbraco-workflow/generated";
+import type { NodePermissionsResponseModel } from "@umbraco-workflow/generated";
 
-export class WorkflowConfigBoxBase extends UmbElementMixin(LitElement) {
+export class WorkflowConfigBoxBaseElement extends UmbLitElement {
   workflowManagerContext?: typeof WORKFLOW_MANAGER_CONTEXT.TYPE;
 
   @state()
   workflowState?: WorkflowState;
-
-  @state()
-  globalVariables?: GlobalVariablesModel;
 
   @state()
   permissions?: NodePermissionsResponseModel;
@@ -33,30 +21,27 @@ export class WorkflowConfigBoxBase extends UmbElementMixin(LitElement) {
   @state()
   variant?: string;
 
+  @state()
+  defaultCulture?: string;
+
   constructor() {
     super();
 
     this.consumeContext(WORKFLOW_MANAGER_CONTEXT, (context) => {
       if (!context) return;
       this.workflowManagerContext = context;
-      this.observe(
-        observeMultiple([context.permissions, context.state]),
-        ([permissions, state]) => {
-          this.permissions = permissions;
-          this.workflowState = state;
-        }
-      );
+
+      this.observe(context.state, (state) => {
+        this.permissions = context.getPermissions();
+        this.workflowState = state;
+        this.variant = context.getActiveVariant() ?? this.defaultCulture;
+      });
     });
 
-    // TODO => solve for active variant
-    this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (context) => {
-      this.variant = context?.getData()?.variants?.at(0)?.culture ?? "en-us";
-    });
-
-    this.consumeContext(WORKFLOW_CONTEXT, (context) => {
-      if (!context) return;
-      this.observe(context.globalVariables, (globalVariables) => {
-        this.globalVariables = globalVariables;
+    this.consumeContext(UMB_APP_LANGUAGE_CONTEXT, (context) => {
+      this.observe(context?.appDefaultLanguage, (defaultLanguage) => {
+        if (!defaultLanguage) return;
+        this.defaultCulture = defaultLanguage.unique;
       });
     });
   }

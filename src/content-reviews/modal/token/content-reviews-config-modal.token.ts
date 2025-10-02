@@ -3,8 +3,7 @@ import type {
   ContentReviewConfigItem,
   ContentReviewItem,
   ContentReviewType,
-} from "../../types.js";
-import type { LanguageModel } from "@umbraco-workflow/generated";
+} from "../../entities.js";
 
 export const WORKFLOW_CONTENTREVIEWS_CONFIG_MODAL_ALIAS =
   "Workflow.Modal.ContentReviews.Config";
@@ -13,7 +12,6 @@ export interface WorkflowContentReviewsConfigModalData {
   model: ContentReviewItem;
   isAdd: boolean;
   type: ContentReviewType;
-  languages: Array<LanguageModel>;
 }
 
 export interface WorkflowContentReviewsConfigModalResult {

@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   customElement,
   html,
   property,
@@ -8,26 +7,26 @@ import {
 } from "@umbraco-cms/backoffice/external/lit";
 import type { WorkflowFilterConfig } from "./types.js";
 import { WorkflowFilterPickerContext } from "./workflow-filterpicker-context.js";
-import type { FilterModel } from "@umbraco-workflow/generated";
+import type { WorkflowSearchFilterModel } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-filter-picker";
 
 @customElement(elementName)
-export class FilterPickerElement extends UmbElementMixin(LitElement) {
+export class FilterPickerElement extends UmbLitElement {
   @property({ type: Object })
   config?: WorkflowFilterConfig;
 
   @state()
   filterCount?: number;
 
-  value?: FilterModel;
+  value?: WorkflowSearchFilterModel;
   #filterPickerContext = new WorkflowFilterPickerContext(this);
 
   constructor() {
     super();
 
     this.observe(
-      this.#filterPickerContext.filters,
+      this.#filterPickerContext.value,
       (filterValues) => {
         this.value = filterValues;
         this.dispatchEvent(new CustomEvent("change"));

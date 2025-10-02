@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
@@ -11,7 +10,7 @@ import {
 const elementName = "workflow-alert";
 
 @customElement(elementName)
-export class WorkflowAlertElement extends UmbElementMixin(LitElement) {
+export class WorkflowAlertElement extends UmbLitElement {
   @property()
   text?: string;
 
@@ -24,6 +23,13 @@ export class WorkflowAlertElement extends UmbElementMixin(LitElement) {
   @property()
   icon = "alert";
 
+  @property({ attribute: "no-icon", type: Boolean })
+  noIcon = false;
+
+  /* Light alert has no icon, no border, and no background color */
+  @property({ type: Boolean, reflect: true })
+  light = false;
+
   #localize() {
     if (this.tokens?.length) {
       return html`${this.localize.term(this.key!, ...this.tokens)}`;
@@ -33,7 +39,10 @@ export class WorkflowAlertElement extends UmbElementMixin(LitElement) {
 
   render() {
     return html`<div id="alert">
-      <uui-icon name=${this.icon}></uui-icon>
+      ${when(
+        this.noIcon === false && this.light === false,
+        () => html` <uui-icon name=${this.icon}></uui-icon>`
+      )}
       ${when(
         this.key,
         () => this.#localize(),
@@ -47,33 +56,30 @@ export class WorkflowAlertElement extends UmbElementMixin(LitElement) {
     css`
       :host {
         margin-top: var(--uui-size-4);
+        --background-color: var(--uui-color-current);
       }
 
       :host(:first-child) {
         margin-top: 0;
       }
 
+      :host([light]) {
+        --background-color: transparent;
+
+        #alert {
+          justify-content: center;
+        }
+      }
+
       #alert {
-        background: var(--uui-color-current);
+        background: var(--background-color);
         color: var(--uui-color-current-contrast);
         box-sizing: border-box;
         display: flex;
         align-items: center;
         border-radius: var(--uui-border-radius);
-        padding: var(--uui-size-2);
+        padding: var(--uui-size-3);
         line-height: 1.4;
-      }
-
-      #alert.inline-block {
-        display: inline-block;
-        width: 100%;
-      }
-
-      #alert.alert-centered {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
       }
 
       p {

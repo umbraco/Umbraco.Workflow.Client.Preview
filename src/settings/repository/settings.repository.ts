@@ -1,5 +1,5 @@
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
-import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
+import { tryExecute } from "@umbraco-cms/backoffice/resources";
 import { WorkflowSettingsServerDataSource } from "./settings.server.data.js";
 import { WORKFLOW_SETTINGS_STORE_CONTEXT } from "./settings.store.js";
 import {
@@ -7,8 +7,11 @@ import {
   type WorkflowSettingsPropertiesModel,
 } from "@umbraco-workflow/generated";
 import { WorkflowRepositoryBase } from "@umbraco-workflow/repository";
+import { WorkflowNotificationManagerController } from "@umbraco-workflow/core";
 
 export class WorkflowSettingsRepository extends WorkflowRepositoryBase<WorkflowSettingsPropertiesModel> {
+  #notificationManager = new WorkflowNotificationManagerController(this);
+
   constructor(host: UmbControllerHost) {
     super(
       host,
@@ -18,20 +21,19 @@ export class WorkflowSettingsRepository extends WorkflowRepositoryBase<WorkflowS
   }
 
   async installEmailTemplates() {
-    const { data, error } = await tryExecuteAndNotify(
+    const data = await tryExecute(
       this,
       EmailTemplateService.getEmailTemplateInstall()
     );
 
-    if (!data || error) {
-      const notification = {
-        data: { message: "Unable to install email templates" },
-      };
-      this.notificationContext?.peek("danger", notification);
+    if (!data || data.error) {
+      this.#notificationManager.notify({
+        color: "danger",
+        key: "workflow_emailTemplatesNotInstalled",
+      });
       return;
     }
-
-    const notification = { data: { message: "Email templates installed" } };
-    this.notificationContext?.peek("positive", notification);
   }
 }
+
+export { WorkflowSettingsRepository as api };

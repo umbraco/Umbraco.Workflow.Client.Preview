@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
@@ -9,16 +8,25 @@ import {
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import { WorkflowStatus } from "@umbraco-workflow/core";
-import type { WorkflowTaskModel } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-scheduling-block";
 
 @customElement(elementName)
-export class WorkflowSchedulingBlockElement extends UmbElementMixin(
-  LitElement
-) {
-  @property({ type: Object })
-  item?: WorkflowTaskModel;
+export class WorkflowSchedulingBlockElement extends UmbLitElement {
+  @property({ attribute: "release-date" })
+  releaseDate?: string;
+
+  @property({ attribute: "expire-date" })
+  expireDate?: string;
+
+  @property({ type: Boolean })
+  complete = false;
+
+  @property({ type: String })
+  status?;
+
+  @property({ type: String })
+  action?;
 
   @state()
   scheduledDatePassed? = false;
@@ -26,33 +34,38 @@ export class WorkflowSchedulingBlockElement extends UmbElementMixin(
   @state()
   scheduledDate?: Date;
 
-  releaseDate?: Date;
-  expireDate?: Date;
+  #releaseDate?: Date;
+  #expireDate?: Date;
 
   connectedCallback(): void {
     super.connectedCallback();
 
-    if (!this.item?.instance?.releaseDate && !this.item?.instance?.expireDate)
-      return;
+    if (!this.releaseDate && !this.expireDate) return;
 
-    this.releaseDate = this.item?.instance?.releaseDate
-      ? new Date(this.item?.instance?.releaseDate)
+    this.#releaseDate = this.releaseDate
+      ? new Date(this.releaseDate)
       : undefined;
-    this.expireDate = this.item?.instance?.expireDate
-      ? new Date(this.item?.instance?.expireDate)
-      : undefined;
+    this.#expireDate = this.expireDate ? new Date(this.expireDate) : undefined;
     const now = new Date();
 
+    if (!this.complete) return;
+
     this.scheduledDatePassed =
-      ((this.releaseDate && this.releaseDate < now) ||
-        (this.expireDate && this.expireDate < now)) &&
-      this.item.status === WorkflowStatus.PENDING_APPROVAL;
+      ((this.#releaseDate && this.#releaseDate < now) ||
+        (this.#expireDate && this.#expireDate < now)) &&
+      this.status === WorkflowStatus.PENDING_APPROVAL;
   }
 
   #getScheduledMessage() {
-    const action = this.item?.type?.toLowerCase();
+    const rawDate = this.releaseDate ?? this.expireDate;
+    if (!rawDate) return;
 
-    return this.localize.term("workflow_scheduledForAt", action);
+    return this.localize.term(
+      "workflow_scheduledForAt",
+      this.action?.toLowerCase(),
+      this.localize.date(rawDate, { dateStyle: "long" }),
+      this.localize.date(rawDate, { timeStyle: "short" })
+    );
   }
 
   render() {
@@ -61,7 +74,6 @@ export class WorkflowSchedulingBlockElement extends UmbElementMixin(
       ${when(
         this.scheduledDatePassed,
         () => html` <div>
-          <uui-icon name="alert"></uui-icon>
           <small>${this.localize.term("workflow_schedulePassed")} </small>
         </div>`
       )}
@@ -70,14 +82,15 @@ export class WorkflowSchedulingBlockElement extends UmbElementMixin(
 
   static styles = [
     css`
-      uui-icon {
-        color: var(--uui-color-danger);
-        margin-right: var(--uui-size-space-3);
-        font-size: var(--uui-size-space-9);
+      p {
+        margin-top: 0;
       }
 
-      p {
-        margin: 0;
+      small {
+        display: block;
+        line-height: 1.4;
+        border-left: 2px solid var(--uui-color-danger);
+        padding-left: var(--uui-size-space-3);
       }
     `,
   ];

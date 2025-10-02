@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
@@ -8,24 +7,21 @@ import {
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import type { PageSizeDropdownElement } from "../dropdowns/index.js";
-import type { WorkflowTableBase } from "./table-base.element.js";
-import type { TableQueryModel } from "@umbraco-workflow/core";
+import type { WorkflowTableBaseElement } from "./table-base.element.js";
+import { type TableQueryModel } from "@umbraco-workflow/core";
 import type { FilterPickerElement } from "@umbraco-workflow/components";
 
 const elementName = "workflow-table";
 
 @customElement(elementName)
-export class WorkflowTableElement extends UmbElementMixin(LitElement) {
+export class WorkflowTableElement extends UmbLitElement {
   @property({ type: Object })
-  config: TableQueryModel = {
-    count: 5,
-    handler: () => {},
-  };
+  config?: TableQueryModel;
 
   @property()
   headline = "";
 
-  #element?: WorkflowTableBase;
+  #element?: WorkflowTableBaseElement;
 
   #fetch() {
     if (!this.config?.handler || !this.#element) return;
@@ -33,12 +29,12 @@ export class WorkflowTableElement extends UmbElementMixin(LitElement) {
   }
 
   #onPageSizeChange(e: CustomEvent) {
-    this.config.count = (e.target as PageSizeDropdownElement).value;
+    this.config!.pageSize = (e.target as PageSizeDropdownElement).value;
     this.#fetch();
   }
 
   #onSlotChange(e) {
-    this.#element = e.target.assignedElements().at(0) as WorkflowTableBase;
+    this.#element = e.target.assignedElements().at(0) as WorkflowTableBaseElement;
     this.#fetch();
   }
 
@@ -46,7 +42,7 @@ export class WorkflowTableElement extends UmbElementMixin(LitElement) {
     const filters = (e.target as FilterPickerElement).value;
     if (!filters) return;
 
-    this.config.filters = { ...filters };
+    this.config!.filters = { ...filters };
     this.#fetch();
   }
 
@@ -54,16 +50,16 @@ export class WorkflowTableElement extends UmbElementMixin(LitElement) {
     return html`<uui-box .headline=${this.headline}>
       <div slot="header-actions">
         ${when(
-          this.config.filterConfig,
+          this.config?.filterConfig,
           () => html` <workflow-filter-picker
             @change=${this.#onFilterChange}
-            .config=${this.config.filterConfig}
+            .config=${this.config?.filterConfig}
           >
           </workflow-filter-picker>`
         )}
         <workflow-page-size
           @change=${this.#onPageSizeChange}
-          .value=${this.config.count ?? 5}
+          .value=${this.config?.pageSize ?? 5}
         ></workflow-page-size>
       </div>
 

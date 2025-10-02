@@ -1,16 +1,17 @@
-import type { ManifestMenuItem } from "@umbraco-cms/backoffice/extension-registry";
+import { WORKFLOW_SECTION_MENU_ALIAS } from '../../constants.js';
+import { WORKFLOW_SETTINGS_ENTITY_TYPE } from '../constants.js';
 
-const menuItem: ManifestMenuItem = {
-  type: "menuItem",
-  alias: "Workflow.MenuItem.Settings",
-  name: "Workflow Settings Menu Item",
-  weight: 100,
-  meta: {
-    label: "Settings",
-    icon: "icon-settings",
-    menus: ["Umb.Menu.Workflow"],
-    entityType: "workflow-settings",
+export const manifests: Array<UmbExtensionManifest> = [
+  {
+    type: "menuItem",
+    alias: "Workflow.MenuItem.Settings",
+    name: "Workflow Settings Menu Item",
+    weight: 600,
+    meta: {
+      label: "#workflow_treeHeaders_settings",
+      icon: "icon-settings",
+      menus: [WORKFLOW_SECTION_MENU_ALIAS],
+      entityType: WORKFLOW_SETTINGS_ENTITY_TYPE,
+    },
   },
-};
-
-export const manifests = [menuItem];
+];

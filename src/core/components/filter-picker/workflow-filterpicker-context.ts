@@ -1,70 +1,77 @@
-import { UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
+import { UmbNumberState, UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
 import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
-import { WORKFLOW_FILTER_PICKER_MODAL } from './modal/filter-picker-modal.token.js';
+import { WORKFLOW_FILTER_PICKER_MODAL } from "./modal/filter-picker-modal.token.js";
 import type { WorkflowFilterConfig } from "@umbraco-workflow/components";
-import type { FilterModel } from "@umbraco-workflow/generated";
+import type { WorkflowSearchFilterModel } from "@umbraco-workflow/generated";
 
 export class WorkflowFilterPickerContext extends UmbControllerBase {
   #config = new UmbObjectState<WorkflowFilterConfig | undefined>(undefined);
   config = this.#config.asObservable();
 
-  #filters = new UmbObjectState<FilterModel | undefined>(undefined);
-  filters = this.#filters.asObservable();
+  #value = new UmbObjectState<WorkflowSearchFilterModel>({});
+  value = this.#value.asObservable();
 
-  #activeCount = new UmbObjectState<number>(0);
+  #activeCount = new UmbNumberState(0);
   activeCount = this.#activeCount.asObservable();
 
   async openPicker() {
     const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    if (!modalContext) return;
+    
     const modalHandler = modalContext.open(this, WORKFLOW_FILTER_PICKER_MODAL, {
       data: {
         config: this.getConfig(),
       },
+      value: this.#value.getValue(),
     });
 
     await modalHandler.onSubmit().catch(() => undefined);
-    const config = modalHandler.getValue()?.config;
-    if (!config) return;
-
-    this.setConfig(config);
+    this.setValue(modalHandler.getValue());
   }
 
   getConfig() {
     return this.#config.getValue();
   }
 
+  setValue(value: WorkflowSearchFilterModel) {
+    this.#value.setValue(value);
+    this.#activeCount.setValue(this.getActive().length);
+  }
+
   setConfig(config?: WorkflowFilterConfig) {
     this.#config.setValue(config);
 
-    if (!config?.filters.length) return;
+    if (!config?.filters) return;
 
     const filterModel = Object.fromEntries(
       config.filters.map((f) => [f.alias, f.value])
     );
 
-    this.#filters.setValue(filterModel);
-    this.#activeCount.setValue(this.getActive().length);
+    this.setValue(filterModel);
   }
 
   getActive() {
+    const values = this.#value.getValue();
     return (
       this.getConfig()?.filters?.filter((f) => {
-        // if no ui, the filter is hidden and not editable, so 
+        const value = values[f.alias];
+
+        // if no ui, the filter is hidden and not editable, so
         // should not impact the active count
-        if (f.value === undefined || !f.ui) return false;
+        if (value === undefined || !f.ui) return false;
 
         // value is a daterange
-        if (Object.prototype.hasOwnProperty.call(f.value, "from")) {
-          return f.value.from || f.value.to;
+        if (Object.hasOwn(value, "from")) {
+          return value.from || value.to;
         }
 
         // handle array
-        if (Array.isArray(f.value) && f.value.some((x) => x.length)) {
+        if (Array.isArray(value) && value.some((x) => x.length)) {
           return true;
         }
 
-        return f.value !== undefined && f.value.toString() != "";
+        return value !== undefined && value.toString() != "";
       }) ?? []
     );
   }

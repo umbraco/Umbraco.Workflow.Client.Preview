@@ -1,8 +1,25 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { UmbCollectionConfiguration } from "@umbraco-cms/backoffice/collection";
+import type { WorkflowReleaseSetEntityType } from "@umbraco-workflow/release-sets";
+import type { WorkflowAlternateVersionEntityType } from "@umbraco-workflow/alternate-versions";
+import type { UmbLanguageDetailModel } from "@umbraco-cms/backoffice/language";
+import type { SortDirection } from "./enums.js";
 import type { WorkflowFilterConfig } from "@umbraco-workflow/components";
-import type { FilterModel, LanguageModel } from "@umbraco-workflow/generated";
+import type {
+  WorkflowSearchFilterModel,
+  AlternateVersionStatusModel,
+  ReleaseSetItemStatusModel,
+  ReleaseSetTaskStatusModel,
+  ReleaseSetStatusModel,
+} from "@umbraco-workflow/generated";
 
-export type SelectableLanguageModel = LanguageModel & { selected: boolean };
+export type SelectableLanguageModel = UmbLanguageDetailModel & { selected: boolean };
+
+export type WorkflowEntityTypes =
+  | WorkflowAlternateVersionEntityType
+  | WorkflowReleaseSetEntityType;
+
+export const EMPTY_GUID = "00000000-0000-0000-0000-000000000000";
 
 export interface SettingsStatusModel {
   someDisabled: boolean;
@@ -10,44 +27,39 @@ export interface SettingsStatusModel {
   allHidden: boolean;
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export interface FilterModelBase {
-  nodeId?: string;
-  keys?: string;
-  values?: string;
-  count?: number;
-  changed?: boolean;
-}
-
-// TODO => types
-export interface WorkflowInstancesFilterModel extends FilterModelBase {
-  status?: Array<any>;
-  variant?: string;
-  type?: string;
-  user?: any;
-  createdFrom?: string;
-  createdTo?: string;
-  completedFrom?: Date;
-  completedTo?: Date;
-  groupId?: number;
-}
-
-export interface ContentReviewsFilterModel extends FilterModelBase {
-  nextReviewFrom?: Date;
-  nextReviewTo?: Date;
-  lastReviewFrom?: Date;
-  lastReviewTo?: Date;
-  groupId?: number;
-  expired?: boolean;
-}
-
 export interface TableQueryModel extends UmbCollectionConfiguration {
   handler: (o: object) => any;
-  filters?: FilterModel;
+  filters?: WorkflowSearchFilterModel;
   filterConfig?: WorkflowFilterConfig;
-  count?: number;
-  page?: number;
+  pageNumber?: number;
   hiddenColumns?: Array<string>;
-  direction?: "up" | "down";
+  direction?: SortDirection;
   meta?: Record<string, any>;
 }
+
+export interface DatePickerData {
+  raw?: string;
+  formatted?: string;
+  min?: string;
+  max?: string;
+}
+
+export interface BaseTableNameColumnData {
+  name: string;
+  icon?: string;
+  unique: string;
+  culture?: string;
+  editPath?: string;
+}
+
+export type StatusModelType =
+  | typeof ReleaseSetStatusModel
+  | typeof AlternateVersionStatusModel
+  | typeof ReleaseSetItemStatusModel
+  | typeof ReleaseSetTaskStatusModel;
+
+export type StatusModel =
+  | ReleaseSetStatusModel
+  | ReleaseSetItemStatusModel
+  | ReleaseSetTaskStatusModel
+  | AlternateVersionStatusModel;

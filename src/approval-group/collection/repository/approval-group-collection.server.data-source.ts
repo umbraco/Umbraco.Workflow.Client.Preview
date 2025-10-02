@@ -1,11 +1,11 @@
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
-import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
+import { tryExecute } from "@umbraco-cms/backoffice/resources";
 import type { UmbCollectionDataSource } from "@umbraco-cms/backoffice/collection";
 import type {
   WorkflowApprovalGroupCollectionFilterModel,
   WorkflowApprovalGroupCollectionModel,
-} from "../types.js";
-import { WORKFLOW_APPROVALGROUP_ENTITY_TYPE } from "../../types.js";
+} from "../entities.js";
+import { WORKFLOW_APPROVALGROUP_ENTITY_TYPE } from "../../constants.js";
 import { ApprovalGroupService } from "@umbraco-workflow/generated";
 
 export class WorkflowApprovalGroupCollectionServerDataSource
@@ -17,37 +17,30 @@ export class WorkflowApprovalGroupCollectionServerDataSource
     this.#host = host;
   }
 
-  async getCollection(filter: WorkflowApprovalGroupCollectionFilterModel) {
-    const { data, error } = await tryExecuteAndNotify(
+  async getCollection(query: WorkflowApprovalGroupCollectionFilterModel) {
+    const { data, error } = await tryExecute(
       this.#host,
-      ApprovalGroupService.getApprovalGroup(filter)
+      ApprovalGroupService.getApprovalGroup({ query })
     );
 
-    if (data) {
-      const items = data.items.map((item) => {
-        const model: WorkflowApprovalGroupCollectionModel = {
-          entityType: WORKFLOW_APPROVALGROUP_ENTITY_TYPE,
-          name: item.name!,
-          groupEmail: item.groupEmail ?? undefined,
-          unique: item.unique,
-          icon: item.icon ?? "icon-users",
-          users: item.users
-            .filter((u) => !!u.username)
-            .map((u) => ({
-              name: u.username!,
-              inherited: u.inherited,
-              email: u.email ?? undefined,
-            })),
-          permissions: item.permissions,
-          languageCount: Object.keys(item.availableLanguages).length,
-        };
-
-        return model;
-      });
-
-      return { data: { items, total: data.totalItems } };
+    if (error) {
+      return { error };
     }
 
-    return { error };
+    const items = data.items.map((item) => {
+      const model: WorkflowApprovalGroupCollectionModel = {
+        entityType: WORKFLOW_APPROVALGROUP_ENTITY_TYPE,
+        name: item.name!,
+        unique: item.unique,
+        icon: item.icon ?? "icon-users",
+        groupEmail: item.groupEmail ?? undefined,
+        members: item.members,
+        permissions: item.permissions,
+      };
+
+      return model;
+    });
+
+    return { data: { items, total: data.totalItems } };
   }
 }

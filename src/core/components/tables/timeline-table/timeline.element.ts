@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
@@ -9,98 +8,47 @@ import {
 } from "@umbraco-cms/backoffice/external/lit";
 import {
   TaskStatusModel,
-  type WorkflowInstanceResponseModel,
-  type WorkflowPermissionResponseModel,
-  type WorkflowTaskResponseModel,
+  type WorkflowInstanceTableTaskResponseModel,
+  type WorkflowInstanceTableResponseModel,
 } from "@umbraco-workflow/generated";
 
 export type WorkflowTaskModelWithCss = {
   groupClass?: string;
-} & WorkflowTaskResponseModel;
+} & WorkflowInstanceTableTaskResponseModel;
 
 const elementName = "workflow-timeline";
 
 @customElement(elementName)
-export class WorkflowTimelineElement extends UmbElementMixin(LitElement) {
+export class WorkflowTimelineElement extends UmbLitElement {
   @property({ type: Object })
-  item?: WorkflowInstanceResponseModel;
+  item?: WorkflowInstanceTableResponseModel;
 
   @state()
   tasks: Array<WorkflowTaskModelWithCss> = [];
 
-  @state()
-  totalSteps = 0;
-
-  @state()
-  permissions: Array<WorkflowPermissionResponseModel> = [];
-
-  #awaitingResubmissionStr = this.localize.term(
-    "workflow_awaitingResubmission"
-  );
-
-  #plusMoreStr = this.localize.term("workflow_plusMore");
-
   connectedCallback() {
     super.connectedCallback();
 
-    this.tasks =
-      (this.item?.tasks?.sort((a, b) =>
-        a.currentStep! > b.currentStep! ? 1 : -1
-      ) as Array<WorkflowTaskModelWithCss>) ?? [];
-
-    this.totalSteps = this.item?.instance?.totalSteps ?? 0;
-    this.permissions = this.item?.permissions ?? [];
-
+    this.tasks = (this.item?.tasks as Array<WorkflowTaskModelWithCss>) ?? [];
     this.#addPendingTasks();
   }
 
   #addPendingTasks() {
-    // can't count steps, as reject/resubmit use the same step number - instead, get unique step numbers
-    const activeSteps = this.tasks
-      .map((t) => t.currentStep)
-      .filter((v, i, s) => s.indexOf(v) === i);
-
-    // if permissions are missing (group deleted), stuff a mock permission in at the correct index
-    if (this.permissions.length < this.totalSteps) {
-      const missingIndexes: Array<WorkflowPermissionResponseModel> = [];
-
-      this.permissions.forEach((p) => {
-        missingIndexes[p.permission!] = p;
-      });
-
-      for (let i = 0; i < missingIndexes.length; i += 1) {
-        if (!missingIndexes[i]) {
-          this.permissions.splice(i, 0, {
-            groupName: "Group does not exist",
-            permission: 666,
-          });
-        }
-      }
-    }
-
-    if (activeSteps.length < this.totalSteps) {
-      for (let i = activeSteps.length; i < this.totalSteps; i += 1) {
-        this.tasks.push({
-          currentStep: i,
-          groupName: this.permissions[i]?.groupName ?? "",
-          completedBy: "",
-        });
-      }
-    }
-
     // if a rejected task is the last in its step, stuff a fake pending resubmission and pending approval task
     // the responsible user will be the requestedBy value on the task
     this.tasks.forEach((task, i) => {
       if (
         task.status === TaskStatusModel.REJECTED &&
-        (this.tasks[i + 1]?.currentStep === task.currentStep! + 1 ||
+        (this.tasks[i + 1]?.permission === task.permission! + 1 ||
           !this.tasks[i + 1])
       ) {
         this.tasks.splice(i + 1, 0, {
-          currentStep: task.currentStep,
+          permission: task.permission,
           status: TaskStatusModel.AWAITING_RESUBMISSION,
-          groupName: task.groupName, // TODO => add requestedBy to task items
-          completedBy: "",
+          group: {
+            name: task.group!.name,
+            unique: task.group!.unique,
+          },
         });
       }
     });
@@ -112,13 +60,13 @@ export class WorkflowTimelineElement extends UmbElementMixin(LitElement) {
       const next = this.tasks[i + 1];
       let str = "";
 
-      if ((prev && task.currentStep !== prev.currentStep) || !prev) {
+      if ((prev && task.permission !== prev.permission) || !prev) {
         str = "grouped-start";
       }
 
       if (next) {
         str +=
-          task.currentStep !== next.currentStep ? " grouped-end" : " grouped";
+          task.permission !== next.permission ? " grouped-end" : " grouped";
       } else {
         str += " grouped-end";
       }
@@ -142,12 +90,14 @@ export class WorkflowTimelineElement extends UmbElementMixin(LitElement) {
       const pad: WorkflowTaskModelWithCss = {
         status: TaskStatusModel.NULL,
         groupClass: "grouped collapsed",
-        completedBy: "",
-        currentStep: 0,
-        groupName: (this.#plusMoreStr || "plus %0% more").replace(
-          "%0%",
-          (endTaskIndex - i - 1).toString()
-        ),
+        permission: 0,
+        group: {
+          name: this.localize.term(
+            "workflow_plusMore",
+            (endTaskIndex - i - 1).toString()
+          ),
+          unique: "",
+        },
       };
 
       this.tasks.splice(i + 1, 0, pad);

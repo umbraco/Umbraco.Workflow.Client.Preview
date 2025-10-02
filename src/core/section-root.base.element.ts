@@ -1,7 +1,8 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
-import { LitElement, html } from "@umbraco-cms/backoffice/external/lit";
 
-export abstract class SectionRootBase extends UmbElementMixin(LitElement) {
+import {  html } from "@umbraco-cms/backoffice/external/lit";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
+
+export abstract class SectionRootBaseElement extends UmbLitElement {
   abstract headline: string;
   abstract renderSectionRoot();
 

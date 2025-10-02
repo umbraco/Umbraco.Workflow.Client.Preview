@@ -1,5 +1,4 @@
 import { defineConfig } from "vite";
-import { outputPath } from "./config.outputPath.js";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
@@ -8,14 +7,19 @@ export default defineConfig({
       entry: "src/index.ts",
       formats: ["es"],
     },
-    outDir: outputPath,
+    outDir: './wwwroot',
     sourcemap: true,
     emptyOutDir: false,
     rollupOptions: {
       external: [/^@umbraco-cms/],
-      onwarn: () => {},
+      onwarn: () => { },
       output: {
         chunkFileNames: "[name].js",
+        manualChunks: {
+          signalr: ['@microsoft/signalr'],
+          chartjs: ['chart.js'],
+          humanize: ['humanize-duration'],
+        }
       },
     },
   },

@@ -8,15 +8,23 @@ import {
   UMB_MODAL_MANAGER_CONTEXT,
   UmbModalBaseElement,
 } from "@umbraco-cms/backoffice/modal";
-import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
-import type { UmbDocumentDetailModel } from "node_modules/@umbraco-cms/backoffice/dist-cms/packages/documents/documents/types.js";
+import {
+  UMB_DOCUMENT_ENTITY_TYPE,
+  UMB_DOCUMENT_WORKSPACE_CONTEXT,
+} from "@umbraco-cms/backoffice/document";
 import { UMB_MEDIA_TREE_PICKER_MODAL } from "@umbraco-cms/backoffice/media";
-import type { WorkflowAction, DatePickerData } from "../../types.js";
 import {
   WORKFLOW_MANAGER_CONTEXT,
   type WorkflowState,
 } from "@umbraco-workflow/context";
-import type { WorkflowTaskModel } from "@umbraco-workflow/generated";
+import type {
+  VariantOptionModelType,
+  WorkflowCommentsElement,
+  WorkflowVariantSelectorElement,
+} from "@umbraco-workflow/editor-view";
+import type { DatePickerData } from "@umbraco-workflow/core";
+
+type WorkflowAction = "publish" | "unpublish";
 
 const elementName = "workflow-submit-modal";
 
@@ -24,160 +32,164 @@ const elementName = "workflow-submit-modal";
 export class WorkflowSubmitModalElement extends UmbModalBaseElement {
   #documentWorkspace?: typeof UMB_DOCUMENT_WORKSPACE_CONTEXT.TYPE;
   #workflowManager?: typeof WORKFLOW_MANAGER_CONTEXT.TYPE;
-  #documentData?: UmbDocumentDetailModel;
 
   @state()
-  state?: WorkflowState;
+  private _state?: WorkflowState;
 
   @state()
-  currentTask?: WorkflowTaskModel;
+  private _action: WorkflowAction = "publish";
 
   @state()
-  action: WorkflowAction = "publish";
+  private _releaseDate: DatePickerData = {
+    min: new Date().toString(),
+    raw: "",
+  };
 
   @state()
-  releaseDate: DatePickerData = { min: new Date().toString(), raw: "" };
+  private _expireDate: DatePickerData = { min: new Date().toString(), raw: "" };
 
   @state()
-  expireDate: DatePickerData = { min: new Date().toString(), raw: "" };
+  private _commentInvalid = false;
 
-  comment?: string;
-  templateKey!: string;
-  attachmentId?: string;
-  commentInvalid = false;
+  @state()
+  private _variantSyncModel: Record<string, boolean> = {};
 
-  variantSyncModel: Record<string, boolean> = {};
+  #comment?: string;
+  #templateKey!: string;
+  #attachmentId?: string;
+  #variants: Array<VariantOptionModelType> = [];
 
   async connectedCallback() {
     super.connectedCallback();
 
-    this.#documentWorkspace = await this.getContext(
-      UMB_DOCUMENT_WORKSPACE_CONTEXT
-    );
+    this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (context) => {
+      if (!context) return;
+      this.#documentWorkspace = context;
+
+      this.observe(this.#documentWorkspace.variantOptions, (variantOptions) => {
+        this.#variants = variantOptions;
+        const variantStates = context.readOnlyGuard.getRules();
+
+        this.#variants.forEach(
+          (v) =>
+            (v.state = variantStates.find(
+              (x) => x.variantId?.culture === v.culture
+            ))
+        );
+      });
+    });
 
     this.#workflowManager = await this.getContext(WORKFLOW_MANAGER_CONTEXT);
+    if (!this.#workflowManager) return;
 
-    this.observe(this.#workflowManager.state, (state) => {
-      this.state = state;
-    });
-
-    this.observe(this.#workflowManager.currentTask, (currentTask) => {
-      this.currentTask = currentTask;
-    });
-
-    this.#documentData = this.#documentWorkspace.getData();
-
-    this.#workflowManager.init(this.#documentWorkspace.getUnique());
+    this._state = this.#workflowManager.getState();
   }
 
   #submit() {
-    if (!this.comment || !this.#documentData || !this.state) return;
-
-    // TODO => variant permissions
-    // const variants: Array<string> = this.variantSyncModel["*"]
-    //   ? ["*"]
-    //   : this.#documentData?.variants
-    //       // .filter(
-    //       //   (v) =>
-    //       //     v.allowedActions?.includes("A") &&
-    //       //     (!v.language || this.variantSyncModel[v.language.culture])
-    //       // )
-    //       .map((v) => v.culture ?? constants.invariantCulture) ?? [
-    //       constants.invariantCulture,
-    //     ];
+    if (!this.#comment || !this.#variants || !this._state) return;
 
     const variants =
-      this.variantSyncModel["*"] || this.#documentData.variants.length === 1
+      this._variantSyncModel["*"] || this.#variants.length === 1
         ? ["*"]
         : [
             ...new Set(
-              Object.keys(this.variantSyncModel).filter(
-                (v) => this.variantSyncModel[v]
+              Object.keys(this._variantSyncModel).filter(
+                (v) => this._variantSyncModel[v]
               )
             ),
           ];
 
     this.#workflowManager?.initiate({
-      nodeUnique: this.#documentData.unique,
-      comment: this.comment,
+      nodeUnique: this.#documentWorkspace!.getUnique()!,
+      entityType: UMB_DOCUMENT_ENTITY_TYPE,
+      comment: this.#comment,
       releaseDate:
-        this.state?.allowScheduling && this.action === "publish"
-          ? this.releaseDate.raw
+        this._state?.allowScheduling && this._action === "publish"
+          ? this._releaseDate.raw
           : undefined,
-      expireDate: this.state?.allowScheduling ? this.expireDate.raw : undefined,
-      publish: this.action === "publish",
+      expireDate: this._state?.allowScheduling
+        ? this._expireDate.raw
+        : undefined,
+      publish: this._action === "publish",
       variants,
-      attachmentId: this.attachmentId,
+      attachmentId: this.#attachmentId,
     });
 
     this._submitModal();
   }
 
   #handleCommentChange(e: CustomEvent) {
-    this.comment = e.detail.comment;
-    this.commentInvalid = e.detail.invalid;
+    const target = e.target as WorkflowCommentsElement;
+    this.#comment = target.value;
+    this._commentInvalid = target.invalid;
   }
 
   #handleRequestTypeChange(e: InputEvent) {
     const value = (e.target as HTMLInputElement).value;
-    this.action = value as WorkflowAction;
-    this.releaseDate = {};
+    this._action = value as WorkflowAction;
+    this._releaseDate = {};
   }
 
   // TODO => date picker clear
   #handleDatePickerChange(e: InputEvent, action: WorkflowAction) {
     const date = (e.target as HTMLInputElement).value;
     if (action === "publish") {
-      this.expireDate = { ...this.expireDate, ...{ min: date } };
-      this.releaseDate = { ...this.releaseDate, ...{ raw: date } };
+      this._expireDate = { ...this._expireDate, ...{ min: date } };
+      this._releaseDate = { ...this._releaseDate, ...{ raw: date } };
     } else {
-      this.expireDate = { ...this.expireDate, ...{ raw: date } };
-      this.releaseDate = {
-        ...this.releaseDate,
+      this._expireDate = { ...this._expireDate, ...{ raw: date } };
+      this._releaseDate = {
+        ...this._releaseDate,
         ...{ max: date, min: new Date().toString() },
       };
     }
   }
 
   #handleVariantSelectionChange(e: CustomEvent) {
-    this.variantSyncModel = (e.target as HTMLInputElement)
-      ?.value as unknown as Record<string, boolean>;
+    this._variantSyncModel = (
+      e.target as WorkflowVariantSelectorElement
+    )?.value;
   }
 
   async #filepicker() {
-    const currentSelection = [this.attachmentId ?? null];
-
     const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    if (!modalContext) return;
+
     const modalHandler = modalContext.open(this, UMB_MEDIA_TREE_PICKER_MODAL, {
       data: {
         multiple: false,
       },
       value: {
-        selection: currentSelection,
+        selection: [this.#attachmentId ?? null],
       },
     });
 
-    const { selection } = await modalHandler!.onSubmit();
-    this.attachmentId = selection[0] ?? undefined;
+    await modalHandler!.onSubmit().catch(() => undefined);
+    this.#attachmentId = modalHandler.getValue().selection[0] ?? undefined;
   }
 
   #filepickerClear() {
-    delete this.attachmentId;
+    this.#attachmentId = undefined;
   }
 
-  #headline() {
-    return `Workflow approval request - ${
-      this.#documentData?.variants[0].name
-    }`;
+  #invalid() {
+    const invalid =
+      this._commentInvalid ||
+      (this.#variants.length > 1 &&
+        !Object.entries(this._variantSyncModel).some((x) => x[1]));
+
+    return invalid;
   }
 
   #renderPublishOptions() {
+    if (!this._state?.requireUnpublish) return;
+
     return html` <umb-property-layout
       .label=${this.localize.term("workflow_action")}
     >
       <div slot="editor">
         <uui-radio-group
-          .value=${this.action}
+          .value=${this._action}
           name="action_radio"
           @change=${this.#handleRequestTypeChange}
         >
@@ -197,6 +209,8 @@ export class WorkflowSubmitModalElement extends UmbModalBaseElement {
   }
 
   #renderAllowAttachments() {
+    if (!this._state?.allowAttachments) return;
+
     return html`<umb-property-layout
       .label=${this.localize.term("workflow_attachment")}
       .description=${this.localize.term("workflow_optional")}
@@ -204,7 +218,7 @@ export class WorkflowSubmitModalElement extends UmbModalBaseElement {
       <div slot="editor">
         <div>
           ${when(
-            !this.attachmentId,
+            !this.#attachmentId,
             () => html` <uui-button
               @click=${this.#filepicker}
               look="primary"
@@ -215,12 +229,12 @@ export class WorkflowSubmitModalElement extends UmbModalBaseElement {
               @click=${this.#filepicker}
               look="primary"
               color="default"
-              label=${this.attachmentId!}
+              label=${this.#attachmentId!}
             ></uui-button>`
           )}
         </div>
         ${when(
-          this.attachmentId,
+          this.#attachmentId,
           () => html` <uui-button
             label="Remove attachment"
             look="default"
@@ -235,6 +249,8 @@ export class WorkflowSubmitModalElement extends UmbModalBaseElement {
   }
 
   #renderSchedulePublish() {
+    if (!this._state?.allowScheduling) return;
+
     return html` <umb-property-layout
       .label=${this.localize.term("workflow_publishOn")}
       .description=${this.localize.term("workflow_optional")}
@@ -242,15 +258,17 @@ export class WorkflowSubmitModalElement extends UmbModalBaseElement {
       <umb-input-date
         slot="editor"
         type="datetime-local"
-        .value=${this.releaseDate.raw}
-        .min=${this.releaseDate.min}
-        .max=${this.releaseDate.max}
+        .value=${this._releaseDate.raw ?? ""}
+        .min=${this._releaseDate.min}
+        .max=${this._releaseDate.max}
         @change=${(e) => this.#handleDatePickerChange(e, "publish")}
       ></umb-input-date>
     </umb-property-layout>`;
   }
 
   #renderScheduleUnpublish() {
+    if (!this._state?.allowScheduling) return;
+
     return html` <umb-property-layout
       .label=${this.localize.term("workflow_unPublishOn")}
       .description=${this.localize.term("workflow_optional")}
@@ -258,49 +276,40 @@ export class WorkflowSubmitModalElement extends UmbModalBaseElement {
       <umb-input-date
         slot="editor"
         type="datetime-local"
-        .value=${this.expireDate.raw}
-        .min=${this.expireDate.min}
-        .max=${this.expireDate.max}
+        .value=${this._expireDate.raw ?? ""}
+        .min=${this._expireDate.min}
+        .max=${this._expireDate.max}
         @change=${(e) => this.#handleDatePickerChange(e, "unpublish")}
       ></umb-input-date>
     </umb-property-layout>`;
   }
 
   render() {
-    return html` <umb-body-layout .headline=${this.#headline()}>
+    return html` <umb-body-layout
+      .headline=${this.localize.term("workflow_approvalRequest")}
+    >
       <uui-box>
         <workflow-comments
-          .templateKey=${this.templateKey}
+          .templateKey=${this.#templateKey}
           labelKey="workflow_describeChanges"
           .mandatory=${true}
           orientation="horizontal"
           @change=${this.#handleCommentChange}
         >
         </workflow-comments>
-        ${when(this.state?.requireUnpublish, () =>
-          this.#renderPublishOptions()
-        )}
-        ${when(this.state?.allowAttachments, () =>
-          this.#renderAllowAttachments()
-        )}
-        ${when(this.state?.allowScheduling, () =>
-          this.#renderSchedulePublish()
-        )}
-        ${when(this.state?.allowScheduling, () =>
-          this.#renderScheduleUnpublish()
-        )}
+        ${this.#renderPublishOptions()} ${this.#renderAllowAttachments()}
+        ${this.#renderSchedulePublish()} ${this.#renderScheduleUnpublish()}
         ${when(
-          (this.#documentData?.variants.length ?? 0) > 1,
+          this.#variants.length > 1,
           () =>
             html`<workflow-variant-selector
-              .variants=${this.#documentData?.variants}
-              .variantTasks=${this.state?.variantTasks}
-              .currentVariant=${this.currentTask?.instance?.variantCode}
+              .variants=${this.#variants}
+              .variantTasks=${this._state?.activeVariants}
               @change=${this.#handleVariantSelectionChange}
             ></workflow-variant-selector>`
         )}
         ${when(
-          this.releaseDate.raw || this.expireDate.raw,
+          this._releaseDate.raw || this._expireDate.raw,
           () => html`
             <workflow-alert key="workflow_scheduleDescription">
             </workflow-alert>
@@ -316,8 +325,9 @@ export class WorkflowSubmitModalElement extends UmbModalBaseElement {
         <uui-button
           color="positive"
           look="primary"
+          ?disabled=${this.#invalid()}
           label=${this.localize.term(
-            this.action === "publish"
+            this._action === "publish"
               ? "workflow_publishButton"
               : "workflow_unpublishButton"
           )}

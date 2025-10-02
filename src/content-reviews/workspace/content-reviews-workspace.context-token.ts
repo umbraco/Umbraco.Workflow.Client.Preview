@@ -6,7 +6,7 @@ export const WORKFLOW_CONTENTREVIEWS_WORKSPACE_CONTEXT = new UmbContextToken<
   UmbSubmittableWorkspaceContext,
   WorkflowContentReviewsWorkspaceContext
 >(
-  "WorkflowContentReviewsContexts",
+  "WorkflowContentReviewsContext",
   undefined,
   (context): context is WorkflowContentReviewsWorkspaceContext =>
     (context as WorkflowContentReviewsWorkspaceContext)

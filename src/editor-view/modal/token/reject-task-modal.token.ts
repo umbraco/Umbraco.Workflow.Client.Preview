@@ -1,10 +1,10 @@
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
-import type { UserGroupPermissionsModel } from "@umbraco-workflow/generated";
+import type { ApprovalGroupDetailPermissionConfigModel } from "@umbraco-workflow/generated";
 
 export const WORKFLOW_REJECT_TASK_MODAL_ALIAS = "Workflow.Modal.RejectTask";
 
 export interface WorkflowRejectTaskModalData {
-  groups: Array<UserGroupPermissionsModel>;
+  groups: Array<ApprovalGroupDetailPermissionConfigModel>;
   requestedBy?: string | null;
 }
 

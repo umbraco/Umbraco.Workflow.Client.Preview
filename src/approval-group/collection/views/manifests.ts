@@ -1,12 +1,11 @@
-import { UMB_COLLECTION_ALIAS_CONDITION } from "@umbraco-cms/backoffice/collection";
-import type { ManifestCollectionView } from "@umbraco-cms/backoffice/extension-registry";
+import {
+  UMB_COLLECTION_ALIAS_CONDITION,
+} from "@umbraco-cms/backoffice/collection";
+import { WORKFLOW_APPROVALGROUP_COLLECTION_ALIAS } from "../constants.js";
 
-export const WORKFLOW_APPROVALGROUP_TABLE_COLLECTION_VIEW_ALIAS =
-  "Umb.Workflow.CollectionView.ApprovalGroup.Table";
-
-const tableCollectionView: ManifestCollectionView = {
+export const manifests: Array<UmbExtensionManifest> = [{
   type: "collectionView",
-  alias: WORKFLOW_APPROVALGROUP_TABLE_COLLECTION_VIEW_ALIAS,
+  alias: "Workflow.CollectionView.ApprovalGroup.Table",
   name: "Workflow Approval Group Table Collection View",
   js: () => import("./table/approval-groups-table-collection-view.element.js"),
   meta: {
@@ -17,9 +16,7 @@ const tableCollectionView: ManifestCollectionView = {
   conditions: [
     {
       alias: UMB_COLLECTION_ALIAS_CONDITION,
-      match: "Umb.Workflow.Collection.ApprovalGroup",
+      match: WORKFLOW_APPROVALGROUP_COLLECTION_ALIAS,
     },
   ],
-};
-
-export const manifests = [tableCollectionView];
+}];

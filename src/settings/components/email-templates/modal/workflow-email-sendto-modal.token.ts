@@ -1,5 +1,5 @@
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
-import type { ExtendedWorkflowEmailConfigModel } from '../../../types.js';
+import type { ExtendedWorkflowEmailConfigModel } from '../types.js';
 import type { ConfigTypeModel } from "@umbraco-workflow/generated";
 
 export const WORKFLOW_EMAIL_SENDTO_MODAL_ALIAS = "Workflow.Modal.Email.SendTo";

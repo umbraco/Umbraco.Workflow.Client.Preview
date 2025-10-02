@@ -7,11 +7,16 @@ import {
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 import type { UUIInputEvent } from "@umbraco-cms/backoffice/external/uui";
+import {
+  UMB_APP_LANGUAGE_CONTEXT
+,type
+  UmbLanguageDetailModel
+} from "@umbraco-cms/backoffice/language";
 import type {
   WorkflowContentReviewsConfigModalData,
   WorkflowContentReviewsConfigModalResult,
 } from "../token/index.js";
-import type { ContentReviewConfigItem } from "../../types.js";
+import type { ContentReviewConfigItem } from "../../entities.js";
 import type { WorkflowApprovalGroupInputElement } from "@umbraco-workflow/approval-group";
 
 const elementName = "workflow-content-reviews-config-modal";
@@ -28,6 +33,9 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
   configItems: Array<ContentReviewConfigItem> = [];
 
   @state()
+  private _languages: Array<UmbLanguageDetailModel> = [];
+
+  @state()
   headline = "";
 
   connectedCallback() {
@@ -36,11 +44,13 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
     this.headline =
       this.localize.term(`general_${this.data?.isAdd ? "add" : "edit"}`) +
       " " +
-      this.localize.term(
-        `contentReviews_${
-          this.data?.model.documentKey != "0" ? "nodeReview" : "docTypeReview"
-        }`
-      );
+      this.localize
+        .term(
+          `contentReviews_${
+            this.data?.model.documentKey ? "nodeReview" : "docTypeReview"
+          }`
+        )
+        .toLowerCase();
 
     // unfreeze
     this.configItems = [...this.data!.model.configItems];
@@ -51,9 +61,16 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
       }),
     };
 
-    if (!this.current.variant) {
-      this.current.variant = this.data?.languages.at(0)?.isoCode;
-    }
+    this.consumeContext(UMB_APP_LANGUAGE_CONTEXT, (context) => {
+      if (!context) return;
+
+      this.observe(context.languages, (languages) => {
+        this._languages = languages;
+        if (this.current && !this.current.variant) {
+          this.current.variant = this._languages.at(0)?.unique;
+        }
+      });
+    });
   }
 
   #getExistingIndex() {
@@ -108,8 +125,8 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
 
     const groups = target.selectedPermissions.map((p) => ({
       icon: "users",
-      name: p.groupName,
-      unique: p.groupKey,
+      name: p.name,
+      unique: p.groupUnique,
     }));
 
     this.#setValue(groups, "groups");
@@ -118,11 +135,11 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
   #renderLanguagesBox() {
     return html`<uui-box .headline=${this.localize.term("general_language")}>
       <uui-select
-        ?disabled=${this.data?.languages.length === 1}
-        .options=${this.data?.languages.map((l) => ({
+        ?disabled=${this._languages.length === 1}
+        .options=${this._languages.map((l) => ({
           name: l.name!,
-          value: l.isoCode!,
-          selected: l.isoCode === this.current?.variant,
+          value: l.unique!,
+          selected: l.unique === this.current?.variant,
         })) ?? []}
         @change=${this.#handleLanguageChange}
       ></uui-select>
@@ -145,7 +162,7 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
             type="number"
             slot="editor"
             label="Review period (days)"
-            .value=${this.current?.period}
+            .value=${`${this.current?.period}`}
             @change=${(e) => this.#setValue(Number(e.target.value), "period")}
           ></uui-input>
         </umb-property-layout>`
@@ -164,7 +181,7 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
           multiple: false,
         }}
         .selection=${this.current?.groups?.map((x) => x.unique) ?? []}
-        @updated=${this.#onApprovalGroupsUpdated}
+        @change=${this.#onApprovalGroupsUpdated}
       ></workflow-approval-group-input>
     </uui-box>`;
   }
@@ -179,7 +196,7 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
           type="text"
           slot="editor"
           label=${this.localize.term("contentReviews_externalReviewers")}
-          .value=${this.current?.externalReviewers}
+          .value=${this.current?.externalReviewers ?? ""}
           @change=${(e) => this.#setValue(e.target.value, "externalReviewers")}
         ></uui-input> </umb-property-layout
     ></uui-box>`;
@@ -188,7 +205,7 @@ export class WorkflowContentReviewsConfigModalElement extends UmbModalBaseElemen
   render() {
     return html`<umb-body-layout .headline=${this.headline}>
       <div id="main">
-        ${when(this.data?.languages, () => this.#renderLanguagesBox())}
+        ${when(this._languages.length, () => this.#renderLanguagesBox())}
         ${this.#renderGeneralBox()}
         ${when(!this.current?.excluded, () => this.#renderGroupBox())}
         ${when(!this.current?.excluded, () =>

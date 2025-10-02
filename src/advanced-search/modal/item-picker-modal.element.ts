@@ -4,7 +4,7 @@ import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 import type {
   WorkflowItemPickerModalData,
   WorkflowItemPickerModalResult,
-} from './item-picker-modal.token.js';
+} from "./item-picker-modal.token.js";
 
 const elementName = "workflow-item-picker-modal";
 
@@ -21,25 +21,13 @@ export class WorkflowItemPickerModalElement extends UmbModalBaseElement<
     this.#selectionManager.setSelectable(true);
     this.#selectionManager.setMultiple(this.data?.multiple ?? false);
     this.#selectionManager.setSelection(
-      this.data?.items.filter((x) => x.selected).map((x) => x.key) ?? []
+      this.data?.items.filter((x) => x.selected).map((x) => x.key ?? null) ?? []
     );
   }
 
   #handleSubmit() {
-    const selection = this.#selectionManager.getSelection();
-
-    const items =
-      this.data?.items.map((item) => ({
-        ...item,
-        ...{ selected: selection.includes(item.key) },
-      })) ?? [];
-
-    this.value = { items };
-    this.modalContext?.submit();
-  }
-
-  #handleClose() {
-    this.modalContext?.reject();
+    this.value = { selection: this.#selectionManager.getSelection() };
+    this._submitModal();
   }
 
   render() {
@@ -49,13 +37,15 @@ export class WorkflowItemPickerModalElement extends UmbModalBaseElement<
           ${this.data?.items.map(
             (item) => html`
               <uui-menu-item
-                .label=${item.name}
                 selectable
                 @selected=${() => this.#selectionManager.select(item.key!)}
                 @deselected=${() => this.#selectionManager.deselect(item.key!)}
                 ?selected=${this.#selectionManager.isSelected(item.key!)}
               >
-                <uui-icon slot="icon" .name=${item.icon!}></uui-icon>
+                <umb-icon slot="icon" .name=${item.icon!}></umb-icon>
+                <span slot="label" style="padding:9px 0"
+                  >${item.name} <small style="display:block">${item.alias}</small></span
+                >
               </uui-menu-item>
             `
           )}
@@ -63,15 +53,13 @@ export class WorkflowItemPickerModalElement extends UmbModalBaseElement<
       </div>
       <div slot="actions">
         <uui-button
-          id="close"
-          label="Close"
-          @click="${this.#handleClose}"
+          label=${this.localize.term("general_close")}
+          @click="${this._rejectModal}"
         ></uui-button>
         <uui-button
-          id="submit"
           color="positive"
           look="primary"
-          label="Submit"
+          label=${this.localize.term("general_submit")}
           @click=${this.#handleSubmit}
         ></uui-button>
       </div>

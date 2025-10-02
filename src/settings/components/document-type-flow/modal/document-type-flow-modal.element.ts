@@ -6,15 +6,19 @@ import {
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 import type { UUISelectEvent } from "@umbraco-cms/backoffice/external/uui";
+import { tryExecute } from "@umbraco-cms/backoffice/resources";
+import { partialUpdateFrozenArray } from "@umbraco-cms/backoffice/observable-api";
+import { UMB_APP_LANGUAGE_CONTEXT } from "@umbraco-cms/backoffice/language";
 import type {
+  StageConditionElement,
   WorkflowDocumentTypeFlowModalData,
   WorkflowDocumentTypeFlowModalResult,
 } from "../index.js";
-import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "../../../workspace/settings-workspace.context-token.js";
 import { type WorkflowApprovalGroupInputElement } from "@umbraco-workflow/approval-group";
 import {
+  ContentService,
   type ContentTypePropertyModel,
-  type UserGroupPermissionsModel,
+  type DocumentTypePermissionConfigModel,
 } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-document-type-flow-modal";
@@ -27,7 +31,7 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
   #contentTypes: Array<ContentTypePropertyModel> = [];
 
   @state()
-  permissions: Array<UserGroupPermissionsModel> = [];
+  permissions: Array<DocumentTypePermissionConfigModel> = [];
 
   @state()
   languages: Array<Option & { isDefault: boolean }> = [];
@@ -39,8 +43,8 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
   get selectedPermissions() {
     return this.permissions.filter(
       (p) =>
-        p.variant === this.selectedLanguage?.value &&
-        p.contentTypeKey === this.selectedType?.value
+        p.culture === this.selectedLanguage?.value &&
+        p.contentTypeUnique === this.selectedType?.value
     );
   }
 
@@ -54,80 +58,108 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
     return this.languages.find((x) => x.selected);
   }
 
+  constructor() {
+    super();
+
+    this.consumeContext(UMB_APP_LANGUAGE_CONTEXT, (context) => {
+      if (!context) return;
+
+      this.observe(context.languages, (languages) => {
+        this.languages =
+        languages.map((l) => ({
+          name: l.name,
+          value: l.unique,
+          selected:
+            l.unique === this.selectedType?.value ||
+            (!this.selectedType?.varies && l.isDefault),
+          isDefault: l.isDefault,
+        })) ?? [];
+      });
+    });
+  }
+
   async connectedCallback() {
     super.connectedCallback();
 
-    const workspaceContext = await this.getContext(
-      WORKFLOW_SETTINGS_WORKSPACE_CONTEXT
+    const { data } = await tryExecute(
+      this,
+      ContentService.getContentContentTypes()
     );
 
-    this.#contentTypes = this.data?.contentTypes ?? [];
     this.permissions = this.data?.permissions ?? [];
 
+    this.#contentTypes = data ?? [];
     this.contentTypeOptions = this.#contentTypes
       ?.filter((x) => !this.data?.existing.includes(x.key))
       .map((x, i, arr) => ({
         name: x.name!,
         value: x.key!,
         varies: x.varies,
-        selected: (i === 0 && arr.length === 1) || this.data?.key === x.key,
+        selected: (i === 0 && arr.length === 1) || this.data?.unique === x.key,
       }));
-
-    this.languages =
-      workspaceContext?.getData()?.availableLanguages.map((l) => ({
-        name: l.name!,
-        value: l.isoCode!,
-        selected:
-          l.isoCode === this.selectedType?.value ||
-          (!this.selectedType?.varies && l.isDefault),
-        isDefault: l.isDefault,
-      })) ?? [];
   }
 
   #handleSubmit() {
-    const documentType = this.#contentTypes.find(
-      (x) => x.key === this.selectedType?.value
-    );
-
-    if (!documentType) throw new Error("document type is missing");
-
     this.value = {
-      id: documentType.id,
-      key: documentType.key,
+      key: this.selectedType?.value,
       permissions: this.permissions,
     };
-
-    this.modalContext?.submit();
+    this._submitModal();
   }
 
   #handleConditionChange(e: CustomEvent) {
-    const updatedPermission = e.detail.permission as UserGroupPermissionsModel;
-    const permissionIndex = this.permissions.findIndex(
-      (p) =>
-        p.contentTypeKey === updatedPermission.contentTypeKey &&
-        p.variant === updatedPermission.variant &&
-        p.groupKey === updatedPermission.groupKey
-    );
+    const updatedPermission = (e.target as StageConditionElement).value;
+    if (!updatedPermission) return;
 
-    this.permissions[permissionIndex].condition = updatedPermission.condition;
+    this.permissions = partialUpdateFrozenArray(
+      this.permissions,
+      { condition: updatedPermission.condition },
+      (p) =>
+        p.contentTypeUnique === updatedPermission.contentTypeUnique &&
+        p.culture === updatedPermission.culture &&
+        p.group!.unique === updatedPermission.group?.unique
+    );
   }
 
   async #onApprovalGroupsUpdated(e: CustomEvent) {
     const permissions = (e.target as WorkflowApprovalGroupInputElement)
       .selectedPermissions;
 
-    this.permissions = [
-      ...this.permissions.filter(
-        (p) => p.variant !== this.selectedLanguage?.value
-      ),
-      ...permissions,
-    ];
+    permissions.forEach((p) => {
+      const existing = this.permissions.find(
+        (x) => x.group.unique === p.groupUnique
+      );
+
+      if (existing) {
+        this.permissions = partialUpdateFrozenArray(
+          this.permissions,
+          {
+            ...existing,
+            ...p,
+          },
+          (x) => x.group.unique === existing.group.unique
+        );
+      } else {
+        this.permissions = [
+          ...this.permissions,
+          {
+            group: {
+              name: p.name!,
+              unique: p.groupUnique,
+            },
+            approvalThreshold: p.approvalThreshold,
+            permission: p.permission,
+            culture: this.selectedLanguage!.value,
+            contentTypeUnique: this.selectedType!.value,
+          },
+        ];
+      }
+    });
   }
 
   #handleLanguageChange(e: UUISelectEvent) {
     const selectedLanguage = e.target.value.toString();
     this.languages.forEach((l) => (l.selected = l.value === selectedLanguage));
-
     this.requestUpdate("languages");
   }
 
@@ -138,14 +170,14 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
     );
 
     this.languages.forEach((l) => (l.selected = l.isDefault));
-    this.requestUpdate("contentTypeOptions");
+    this.requestUpdate();
   }
 
   #renderTypeSelect() {
     return html`<uui-box headline=${this.localize.term("content_documentType")}>
       <uui-select
         placeholder=${this.localize.term("workflow_selectDocumentTypes", false)}
-        ?disabled=${this.contentTypeOptions.length < 2 || !this.data?.isNew}
+        ?disabled=${this.contentTypeOptions.length < 2 || !!this.data?.unique}
         @change=${this.#handleTypeChange}
         .options=${this.contentTypeOptions}
       >
@@ -171,8 +203,14 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
       headline=${this.localize.term("workflow_approvalGroups")}
     >
       <workflow-approval-group-input
-        .selectedPermissions=${this.selectedPermissions}
-        @updated=${this.#onApprovalGroupsUpdated}
+        .selectedPermissions=${this.selectedPermissions.map((x) => ({
+          permission: x.permission,
+          approvalThreshold: x.approvalThreshold,
+          name: x.group.name,
+          groupUnique: x.group.unique,
+          icon: x.group.icon,
+        }))}
+        @change=${this.#onApprovalGroupsUpdated}
         .config=${{
           contentType: this.selectedType?.value,
           remove: true,
@@ -191,14 +229,19 @@ export class WorkflowDocumentTypeFlowModalElement extends UmbModalBaseElement<
     if (
       !this.selectedType?.value ||
       !this.selectedLanguage?.value ||
-      !this.permissions.length
+      !this.selectedPermissions.length
     )
       return null;
 
     return html`<workflow-stage-conditions
-      .value=${this.permissions}
       .config=${{
         variant: this.selectedLanguage.value,
+        groups:
+          this.selectedPermissions.map((p) => ({
+            name: p.group.name,
+            unique: p.group.unique,
+            condition: p.condition,
+          })) ?? [],
         contentType: this.#contentTypes.find(
           (x) => x.key === this.selectedType?.value
         ),

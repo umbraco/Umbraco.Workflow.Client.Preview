@@ -1,15 +1,7 @@
-import {
-  css,
-  customElement,
-  html,
-  state,
-} from "@umbraco-cms/backoffice/external/lit";
+import { css, customElement, html } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
-import {
-  partialUpdateFrozenArray,
-} from "@umbraco-cms/backoffice/observable-api";
 import type { WorkflowBaseFilterElement } from "../elements/base-filter.element.js";
-import type { Filter, WorkflowFilterConfig } from "../types.js";
+import type { Filter } from "../types.js";
 import type {
   WorkflowFilterPickerModalData,
   WorkflowFilterPickerModalResult,
@@ -22,25 +14,11 @@ export class FilterPickerModalElement extends UmbModalBaseElement<
   WorkflowFilterPickerModalData,
   WorkflowFilterPickerModalResult
 > {
-  @state()
-  private _config?: WorkflowFilterConfig;
-
-  connectedCallback() {
-    super.connectedCallback();
-    this._config = structuredClone(this.data?.config);
-  }
-
   #handleClear() {
-    this._config?.filters.forEach((f) => {
-      const original = this._config?.filters.find((x) => x.alias === f.alias);
-      f.value = original?.default;
+    Object.keys(this.value).forEach((key) => {
+      const original = this.data?.config?.filters.find((x) => x.alias === key);
+      this.value = { ...this.value, ...{ [key]: original?.default } };
     });
-    this.requestUpdate();
-  }
-
-  #handleSubmit() {
-    this.value = { config: this._config };
-    this.modalContext?.submit();
   }
 
   #renderFilterPickerElement<FilterType>(filter: Filter<FilterType>) {
@@ -51,7 +29,7 @@ export class FilterPickerModalElement extends UmbModalBaseElement<
     ) as WorkflowBaseFilterElement<FilterType>;
 
     el.alias = filter.alias;
-    el.value = filter.value ?? filter.default;
+    el.value = this.value[filter.alias] ?? filter.value ?? filter.default;
     el.onchange = (e) => this.#handleFilterValueChange<FilterType>(e, filter);
 
     if (filter.options) {
@@ -66,17 +44,8 @@ export class FilterPickerModalElement extends UmbModalBaseElement<
   }
 
   #handleFilterValueChange<T>(e: Event, filter: Filter<T>) {
-    if (!this._config?.filters) return;
-
     const filterElement = e.target as WorkflowBaseFilterElement<T>;
-    const alias = filterElement.alias;
-    if (!alias) return;
-
-    this._config.filters = partialUpdateFrozenArray(
-      this._config.filters,
-      { ...filter, ...{ value: filterElement.value } },
-      (x) => x.alias === alias
-    );
+    this.modalContext?.updateValue({ [filter.alias]: filterElement.value });
   }
 
   render() {
@@ -84,7 +53,7 @@ export class FilterPickerModalElement extends UmbModalBaseElement<
       <umb-body-layout headline="Filter picker">
         <div id="main">
           <uui-box>
-            ${this._config?.filters.map((filter) =>
+            ${this.data?.config?.filters.map((filter) =>
               this.#renderFilterPickerElement(filter)
             )}
           </uui-box>
@@ -105,7 +74,7 @@ export class FilterPickerModalElement extends UmbModalBaseElement<
             color="positive"
             look="primary"
             label=${this.localize.term("general_submit")}
-            @click=${this.#handleSubmit}
+            @click=${this._submitModal}
           ></uui-button>
         </div>
       </umb-body-layout>

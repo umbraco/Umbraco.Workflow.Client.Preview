@@ -1,21 +1,19 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   customElement,
   html,
   nothing,
   property,
 } from "@umbraco-cms/backoffice/external/lit";
+import type { ApprovalGroupCollectionMemberResponseModel } from "@umbraco-workflow/generated";
 
 const elementName = "approval-groups-table-email-column-layout";
 
 @customElement(elementName)
-export class ApprovalGroupsTableEmailColumnLayoutElement extends UmbElementMixin(
-  LitElement
-) {
+export class ApprovalGroupsTableEmailColumnLayoutElement extends UmbLitElement {
   @property({ attribute: false })
   value!: {
-    users: Array<{ email: string }>;
+    members: Array<ApprovalGroupCollectionMemberResponseModel>;
     groupEmail?: string;
   };
 
@@ -24,14 +22,14 @@ export class ApprovalGroupsTableEmailColumnLayoutElement extends UmbElementMixin
       return this.value.groupEmail;
     }
 
-    return this.value.users
+    return this.value.members
       .map((v) => v.email)
       .filter((x) => x)
       .join(";");
   }
 
   render() {
-    if (!this.value.users.length && !this.value.groupEmail) return nothing;
+    if (!this.value.members.length && !this.value.groupEmail) return nothing;
 
     return html` <uui-button
       look="secondary"
@@ -50,3 +48,5 @@ declare global {
     [elementName]: ApprovalGroupsTableEmailColumnLayoutElement;
   }
 }
+
+export default ApprovalGroupsTableEmailColumnLayoutElement;

@@ -9,5 +9,7 @@ export class WorkflowSettingsStore extends WorkflowObjectStore<WorkflowSettingsP
   }
 }
 
+export { WorkflowSettingsStore as api };
+
 export const WORKFLOW_SETTINGS_STORE_CONTEXT =
   new UmbContextToken<WorkflowSettingsStore>("WorkflowSettingsStore");

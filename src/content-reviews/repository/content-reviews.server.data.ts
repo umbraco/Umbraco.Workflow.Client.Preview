@@ -1,5 +1,5 @@
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
-import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
+import { tryExecute } from "@umbraco-cms/backoffice/resources";
 import type { WorkflowServerDataSource } from "@umbraco-workflow/repository";
 import {
   ContentReviewService,
@@ -27,16 +27,16 @@ export class WorkflowContentReviewsServerDataSource
   }
 
   async read() {
-    return tryExecuteAndNotify(
+    return tryExecute(
       this.#host,
       ContentReviewService.getContentReviewConfig()
     );
   }
 
   async update(data: ContentReviewsSaveSettingsModel) {
-    return tryExecuteAndNotify(
+    return tryExecute(
       this.#host,
-      ContentReviewService.putContentReviewConfig({ requestBody: data })
+      ContentReviewService.putContentReviewConfig({ body: data })
     );
   }
 }

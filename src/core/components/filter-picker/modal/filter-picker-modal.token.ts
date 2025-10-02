@@ -7,9 +7,7 @@ export interface WorkflowFilterPickerModalData {
   config?: WorkflowFilterConfig;
 }
 
-export interface WorkflowFilterPickerModalResult {
-  config?: WorkflowFilterConfig;
-}
+export interface WorkflowFilterPickerModalResult extends Record<string, any> {}
 
 export const WORKFLOW_FILTER_PICKER_MODAL = new UmbModalToken<
   WorkflowFilterPickerModalData,

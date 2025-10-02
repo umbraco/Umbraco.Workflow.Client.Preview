@@ -1,27 +1,10 @@
-import type {
-  ManifestWorkspaces,
-  ManifestWorkspaceActions,
-  ManifestWorkspaceView,
-} from "@umbraco-cms/backoffice/extension-registry";
-import { UmbSaveWorkspaceAction } from "@umbraco-cms/backoffice/workspace";
-import { WorkflowRegenerateContentReviewsWorkspaceAction } from "./actions/save-and-regenerate.action.js";
+import {
+  UmbSubmitWorkspaceAction,
+  UMB_WORKSPACE_CONDITION_ALIAS,
+} from "@umbraco-cms/backoffice/workspace";
+import { WORKFLOW_CONTENT_REVIEW_ENTITY_TYPE, WORKFLOW_CONTENTREVIEWS_WORKSPACE_ALIAS } from "../constants.js";
 
-export const WORKFLOW_CONTENTREVIEWS_ENTITY_TYPE = "content-reviews";
-export const WORKFLOW_CONTENTREVIEWS_WORKSPACE_ALIAS =
-  "Workflow.Workspace.ContentReviews";
-
-const workspace: ManifestWorkspaces = {
-  type: "workspace",
-  kind: "routable",
-  alias: WORKFLOW_CONTENTREVIEWS_WORKSPACE_ALIAS,
-  name: "Content Reviews Root Workspace",
-  api: () => import("./content-reviews-workspace.context.js"),
-  meta: {
-    entityType: "content-reviews",
-  },
-};
-
-const workspaceViews: Array<ManifestWorkspaceView> = [
+export const manifests: Array<UmbExtensionManifest> = [
   {
     type: "workspaceView",
     alias: `Workflow.WorkspaceView.ContentReviews.Overview`,
@@ -30,13 +13,13 @@ const workspaceViews: Array<ManifestWorkspaceView> = [
       import("./views/content-reviews-overview-workspace-view.element.js"),
     weight: 90,
     meta: {
-      label: "Overview",
+      label: "#workflow_overview",
       pathname: "overview",
       icon: "info",
     },
     conditions: [
       {
-        alias: "Umb.Condition.WorkspaceAlias",
+        alias: UMB_WORKSPACE_CONDITION_ALIAS,
         match: WORKFLOW_CONTENTREVIEWS_WORKSPACE_ALIAS,
       },
     ],
@@ -49,26 +32,23 @@ const workspaceViews: Array<ManifestWorkspaceView> = [
       import("./views/content-reviews-settings-workspace-view.element.js"),
     weight: 90,
     meta: {
-      label: "Settings",
+      label: "#general_settings",
       pathname: "settings",
       icon: "settings",
     },
     conditions: [
       {
-        alias: "Umb.Condition.WorkspaceAlias",
+        alias: UMB_WORKSPACE_CONDITION_ALIAS,
         match: WORKFLOW_CONTENTREVIEWS_WORKSPACE_ALIAS,
       },
     ],
   },
-];
-
-const workspaceActions: Array<ManifestWorkspaceActions> = [
   {
     type: "workspaceAction",
     kind: "default",
     alias: "Workflow.WorkspaceAction.ContentReviews.Save",
     name: "Save Content Reviews Settings Workspace Action",
-    api: UmbSaveWorkspaceAction,
+    api: UmbSubmitWorkspaceAction,
     meta: {
       look: "primary",
       color: "positive",
@@ -77,7 +57,7 @@ const workspaceActions: Array<ManifestWorkspaceActions> = [
     weight: 100,
     conditions: [
       {
-        alias: "Umb.Condition.WorkspaceAlias",
+        alias: UMB_WORKSPACE_CONDITION_ALIAS,
         match: WORKFLOW_CONTENTREVIEWS_WORKSPACE_ALIAS,
       },
     ],
@@ -87,20 +67,28 @@ const workspaceActions: Array<ManifestWorkspaceActions> = [
     kind: "default",
     alias: "Workflow.WorkspaceAction.ContentReviews.Regenerate",
     name: "Regenerate Content Reviews Settings Workspace Action",
-    api: WorkflowRegenerateContentReviewsWorkspaceAction,
+    api: () => import("./actions/save-and-regenerate.action.js"),
     meta: {
       look: "primary",
       color: "default",
-      label: "Save and regenerate",
+      label: "#contentReviews_saveAndRegenerate",
     },
     weight: 200,
     conditions: [
       {
-        alias: "Umb.Condition.WorkspaceAlias",
+        alias: UMB_WORKSPACE_CONDITION_ALIAS,
         match: WORKFLOW_CONTENTREVIEWS_WORKSPACE_ALIAS,
       },
     ],
   },
+  {
+    type: "workspace",
+    kind: "routable",
+    alias: WORKFLOW_CONTENTREVIEWS_WORKSPACE_ALIAS,
+    name: "Content Reviews Root Workspace",
+    api: () => import("./content-reviews-workspace.context.js"),
+    meta: {
+      entityType: WORKFLOW_CONTENT_REVIEW_ENTITY_TYPE,
+    },
+  },
 ];
-
-export const manifests = [workspace, ...workspaceViews, ...workspaceActions];

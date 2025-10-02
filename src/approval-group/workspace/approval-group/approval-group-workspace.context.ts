@@ -3,7 +3,6 @@ import {
   type UmbRoutableWorkspaceContext,
   type UmbSubmittableWorkspaceContext,
 } from "@umbraco-cms/backoffice/workspace";
-
 import {
   UmbObjectState,
   appendToFrozenArray,
@@ -12,32 +11,31 @@ import type { UmbControllerHostElement } from "@umbraco-cms/backoffice/controlle
 import { WorkflowApprovalGroupsDetailRepository } from "../../repository/detail/approval-groups-detail.repository.js";
 import {
   WORKFLOW_APPROVALGROUP_ENTITY_TYPE,
-  type WorkflowPropertyModel,
-  type WorkflowApprovalGroupDetailModel,
-} from "../../types.js";
-
+  WORKFLOW_APPROVALGROUP_WORKSPACE_ALIAS,
+} from "../../constants.js";
 import { ApprovalGroupWorkspaceEditorElement } from "./approval-group-workspace-editor.element.js";
-import { WORKFLOW_APPROVAL_GROUP_WORKSPACE_CONTEXT } from "./approval-group-workspace.context-token.js";
-import { WORKFLOW_APPROVALGROUP_WORKSPACE_ALIAS } from "./manifests.js";
+import type {
+  ApprovalGroupDetailResponseModelReadable,
+  SettingsPropertyDisplayModel,
+} from "@umbraco-workflow/generated";
 
 export class WorkflowApprovalGroupWorkspaceContext
-  extends UmbSubmittableWorkspaceContextBase<WorkflowApprovalGroupDetailModel>
+  extends UmbSubmittableWorkspaceContextBase<ApprovalGroupDetailResponseModelReadable>
   implements UmbSubmittableWorkspaceContext, UmbRoutableWorkspaceContext
 {
   public readonly IS_APPROVAL_GROUPS_WORKSPACE_CONTEXT = true;
   public readonly repository = new WorkflowApprovalGroupsDetailRepository(this);
 
-  #data = new UmbObjectState<WorkflowApprovalGroupDetailModel | undefined>(
+  #data = new UmbObjectState<ApprovalGroupDetailResponseModelReadable | undefined>(
     undefined
   );
   data = this.#data.asObservable();
-  #getDataPromise?: Promise<any>;
 
   readonly unique = this.#data.asObservablePart((data) => data?.unique);
+  readonly icon = this.#data.asObservablePart((data) => data?.icon);
 
   constructor(host: UmbControllerHostElement) {
     super(host, WORKFLOW_APPROVALGROUP_WORKSPACE_ALIAS);
-    this.provideContext(WORKFLOW_APPROVAL_GROUP_WORKSPACE_CONTEXT, this);
 
     this.routes.setRoutes([
       {
@@ -58,8 +56,7 @@ export class WorkflowApprovalGroupWorkspaceContext
   }
 
   async load(unique: string) {
-    this.#getDataPromise = this.repository?.requestByUnique(unique);
-    const { data } = await this.#getDataPromise;
+    const { data } = await this.repository.requestByUnique(unique);
     if (data) {
       this.setIsNew(false);
       this.#data.update(data);
@@ -67,13 +64,11 @@ export class WorkflowApprovalGroupWorkspaceContext
   }
 
   async create() {
-    this.#getDataPromise = this.repository?.createScaffold();
-    const { data } = await this.#getDataPromise;
-
+    const { data } = await this.repository.createScaffold();
     if (!data) return;
 
     this.setIsNew(true);
-    this.#data.setValue(data as WorkflowApprovalGroupDetailModel);
+    this.#data.setValue(data);
 
     return { data };
   }
@@ -111,7 +106,8 @@ export class WorkflowApprovalGroupWorkspaceContext
     const property = {
       ...properties.find((p) => p.alias === alias),
       ...{ value },
-    } as WorkflowPropertyModel;
+    } as SettingsPropertyDisplayModel;
+
     const newProperties = appendToFrozenArray(
       properties,
       property,

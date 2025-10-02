@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<language alias="ar" intName="Arabic" localName="العربية" lcid="" culture="ar">
+  <area alias="workflow">
+    <key alias="changeDescription">وصف التغيير</key>
+    <key alias="changeDescriptionDetail">%0% طُلب بواسطة %1% في %2% عند %3%</key>
+    <key alias="summary">ملخص</key>
+    <key alias="currentStatus">الحالة الحالية</key>
+    <key alias="stage">مرحلة</key>
+    <key alias="by">بواسطة</key>
+    <key alias="on">في</key>
+    <key alias="at">عند</key>
+    <key alias="comment">تعليق</key>
+    
+    <key alias="status1">تمت الموافقة</key>
+    <key alias="status2">مرفوض</key>
+    <key alias="status3">بانتظار الموافقة</key>
+    <key alias="status4">غير مطلوب</key>
+    <key alias="status5">تم الإلغاء</key>
+    <key alias="status6">حدث خطأ</key>
+    <key alias="status7">أُعيد تقديمه</key>
+    <key alias="status8">أُلغي بواسطة طرف ثالث</key>
+    <key alias="status9">مستبعد</key>
+    <key alias="status10">في انتظار إعادة التقديم</key>
+
+    <key alias="approved">تمت الموافقة</key>
+    <key alias="cancelled">تم الإلغاء</key>
+    <key alias="cancelledbythirdparty">أُلغي بواسطة طرف ثالث</key>
+    <key alias="errored">حدث خطأ</key>
+    <key alias="excluded">مستبعد</key>
+    <key alias="notrequired">غير مطلوب</key>
+    <key alias="pendingapproval">بانتظار الموافقة</key>
+    <key alias="rejected">مرفوض</key>
+    <key alias="resubmitted">أعيد تقديمه</key>
+    <key alias="awaitingresubmission">في انتظار إعادة التقديم</key>
+  </area>
+</language>

@@ -6,7 +6,7 @@ import {
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
-import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
+import { tryExecute } from "@umbraco-cms/backoffice/resources";
 import { UMB_CURRENT_USER_CONTEXT } from "@umbraco-cms/backoffice/current-user";
 import type { WorkflowHistoryCleanupRuleSet } from "../types.js";
 import type {
@@ -18,6 +18,7 @@ import {
   type HistoryCleanupModel,
   HistoryCleanupService,
 } from "@umbraco-workflow/generated";
+import { WORKFLOW_SECTION_ALIAS } from "../../../constants.js";
 
 const elementName = "workflow-history-cleanup-modal";
 
@@ -40,8 +41,13 @@ export class WorkflowHistoryCleanupModalElement extends UmbModalBaseElement<
   @state()
   globalRules: WorkflowHistoryCleanupRuleSet = {};
 
+  @state()
   hasNodeRules = false;
+
+  @state()
   hasDocTypeRules = false;
+
+  @state()
   hasUneditable = false;
 
   async connectedCallback() {
@@ -55,11 +61,13 @@ export class WorkflowHistoryCleanupModalElement extends UmbModalBaseElement<
   }
 
   async #getHistoryCleanup() {
-    const { data } = await tryExecuteAndNotify(
+    const { data } = await tryExecute(
       this,
       HistoryCleanupService.getHistoryCleanup({
-        uniqueId: this.data?.unique,
-        contentTypeId: this.data?.contentTypeUnique,
+        query: {
+          uniqueId: this.data?.unique,
+          contentTypeId: this.data?.contentTypeUnique,
+        },
       })
     );
 
@@ -90,9 +98,10 @@ export class WorkflowHistoryCleanupModalElement extends UmbModalBaseElement<
     if (!this.#currentUserContext) return;
 
     this.observe(this.#currentUserContext.currentUser, (user) => {
-      // TODO => what permissions here?
       this.showSubmitButton =
-        (user?.hasAccessToAllLanguages && this.data?.unique !== undefined) ??
+        (user?.hasAccessToAllLanguages &&
+          user.allowedSections.includes(WORKFLOW_SECTION_ALIAS) &&
+          this.data?.unique !== undefined) ??
         false;
     });
   }
@@ -132,7 +141,7 @@ export class WorkflowHistoryCleanupModalElement extends UmbModalBaseElement<
         () => html`<div slot="header">${typeName}</div>`
       )}
       ${when(
-        rules,
+        Object.keys(rules ?? {}).length,
         () => html` <workflow-history-cleanup-detail
           .model=${rules!}
           .editable=${this.showSubmitButton}
@@ -144,10 +153,9 @@ export class WorkflowHistoryCleanupModalElement extends UmbModalBaseElement<
   }
 
   render() {
-    return html`<umb-body-layout
+    return html`<uui-dialog-layout
       headline=${this.localize.term("workflowCleanup_modalHeadline")}
     >
-      <div id="main">
         ${when(
           !this.data?.unique,
           () =>
@@ -183,7 +191,6 @@ export class WorkflowHistoryCleanupModalElement extends UmbModalBaseElement<
             </umb-localize>
           </small>`
         )}
-      </div>
       <div slot="actions">
         <uui-button
           label=${this.localize.term("general_close")}
@@ -194,17 +201,17 @@ export class WorkflowHistoryCleanupModalElement extends UmbModalBaseElement<
           () => html` <uui-button
             color="positive"
             look="primary"
-            label=${this.localize.term("general_save")}
+            label=${this.localize.term("buttons_save")}
             @click=${this.#handleSubmit}
           ></uui-button>`
         )}
       </div>
-    </umb-body-layout>`;
+    </uui-dialog-layout>`;
   }
 
   static styles = [
     css`
-      umb-body-layout {
+      uui-dialog-layout {
         max-height: 90vh;
       }
 

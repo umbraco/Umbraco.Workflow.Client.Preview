@@ -2,7 +2,7 @@ import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
 import { UmbDetailStoreBase } from "@umbraco-cms/backoffice/store";
 import type { UmbControllerHostElement } from "@umbraco-cms/backoffice/controller-api";
 import { UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
-import type { WorkflowApprovalGroupCollectionModel } from '../../collection/types.js';
+import type { WorkflowApprovalGroupCollectionModel } from '../../collection/entities.js';
 
 export class WorkflowApprovalGroupsDetailStore extends UmbDetailStoreBase<WorkflowApprovalGroupCollectionModel> {
   constructor(host: UmbControllerHostElement) {

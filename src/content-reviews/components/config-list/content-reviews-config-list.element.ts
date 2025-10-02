@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
@@ -8,7 +7,10 @@ import {
   state,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
+import {
+  UMB_MODAL_MANAGER_CONTEXT,
+  type UmbModalContext,
+} from "@umbraco-cms/backoffice/modal";
 import { partialUpdateFrozenArray } from "@umbraco-cms/backoffice/observable-api";
 import {
   UMB_DOCUMENT_PICKER_MODAL,
@@ -16,20 +18,18 @@ import {
 } from "@umbraco-cms/backoffice/document";
 import { UMB_DOCUMENT_TYPE_PICKER_MODAL } from "@umbraco-cms/backoffice/document-type";
 import { WORKFLOW_CONTENTREVIEWS_WORKSPACE_CONTEXT } from "../../workspace/content-reviews-workspace.context-token.js";
-import type { ContentReviewItem, ContentReviewType } from "../../types.js";
+import type { ContentReviewItem, ContentReviewType } from "../../entities.js";
 import { WORKFLOW_CONTENTREVIEWS_CONFIG_MODAL } from "../../modal/token/index.js";
 import type {
   ContentReviewsSettingsModel,
   ContentTypePropertyModel,
-  LanguageModel,
 } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-content-reviews-config-list";
 
 @customElement(elementName)
-export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
-  LitElement
-) {
+export class WorkflowContentReviewsConfigListElement extends UmbLitElement {
+  #modalManagerContext?: typeof UMB_MODAL_MANAGER_CONTEXT.TYPE;
   #contentReviewsWorkspaceContext?: typeof WORKFLOW_CONTENTREVIEWS_WORKSPACE_CONTEXT.TYPE;
   #documentRepository = new UmbDocumentItemRepository(this);
 
@@ -38,9 +38,6 @@ export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
 
   @state()
   settings?: ContentReviewsSettingsModel;
-
-  @state()
-  languages?: Array<LanguageModel>;
 
   @state()
   contentTypes?: Array<ContentTypePropertyModel>;
@@ -57,14 +54,18 @@ export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
   constructor() {
     super();
 
+    this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (context) => {
+      if (!context) return;
+      this.#modalManagerContext = context;
+    });
+
     this.consumeContext(
       WORKFLOW_CONTENTREVIEWS_WORKSPACE_CONTEXT,
       (context) => {
         if (!context) return;
         this.#contentReviewsWorkspaceContext = context;
 
-        this.contentTypes = context.getData()?.contentTypes;
-        this.languages = context.getData()?.availableLanguages;
+        this.contentTypes = context.contentTypes;
 
         this.observe(context.settings, (settings) => {
           this.settings = settings;
@@ -86,15 +87,15 @@ export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
       multiple: false,
     };
 
-    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    if (!this.#modalManagerContext) return;
 
-    let modalHandler;
+    let modalHandler: UmbModalContext;
     if (this.type === "document") {
-      modalHandler = modalContext.open(this, UMB_DOCUMENT_PICKER_MODAL, {
+      modalHandler = this.#modalManagerContext.open(this, UMB_DOCUMENT_PICKER_MODAL, {
         data,
       });
     } else {
-      modalHandler = modalContext.open(this, UMB_DOCUMENT_TYPE_PICKER_MODAL, {
+      modalHandler = this.#modalManagerContext.open(this, UMB_DOCUMENT_TYPE_PICKER_MODAL, {
         data,
       });
     }
@@ -107,7 +108,7 @@ export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
     const itemToConfigure: ContentReviewItem = {
       documentKey: this.type === "document" ? value.selection[0]! : undefined,
       documentTypeKey:
-        this.type === "documentType" ? value.selection[0]! : undefined,
+        this.type === "document-type" ? value.selection[0]! : undefined,
       type: this.type!,
       configItems: [],
     };
@@ -117,8 +118,9 @@ export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
   }
 
   async #editReview(itemToConfigure: ContentReviewItem, isAdd = false) {
-    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-    const modalHandler = modalContext.open(
+    if (!this.#modalManagerContext) return;
+
+    const modalHandler = this.#modalManagerContext.open(
       this,
       WORKFLOW_CONTENTREVIEWS_CONFIG_MODAL,
       {
@@ -126,7 +128,6 @@ export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
           model: itemToConfigure,
           type: this.type!,
           isAdd,
-          languages: this.languages ?? [],
         },
       }
     );
@@ -192,10 +193,10 @@ export class WorkflowContentReviewsConfigListElement extends UmbElementMixin(
                   .name=${this.#getProp("name", item)}
                   @open=${() => this.#editReview(item)}
                 >
-                  <uui-icon
+                  <umb-icon
                     slot="icon"
                     name=${this.#getProp("icon", item)}
-                  ></uui-icon>
+                  ></umb-icon>
                   <uui-action-bar slot="actions"
                     ><uui-button
                       @click=${() => this.#remove(idx)}

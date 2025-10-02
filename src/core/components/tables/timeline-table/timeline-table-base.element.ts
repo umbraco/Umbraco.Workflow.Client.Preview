@@ -10,11 +10,12 @@ import {
   property,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import { WorkflowTableBase } from "../table-base.element.js";
+import { WorkflowTableBaseElement } from "../table-base.element.js";
 
+import type { TableColumnLayout } from "../table-column-layout.interface.js";
 import { TIMELINE_TABLE_PROGRESS_COLUMN_LAYOUT } from "./timeline-table-progress-column-layout.element.js";
 
-export abstract class WorkflowTimelineTableBase extends WorkflowTableBase {
+export abstract class WorkflowTimelineTableBase extends WorkflowTableBaseElement {
   @property({ type: String, attribute: false })
   public orderingColumn = "";
 
@@ -23,8 +24,8 @@ export abstract class WorkflowTimelineTableBase extends WorkflowTableBase {
 
   #progressColumn?: UmbTableColumn;
 
-  setTableColumns(columns: Array<UmbTableColumn>) {
-    this.tableColumns = columns.filter(
+  override setTableColumns() {
+    this.tableColumns = this.tableColumns.filter(
       (c) => !this.model?.hiddenColumns?.includes(c.alias)
     );
 
@@ -74,7 +75,7 @@ export abstract class WorkflowTimelineTableBase extends WorkflowTableBase {
   #renderRow(item: UmbTableItem) {
     return html`<uui-table-row ?selectable=${false}>
       <uui-table-cell
-        ><uui-icon name=${ifDefined(item.icon ?? undefined)}></uui-icon
+        ><umb-icon name=${ifDefined(item.icon ?? undefined)}></umb-icon
       ></uui-table-cell>
       ${this.tableColumns.map((column) => this.#renderRowCell(column, item))}
       ${when(this.#progressColumn !== undefined, () =>
@@ -100,9 +101,10 @@ export abstract class WorkflowTimelineTableBase extends WorkflowTableBase {
     )?.value;
 
     if (column.elementName) {
-      const element = document.createElement(column.elementName) as any;
-      element.column = column;
-      element.item = item;
+      const element = document.createElement(
+        column.elementName
+      ) as TableColumnLayout<unknown>;
+
       element.value = value;
       return element;
     }
@@ -110,7 +112,7 @@ export abstract class WorkflowTimelineTableBase extends WorkflowTableBase {
     return value;
   }
 
-  render() {
+  #renderTable() {
     return when(
       this.tableItems.length,
       () => html` <uui-table>
@@ -127,6 +129,14 @@ export abstract class WorkflowTimelineTableBase extends WorkflowTableBase {
 
         ${this.renderPagination()}`,
       () => this.localize.term("content_noItemsToShow")
+    );
+  }
+
+  render() {
+    return when(
+      this.loading,
+      () => html`<uui-loader-bar></uui-loader-bar>`,
+      () => this.#renderTable()
     );
   }
 
@@ -150,10 +160,10 @@ export abstract class WorkflowTimelineTableBase extends WorkflowTableBase {
       }
 
       uui-table:has(timeline-table-progress-column-layout) uui-table-cell {
-        padding-bottom: 20px;
+        padding-bottom: var(--uui-size-7);
       }
 
-      uui-table:has(timeline-table-progress-column-layout) uui-icon {
+      uui-table:has(timeline-table-progress-column-layout) umb-icon {
         transform: translateY(-50%);
       }
 

@@ -19,3 +19,5 @@ export class WorkflowContentReviewsRepository extends WorkflowRepositoryBase<
     );
   }
 }
+
+export { WorkflowContentReviewsRepository as api };

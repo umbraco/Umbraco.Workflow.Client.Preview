@@ -1,4 +1,4 @@
-import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/extension-registry";
+import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/workspace";
 import {
   customElement,
   html,
@@ -8,15 +8,16 @@ import type {
   UmbPropertyDatasetElement,
   UmbPropertyValueData,
 } from "@umbraco-cms/backoffice/property";
+import { spread } from "@open-wc/lit-helpers";
 import { WORKFLOW_CONTENTREVIEWS_WORKSPACE_CONTEXT } from "../content-reviews-workspace.context-token.js";
-import { WorkspaceWithSettingsViewBase } from "@umbraco-workflow/core";
 import type { ContentReviewsSettingsModel } from "@umbraco-workflow/generated";
+import { WorkspaceWithSettingsViewBaseElement } from "@umbraco-workflow/core";
 
 const elementName = "workflow-content-reviews-settings-workspace-view";
 
 @customElement(elementName)
 export class WorkflowContentReviewsSettingsWorkspaceViewElement
-  extends WorkspaceWithSettingsViewBase
+  extends WorkspaceWithSettingsViewBaseElement
   implements UmbWorkspaceViewElement
 {
   #workspaceContext?: typeof WORKFLOW_CONTENTREVIEWS_WORKSPACE_CONTEXT.TYPE;
@@ -44,12 +45,14 @@ export class WorkflowContentReviewsSettingsWorkspaceViewElement
   #renderContentItemReviews() {
     if (!this.settings) return;
 
-    return html`<uui-box>
+    return html`<uui-box
+      ${spread(this.getAttributes(this.settings.contentItemReviews))}
+    >
       <div slot="headline">
-        ${this.localize.term(this.settings.contentItemReviews.label)}
+        ${this.localize.term("contentReviews_contentItemReviews")}
         <small
           >${this.localize.term(
-            this.settings.contentItemReviews.description
+            "contentReviews_contentItemReviewsDescription"
           )}</small
         >
       </div>
@@ -63,12 +66,14 @@ export class WorkflowContentReviewsSettingsWorkspaceViewElement
   #renderDocumentTypeReviews() {
     if (!this.settings) return;
 
-    return html`<uui-box>
+    return html`<uui-box
+      ${spread(this.getAttributes(this.settings.documentTypeReviews))}
+    >
       <div slot="headline">
-        ${this.localize.term(this.settings.documentTypeReviews.label)}
+        ${this.localize.term("contentReviews_documentTypeReviews")}
         <small
           >${this.localize.term(
-            this.settings.documentTypeReviews.description
+            "contentReviews_documentTypeReviewsDescription"
           )}</small
         >
       </div>
@@ -103,7 +108,7 @@ export class WorkflowContentReviewsSettingsWorkspaceViewElement
               (p) =>
                 html`<umb-property
                   .label=${this.localize.term(p.label)}
-                  .description=${this.localize.term(p.description)}
+                  .description=${this.localize.term(p.label + "Description")}
                   .config=${p.config}
                   alias=${p.alias}
                   property-editor-ui-alias=${p.editorUiAlias}
@@ -118,7 +123,7 @@ export class WorkflowContentReviewsSettingsWorkspaceViewElement
       </div>`;
   }
 
-  static styles = [...WorkspaceWithSettingsViewBase.styles];
+  static styles = [...WorkspaceWithSettingsViewBaseElement.styles];
 }
 
 export default WorkflowContentReviewsSettingsWorkspaceViewElement;

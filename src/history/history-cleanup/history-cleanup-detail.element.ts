@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
@@ -13,9 +12,7 @@ import type { HistoryCleanupConfigModel } from "@umbraco-workflow/generated";
 const elementName = "workflow-history-cleanup-detail";
 
 @customElement(elementName)
-export class WorkflowHistoryCleanupDetailElement extends UmbElementMixin(
-  LitElement
-) {
+export class WorkflowHistoryCleanupDetailElement extends UmbLitElement {
   @property({ type: Object })
   model: WorkflowHistoryCleanupRuleSet = {};
 
@@ -33,20 +30,16 @@ export class WorkflowHistoryCleanupDetailElement extends UmbElementMixin(
     this.requestUpdate("model");
   }
 
-  connectedCallback() {
-    super.connectedCallback();
-  }
-
   #renderHistoryCleanupEnabledCell(value: HistoryCleanupConfigModel) {
     return html`<uui-table-cell>
       ${when(
         !this.editable,
-        () => html`<uui-icon
+        () => html`<umb-icon
           .name=${value.enableCleanup ? "icon-check" : "icon-delete"}
           style="--uui-icon-color: ${value.enableCleanup
             ? "var(--uui-color-positive)"
             : "var(--uui-color-danger)"}"
-        ></uui-icon>`,
+        ></umb-icon>`,
         () => html` <uui-toggle
           ?disabled=${!value.editable}
           ?checked=${value.enableCleanup}
@@ -67,7 +60,7 @@ export class WorkflowHistoryCleanupDetailElement extends UmbElementMixin(
         this.editable,
         () => html`<uui-input
           type="number"
-          .value=${value.keepHistoryForDays}
+          .value=${`${value.keepHistoryForDays}`}
           ?disabled=${!value.enableCleanup || !value.editable}
           @input=${(e) =>
             this.#emitValueChange(
@@ -86,30 +79,28 @@ export class WorkflowHistoryCleanupDetailElement extends UmbElementMixin(
           const [statusKey, statusValue] = status;
 
           return html`<li>
-            ${when(
-              this.editable,
-              () => html` <div>
-                <umb-property-layout
-                  .label=${this.localize.term(
-                    `workflow_${statusKey.toLowerCase()}`
-                  )}
+            <div>
+              <umb-property-layout
+                .label=${this.localize.term(
+                  `workflow_${statusKey.toLowerCase()}`
+                )}
+              >
+                <uui-toggle
+                  slot="editor"
+                  ?disabled=${!value.editable || !value.enableCleanup || !this.editable}
+                  ?checked=${value.statusesToDelete![statusKey]}
+                  .label=${value.entityName}
+                  @change=${() =>
+                    this.#emitValueChange(
+                      () =>
+                        (value.statusesToDelete![statusKey] =
+                          !value.statusesToDelete![statusKey])
+                    )}
                 >
-                  <uui-toggle
-                    slot="editor"
-                    ?disabled=${!value.editable || !value.enableCleanup}
-                    ?checked=${value.statusesToDelete![statusKey]}
-                    .label=${value.entityName}
-                    @change=${() =>
-                      this.#emitValueChange(
-                        () =>
-                          (value.statusesToDelete![statusKey] =
-                            !value.statusesToDelete![statusKey])
-                      )}
-                  >
-                  </uui-toggle>
-                </umb-property-layout>
-              </div>`
-            )}
+                </uui-toggle>
+              </umb-property-layout>
+            </div>
+
             ${when(
               !this.editable && statusValue,
               () =>

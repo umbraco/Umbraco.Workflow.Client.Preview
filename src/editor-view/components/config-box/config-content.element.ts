@@ -2,47 +2,90 @@ import {
   css,
   customElement,
   html,
+  state,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
-import { WorkflowConfigBoxBase } from "./index.js";
+import { tryExecute } from "@umbraco-cms/backoffice/resources";
+import { UMB_CURRENT_USER_CONTEXT } from "@umbraco-cms/backoffice/current-user";
+import { WorkflowConfigBoxBaseElement } from "./index.js";
 import { PermissionType } from "@umbraco-workflow/core";
 import type { WorkflowApprovalGroupInputElement } from "@umbraco-workflow/approval-group";
-import { ConfigService } from "@umbraco-workflow/generated";
+import {
+  ApprovalThresholdModel,
+  ConfigService,
+} from "@umbraco-workflow/generated";
+import {
+  WORKFLOW_CONTEXT,
+} from "@umbraco-workflow/context";
+import { WORKFLOW_SECTION_ALIAS } from "src/constants.js";
 
 const elementName = "workflow-config-content";
 
 @customElement(elementName)
-export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
-  async #onApprovalGroupsUpdated(e: CustomEvent) {
-    const target = e.target as WorkflowApprovalGroupInputElement;
-    this.workflowManagerContext?.setNodePermissions(target.selectedPermissions);
+export class WorkflowConfigContentElement extends WorkflowConfigBoxBaseElement {
+  @state()
+  defaultApprovalThreshold = ApprovalThresholdModel.ONE;
+
+  @state()
+  configureApprovalThreshold = false;
+
+  @state()
+  private _readonly = true;
+
+  constructor() {
+    super();
+
+    this.consumeContext(UMB_CURRENT_USER_CONTEXT, (context) => {
+      if (!context) return;
+
+      this.observe(context.currentUser, (currentUser) => {
+        if (!currentUser) return;
+
+        this._readonly =
+          currentUser?.allowedSections?.includes(WORKFLOW_SECTION_ALIAS) !==
+          true;
+      });
+    });
+
+    this.consumeContext(WORKFLOW_CONTEXT, (context) => {
+      const globalVariables = context?.getVariables();
+      if (!globalVariables) return;
+
+      this.defaultApprovalThreshold = globalVariables.defaultApprovalThreshold;
+      this.configureApprovalThreshold =
+        globalVariables.configureApprovalThreshold;
+    });
   }
 
   async #save() {
     if (!this.workflowManagerContext)
       throw new Error("workflow manager context is missing");
 
-    // TODO => fix the model or ensure all properties do actually exist
-    const { error } = await tryExecuteAndNotify(
+    const key = this.workflowManagerContext.getEntityId();
+    if (!key) return;
+
+    await tryExecute(
       this,
       ConfigService.putConfig({
-        requestBody: {
-          key: this.workflowManagerContext.getEntityId()!,
-          id: 1,
-          permissions: this.permissions?.node ?? [],
-          variant: this.variant!,
+        body: {
+          key,
+          permissions: this.workflowManagerContext.getPermissions()?.node ?? [],
+          variant: this.variant,
         },
       })
     );
 
-    if (!error) {
-      this.workflowManagerContext?.happy(`Configuration updated`);
-    }
+    this.workflowManagerContext.refreshScaffold();
   }
 
-  #removeAll() {
+  async #onSelectionChange(e: CustomEvent) {
+    const target = e.target as WorkflowApprovalGroupInputElement;
+    this.workflowManagerContext?.setNodePermissions(target.selectedPermissions);
+  }
+
+  #onRemoveAll() {
     this.workflowManagerContext?.setNodePermissions([]);
+    this.#save();
   }
 
   render() {
@@ -51,81 +94,93 @@ export class WorkflowConfigContentElement extends WorkflowConfigBoxBase {
       this.activeType == PermissionType.NEW
         ? "active"
         : ""}
-      headline=${this.localize.term("workflow_contentApprovalFlow")}
+      headline=${this.localize.term("workflow_documentApprovalFlow")}
     >
       ${this.renderActiveBadge(PermissionType.NODE, PermissionType.NEW)}
       ${when(
-        !this.workflowManagerContext?.isSaved,
+        !this.workflowManagerContext?.getIsPublished() &&
+          this.permissions?.new.length,
         () => html`
-          <workflow-alert key="workflow_newNodeConfig"> </workflow-alert>
+          <div id="newNodeApprovalFlow">
+            <p>
+              ${this.localize.term(
+                "workflow_settings_newNodeApprovalFlowDescription"
+              )}
+            </p>
+            <uui-ref-list>
+              ${this.permissions?.new?.map(
+                (permission) =>
+                  html`<workflow-ref-group-permission .value=${permission}>
+                    <umb-icon
+                      slot="icon"
+                      .name=${permission.icon ?? "icon-users"}
+                    ></umb-icon>
+                  </workflow-ref-group-permission>`
+              )}
+            </uui-ref-list>
+          </div>
         `
       )}
-      ${when(
-        this.workflowManagerContext?.isNew && this.permissions?.new.length,
-        () => html`
-          <p>
-            ${this.localize.term("workflow_newNodeApprovalFlowDescription")}
-          </p>
-          <uui-ref-list>
-            ${this.permissions?.new?.map(
-              (permission) =>
-                html`<workflow-ref-group-permission .value=${permission}>
-                </workflow-ref-group-permission>`
-            )}
-          </uui-ref-list>
-        `
-      )}
-      ${when(
-        this.workflowManagerContext?.isSaved,
-        () => html` <workflow-approval-group-input
-            .config=${{
-              multiple: true,
-              document: this.workflowManagerContext!.getEntityId(),
-              remove: true,
-              defaultThreshold: this.globalVariables?.defaultApprovalThreshold,
-              configureThreshold:
-                this.globalVariables?.configureApprovalThreshold,
-              additionalData: {
-                variant: this.variant,
-              },
-            }}
-            .selectedPermissions=${this.permissions?.node ?? []}
-            @updated=${this.#onApprovalGroupsUpdated}
-          ></workflow-approval-group-input>
+      <workflow-approval-group-input
+        .config=${{
+          emptyLabel: this.localize.term("workflow_noDocumentFlow"),
+          edit: true,
+          multiple: true,
+          document: this.workflowManagerContext!.getEntityId(),
+          remove: true,
+          defaultThreshold: this.defaultApprovalThreshold,
+          configureThreshold: this.configureApprovalThreshold,
+          additionalData: {
+            variant: this.variant,
+          },
+        }}
+        @change=${this.#onSelectionChange}
+        .selectedPermissions=${this.permissions?.node ?? []}
+        ?readonly=${this._readonly}
+      >
+      </workflow-approval-group-input>
 
-          <div id="action-buttons">
-            <uui-button
-              color="positive"
-              look="primary"
-              @click=${this.#save}
-              label=${this.localize.term("buttons_save")}
-            ></uui-button>
-            <uui-button
-              color="danger"
-              look="primary"
-              @click=${this.#removeAll}
-              ?disabled=${!this.permissions?.node.length}
-              label=${this.localize.term("workflow_removeAll")}
-            ></uui-button>
-          </div>`
-      )}
+      <div id="action-buttons">
+        <uui-button
+          color="danger"
+          look="primary"
+          @click=${this.#onRemoveAll}
+          ?disabled=${this._readonly || !this.permissions?.node.length}
+          label=${this.localize.term("workflow_removeAll")}
+        ></uui-button>
+        <uui-button
+          color="positive"
+          look="primary"
+          @click=${this.#save}
+          label=${this.localize.term("buttons_save")}
+          ?disabled=${this._readonly || !this.permissions?.node.length}
+        ></uui-button>
+      </div>
     </uui-box>`;
   }
 
   static styles = [
-    ...WorkflowConfigBoxBase.styles,
+    ...WorkflowConfigBoxBaseElement.styles,
     css`
       #action-buttons {
         margin-top: var(--uui-size-space-5);
         display: flex;
-        flex-direction: row-reverse;
         gap: var(--uui-size-space-2);
+        justify-content: flex-end;
+      }
+
+      #newNodeApprovalFlow {
+        margin-bottom: var(--uui-size-2);
+        padding-bottom: var(--uui-size-5);
+        border-bottom: 1px solid var(--uui-color-divider-standalone);
+
+        p {
+          margin: 0 0 var(--uui-size-1);
+        }
       }
 
       uui-ref-list {
-        margin-bottom: var(--uui-size-6);
-        border-bottom: 1px solid var(--uui-color-border);
-        pointer-events: none;
+        margin-bottom: 0;
       }
     `,
   ];

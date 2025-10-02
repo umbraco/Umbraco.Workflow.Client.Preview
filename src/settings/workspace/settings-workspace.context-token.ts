@@ -4,7 +4,6 @@ import type { WorkflowSettingsWorkspaceContext } from "./settings-workspace.cont
 
 export const WORKFLOW_SETTINGS_WORKSPACE_CONTEXT_ALIAS = "WorkflowSettingsContext";
 
-
 export const WORKFLOW_SETTINGS_WORKSPACE_CONTEXT = new UmbContextToken<
   UmbSubmittableWorkspaceContext,
   WorkflowSettingsWorkspaceContext

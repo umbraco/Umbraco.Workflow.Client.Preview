@@ -4,7 +4,6 @@ import type {
   UmbTableItem,
 } from "@umbraco-cms/backoffice/components";
 import {
-  LitElement,
   css,
   customElement,
   html,
@@ -15,21 +14,22 @@ import {
   UMB_COLLECTION_CONTEXT,
   type UmbDefaultCollectionContext,
 } from "@umbraco-cms/backoffice/collection";
-
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
-import type { WorkflowApprovalGroupCollectionModel } from "../../types.js";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
+import type { WorkflowApprovalGroupCollectionModel } from "../../entities.js";
 
 import "./elements/approval-groups-table-name-column-layout.element.js";
 import "./elements/approval-groups-table-membership-column-layout.element.js";
 import "./elements/approval-groups-table-permissions-column-layout.element.js";
 import "./elements/approval-groups-table-email-column-layout.element.js";
-import "./elements/approval-groups-table-entity-actions-column-layout.element.js";
 
 const elementName = "approval-groups-table";
 
 @customElement(elementName)
-export class ApprovalGroupsTableElement extends UmbElementMixin(LitElement) {
+export class ApprovalGroupsTableElement extends UmbLitElement {
   #collectionContext?: UmbDefaultCollectionContext<WorkflowApprovalGroupCollectionModel>;
+
+  @state()
+  private _loading = true;
 
   @state()
   private _tableConfig: UmbTableConfig = {
@@ -61,7 +61,7 @@ export class ApprovalGroupsTableElement extends UmbElementMixin(LitElement) {
     {
       name: "",
       alias: "entityActions",
-      elementName: "approval-groups-table-entity-actions-column-layout",
+      elementName: "base-table-entity-actions-column-layout",
     },
   ];
 
@@ -87,6 +87,11 @@ export class ApprovalGroupsTableElement extends UmbElementMixin(LitElement) {
       },
       "workflowApprovalGroupsCollectionItemsObserver"
     );
+
+    this.observe(
+      this.#collectionContext.loading,
+      (loading) => (this._loading = loading)
+    );
   }
 
   #createTableItems(result: Array<WorkflowApprovalGroupCollectionModel>) {
@@ -100,27 +105,26 @@ export class ApprovalGroupsTableElement extends UmbElementMixin(LitElement) {
               columnAlias: "groupName",
               value: {
                 name: userGroup.name,
-                key: userGroup.unique,
+                unique: userGroup.unique,
               },
             },
             {
               columnAlias: "membership",
               value: {
-                users: userGroup.users,
+                members: userGroup.members,
               },
             },
             {
               columnAlias: "permissions",
               value: {
                 permissions: userGroup.permissions,
-                languageCount: userGroup.languageCount,
               },
             },
             {
               columnAlias: "emailGroup",
               value: {
                 groupEmail: userGroup.groupEmail,
-                users: userGroup.users,
+                members: userGroup.members,
               },
             },
             {
@@ -133,7 +137,7 @@ export class ApprovalGroupsTableElement extends UmbElementMixin(LitElement) {
     );
   }
 
-  render() {
+  #renderTable() {
     return when(
       this._tableItems.length,
       () => html`
@@ -146,6 +150,14 @@ export class ApprovalGroupsTableElement extends UmbElementMixin(LitElement) {
       () => html`<div class="flex">
         ${this.localize.term("content_noItemsToShow")}
       </div>`
+    );
+  }
+
+  render() {
+    return when(
+      this._loading,
+      () => html`<uui-loader-bar></uui-loader-bar>`,
+      () => this.#renderTable()
     );
   }
 

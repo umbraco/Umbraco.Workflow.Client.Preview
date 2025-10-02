@@ -1,4 +1,4 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
   Chart,
   LineController,
@@ -6,7 +6,6 @@ import {
   BarElement,
   LineElement,
   PointElement,
-  TimeScale,
   LinearScale,
   CategoryScale,
   LogarithmicScale,
@@ -14,7 +13,7 @@ import {
   type ChartTypeRegistry,
 } from "chart.js";
 import {
-  LitElement,
+  css,
   property,
   query,
   state,
@@ -34,7 +33,9 @@ export type ChartHeaderCard = {
   static?: boolean;
 };
 
-export class ChartBaseElement extends UmbElementMixin(LitElement) {
+export abstract class ChartBaseElement extends UmbLitElement {
+  abstract getForRange(): void;
+
   @property()
   groupId?: string;
 
@@ -43,15 +44,15 @@ export class ChartBaseElement extends UmbElementMixin(LitElement) {
   }
 
   set range(value: number) {
-    this._range = value;
+    this.#range = value;
     this.getForRange();
   }
 
   get range() {
-    return this._range;
+    return this.#range;
   }
 
-  _range!: number;
+  #range!: number;
 
   @state()
   loaded = false;
@@ -82,7 +83,6 @@ export class ChartBaseElement extends UmbElementMixin(LitElement) {
       LineElement,
       CategoryScale,
       LogarithmicScale,
-      TimeScale,
       LinearScale,
       PointElement,
       Tooltip
@@ -96,8 +96,6 @@ export class ChartBaseElement extends UmbElementMixin(LitElement) {
       this.getForRange();
     }
   }
-
-  getForRange() {}
 
   /**
    *
@@ -125,7 +123,7 @@ export class ChartBaseElement extends UmbElementMixin(LitElement) {
    * @param {string} yAxisType - one of 'linear' or 'logarithmic'
    */
   drawChart = (yAxisType): void => {
-    if (!this.chartElement) {
+    if (!this.chartElement || !this.series) {
       this.loaded = true;
       return;
     }
@@ -134,11 +132,11 @@ export class ChartBaseElement extends UmbElementMixin(LitElement) {
 
     Chart.defaults.scale.grid.display = false;
 
-    this.earliest = new Date(this.series[0].data![0].x!);
+    this.earliest = new Date(this.series[0].data[0].x);
 
     const labels = this.series[0].data!.map((x) => {
-      const date = new Date(x.x!);
-      return date === this.now ? "𝗧𝗼𝗱𝗮𝘆" : x.x!; // unicode bold
+      const date = new Date(x.x);
+      return date === this.now ? "𝗧𝗼𝗱𝗮𝘆" : x.x; // unicode bold
     });
 
     this.series.forEach((s) => {
@@ -154,6 +152,11 @@ export class ChartBaseElement extends UmbElementMixin(LitElement) {
         interaction: {
           intersect: false,
           mode: "index",
+        },
+        plugins: {
+          tooltip: {
+            position: "nearest",
+          },
         },
         responsive: true,
         scales: {
@@ -175,4 +178,20 @@ export class ChartBaseElement extends UmbElementMixin(LitElement) {
 
     this.loaded = true;
   };
+
+  static styles = [
+    css`
+      #chartHeader {
+        display: flex;
+        gap: var(--uui-size-2);
+      }
+
+      #chartContainer {
+        position: relative;
+        height: 200px;
+        width: 100%;
+        margin-top: var(--uui-size-6);
+      }
+    `,
+  ];
 }

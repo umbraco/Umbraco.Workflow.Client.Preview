@@ -1,26 +1,26 @@
 import { UMB_COLLECTION_ALIAS_CONDITION } from "@umbraco-cms/backoffice/collection";
-import type { ManifestTypes } from "@umbraco-cms/backoffice/extension-registry";
-import { WORKFLOW_APPROVAL_GROUP_WORKSPACE_SHOW_CREATE_GROUP_CONDITION } from '../../conditions/manifests.js';
+import { WORKFLOW_APPROVALGROUP_COLLECTION_ALIAS } from "../constants.js";
+import { WORKFLOW_APPROVAL_GROUP_WORKSPACE_SHOW_CREATE_GROUP_CONDITION_ALIAS } from "../../conditions/constants.js";
 
-export const createManifest: ManifestTypes = {
-  type: "collectionAction",
-  kind: "button",
-  name: "Create Approval Group Collection Action",
-  alias: "Workflow.CollectionAction.ApprovalGroup.Create",
-  weight: 200,
-  meta: {
-    label: "#general_create",
-    href: "section/workflow/workspace/approval-group/create",
-  },
-  conditions: [
-    {
-      alias: UMB_COLLECTION_ALIAS_CONDITION,
-      match: "Umb.Workflow.Collection.ApprovalGroup",
+export const manifests: Array<UmbExtensionManifest> = [
+  {
+    type: "collectionAction",
+    kind: "button",
+    name: "Create Approval Group Collection Action",
+    alias: "Workflow.CollectionAction.ApprovalGroup.Create",
+    weight: 200,
+    meta: {
+      label: "#general_create",
+      href: "section/workflow/workspace/approval-group/create",
     },
-    {
-      alias: WORKFLOW_APPROVAL_GROUP_WORKSPACE_SHOW_CREATE_GROUP_CONDITION,
-    }
-  ],
-};
-
-export const manifests = [createManifest];
+    conditions: [
+      {
+        alias: UMB_COLLECTION_ALIAS_CONDITION,
+        match: WORKFLOW_APPROVALGROUP_COLLECTION_ALIAS,
+      },
+      {
+        alias: WORKFLOW_APPROVAL_GROUP_WORKSPACE_SHOW_CREATE_GROUP_CONDITION_ALIAS,
+      },
+    ],
+  },
+];

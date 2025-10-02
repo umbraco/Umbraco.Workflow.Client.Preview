@@ -8,23 +8,25 @@ export class WorkflowStatusFilterElement extends WorkflowBaseFilterElement<
   Array<number>
 > {
   #removeArrayValue(idx: number) {
-    this.value?.splice(idx, 1);
+    this.value = this.value ?? [];
+    this.value = [...this.value.slice(0, idx), ...this.value.slice(idx + 1)];
     this.setValue(this.value ?? []);
-    this.requestUpdate("value");
   }
 
   #updateArrayValue(e: InputEvent, idx: number) {
-    if (!this.value) {
-      this.value = [];
-    }
+    this.value = this.value ?? [];
 
-    this.value[idx] = Number((e.target as HTMLInputElement).value);
+    this.value = [
+      ...this.value.slice(0, idx),
+      Number((e.target as HTMLInputElement).value),
+      ...this.value.slice(idx + 1),
+    ];
+
     this.setValue(this.value);
   }
 
   #addStatus() {
-    this.value?.push(0);
-    this.requestUpdate("value");
+    this.value = this.value ? [...this.value, 0] : [0];
   }
 
   render() {

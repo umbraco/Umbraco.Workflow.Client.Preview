@@ -35,7 +35,7 @@ export class Sorter {
     this.callback();
   }
 
-  get sortDirectionString(): string {
+  get sortDirectionString(): "asc" | "desc" {
     return this.sortDirections[this.sortBy] === SortDirection.ASC
       ? "asc"
       : "desc";

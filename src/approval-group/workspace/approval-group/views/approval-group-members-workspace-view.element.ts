@@ -5,24 +5,23 @@ import {
   state,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/extension-registry";
-import { tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
+import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/workspace";
+import { tryExecute } from "@umbraco-cms/backoffice/resources";
 import type { UmbUserInputElement } from "@umbraco-cms/backoffice/user";
-import { WorkflowApprovalGroupWorkspaceViewBase } from "./approval-group-workspace-view-base.element.js";
+import { WorkflowApprovalGroupWorkspaceViewBaseElement } from "./approval-group-workspace-view-base.element.js";
 import { ApprovalGroupService } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-approval-group-history-workspace-view";
 
 @customElement(elementName)
 export class ApprovalGroupHistoryWorkspaceViewElement
-  extends WorkflowApprovalGroupWorkspaceViewBase
+  extends WorkflowApprovalGroupWorkspaceViewBaseElement
   implements UmbWorkspaceViewElement
 {
   @state()
   private _inheritedMembers?: Array<{
-    userId: string;
-    userName?: string;
-    username?: string | null;
+    userUnique: string;
+    userName?: string | null;
     disabled?: boolean;
   }> = [];
 
@@ -51,10 +50,12 @@ export class ApprovalGroupHistoryWorkspaceViewElement
       return;
     }
 
-    const { data } = await tryExecuteAndNotify(
+    const { data } = await tryExecute(
       this,
       ApprovalGroupService.getApprovalGroupInheritedMembers({
-        ids: this._group.inheritMembers,
+        query: {
+          ids: this._group.inheritMembers,
+        },
       })
     );
 
@@ -64,7 +65,7 @@ export class ApprovalGroupHistoryWorkspaceViewElement
     // finally, if the user is explicitly added, update ui to show as disabled;
     this._inheritedMembers.forEach((u) => {
       u.disabled = this._group?.users.some(
-        (x) => x.userId === u.userId && !x.inherited
+        (x) => x.userUnique === u.userUnique && !x.inherited
       );
     });
   }
@@ -73,11 +74,11 @@ export class ApprovalGroupHistoryWorkspaceViewElement
     const selection = (e.target as UmbUserInputElement).selection;
 
     this._inheritedMembers?.forEach((x) => {
-      x.disabled = selection.includes(x.userId);
+      x.disabled = selection.includes(x.userUnique);
     });
 
     this.workspaceContext?.set({
-      users: selection.map((x) => ({ userId: x, inherited: false })),
+      users: selection.map((x) => ({ userUnique: x, inherited: false })),
     });
 
     this.requestUpdate();
@@ -96,7 +97,7 @@ export class ApprovalGroupHistoryWorkspaceViewElement
           @change=${this.#onUserSelectionChange}
           .selection=${this._group?.users
             .filter((x) => !x.inherited)
-            .map((u) => u.userId) ?? []}
+            .map((u) => u.userUnique) ?? []}
         ></umb-user-input>
       </uui-box>
       <uui-box .headline=${this.localize.term("workflow_inheritedMembership")}>
@@ -110,7 +111,7 @@ export class ApprovalGroupHistoryWorkspaceViewElement
             ${this._inheritedMembers?.map(
               (x) =>
                 html`<uui-ref-node-user
-                  .name=${x.userName ?? x.username ?? ""}
+                  .name=${x.userName ?? ""}
                   ?disabled=${x.disabled ?? false}
                 ></uui-ref-node-user>`
             )}

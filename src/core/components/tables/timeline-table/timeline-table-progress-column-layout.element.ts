@@ -1,24 +1,25 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
   nothing,
   property,
 } from "@umbraco-cms/backoffice/external/lit";
-import type { WorkflowInstanceResponseModel } from "@umbraco-workflow/generated";
+import type { TableColumnLayout } from '../table-column-layout.interface.js';
+import type { WorkflowInstanceTableResponseModel } from "@umbraco-workflow/generated";
 
 const elementName = "timeline-table-progress-column-layout";
 
 export const TIMELINE_TABLE_PROGRESS_COLUMN_LAYOUT = elementName;
 
 @customElement(elementName)
-export class TimelineTableProgressColumnLayoutElement extends UmbElementMixin(
-  LitElement
-) {
+export class TimelineTableProgressColumnLayoutElement
+  extends UmbLitElement
+  implements TableColumnLayout<WorkflowInstanceTableResponseModel>
+{
   @property({ attribute: false })
-  value!: WorkflowInstanceResponseModel;
+  value!: WorkflowInstanceTableResponseModel;
 
   render() {
     if (!this.value) return nothing;

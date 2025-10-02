@@ -1,86 +1,78 @@
-import type {
-  ManifestWorkspaces,
-  ManifestWorkspaceAction,
-  ManifestWorkspaceViews,
-  ManifestTypes,
-} from "@umbraco-cms/backoffice/extension-registry";
-import { UmbSaveWorkspaceAction } from "@umbraco-cms/backoffice/workspace";
+import {
+  UmbSubmitWorkspaceAction,
+  UMB_WORKSPACE_CONDITION_ALIAS,
+} from "@umbraco-cms/backoffice/workspace";
+import { WORKFLOW_SETTINGS_ENTITY_TYPE, WORKFLOW_SETTINGS_WORKSPACE_ALIAS } from "../constants.js";
 import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT_ALIAS } from "./settings-workspace.context-token.js";
 
-export const WORKFLOW_SETTINGS_WORKSPACE_ALIAS = "Workflow.Workspace.Settings";
-
-const workspace: ManifestWorkspaces = {
-  type: "workspace",
-  kind: "routable",
-  alias: WORKFLOW_SETTINGS_WORKSPACE_ALIAS,
-  name: "Workflow Settings Workspace",
-  api: () => import("./settings-workspace.context.js"),
-  meta: {
-    entityType: "workflow-settings",
-  },
-};
-
-const context: ManifestTypes = {
-  type: "workspaceContext",
-  name: "Workflow Settings Workspace Context",
-  alias: WORKFLOW_SETTINGS_WORKSPACE_CONTEXT_ALIAS,
-  api: () => import('./settings-workspace.context.js'),
-  conditions: [
-    {
-      alias: "Umb.Condition.WorkspaceAlias",
-      match: WORKFLOW_SETTINGS_WORKSPACE_ALIAS,
+export const manifests: Array<UmbExtensionManifest> = [
+  {
+    type: "workspace",
+    kind: "routable",
+    alias: WORKFLOW_SETTINGS_WORKSPACE_ALIAS,
+    name: "Workflow Settings Workspace",
+    weight: 100,
+    api: () => import("./settings-workspace.context.js"),
+    meta: {
+      entityType: WORKFLOW_SETTINGS_ENTITY_TYPE,
     },
-  ],
-};
-
-const workspaceViews: Array<ManifestWorkspaceViews> = [
+  },
+  {
+    type: "workspaceContext",
+    name: "Workflow Settings Workspace Context",
+    alias: WORKFLOW_SETTINGS_WORKSPACE_CONTEXT_ALIAS,
+    api: () => import("./settings-workspace.context.js"),
+    conditions: [
+      {
+        alias: UMB_WORKSPACE_CONDITION_ALIAS,
+        match: WORKFLOW_SETTINGS_WORKSPACE_ALIAS,
+      },
+    ],
+  },
   {
     type: "workspaceView",
-    alias: `Umb.WorkspaceView.Workflow.Settings.General`,
+    alias: `Workflow.WorkspaceView.Settings.General`,
     name: `Workflow Settings Workspace General Settings View`,
     element: () =>
       import("./views/settings-settings-workspace-view.element.js"),
     weight: 90,
     meta: {
-      label: "General",
+      label: "#general_general",
       pathname: "general",
       icon: "settings",
     },
     conditions: [
       {
-        alias: "Umb.Condition.WorkspaceAlias",
+        alias: UMB_WORKSPACE_CONDITION_ALIAS,
         match: WORKFLOW_SETTINGS_WORKSPACE_ALIAS,
       },
     ],
   },
   {
     type: "workspaceView",
-    alias: `Umb.WorkspaceView.Workflow.Settings.Notifications`,
+    alias: `Workflow.WorkspaceView.Settings.Notifications`,
     name: `Workflow Settings Workspace Notifications Settings View`,
     element: () =>
       import("./views/settings-notifications-workspace-view.element.js"),
     weight: 90,
     meta: {
-      label: "Notifications",
+      label: "#workflow_notifications",
       pathname: "notifications",
       icon: "icon-message",
     },
     conditions: [
       {
-        alias: "Umb.Condition.WorkspaceAlias",
+        alias: UMB_WORKSPACE_CONDITION_ALIAS,
         match: WORKFLOW_SETTINGS_WORKSPACE_ALIAS,
       },
     ],
   },
-];
-
-const workspaceActions: Array<ManifestWorkspaceAction> = [
   {
     type: "workspaceAction",
     kind: "default",
     alias: "Workflow.WorkspaceAction.Settings.Save",
     name: "Save Settings Workspace Action",
-    api: UmbSaveWorkspaceAction,
+    api: UmbSubmitWorkspaceAction,
     meta: {
       look: "primary",
       color: "positive",
@@ -88,11 +80,9 @@ const workspaceActions: Array<ManifestWorkspaceAction> = [
     },
     conditions: [
       {
-        alias: "Umb.Condition.WorkspaceAlias",
+        alias: UMB_WORKSPACE_CONDITION_ALIAS,
         match: WORKFLOW_SETTINGS_WORKSPACE_ALIAS,
       },
     ],
   },
 ];
-
-export const manifests = [workspace, ...workspaceViews, ...workspaceActions, context];

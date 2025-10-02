@@ -1,7 +1,6 @@
-import type { ManifestModal } from "@umbraco-cms/backoffice/extension-registry";
 import { WORKFLOW_EMAIL_SENDTO_MODAL_ALIAS } from "./index.js";
 
-const modalManifests: Array<ManifestModal> = [
+export const manifests: Array<UmbExtensionManifest> = [
   {
     type: "modal",
     alias: WORKFLOW_EMAIL_SENDTO_MODAL_ALIAS,
@@ -9,5 +8,3 @@ const modalManifests: Array<ManifestModal> = [
     js: () => import("./modal/workflow-email-sendto-modal.element.js"),
   },
 ];
-
-export const manifests = [...modalManifests];

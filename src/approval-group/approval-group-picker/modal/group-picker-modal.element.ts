@@ -11,14 +11,14 @@ import {
   UmbSelectedEvent,
   UmbDeselectedEvent,
 } from "@umbraco-cms/backoffice/event";
-import {
-  WorkflowApprovalGroupCollectionRepository,
-  type WorkflowApprovalGroupCollectionModel,
-} from "@umbraco-workflow/approval-group";
 import type {
   WorkflowGroupPickerModalData,
   WorkflowGroupPickerModalResult,
 } from "./group-picker-modal.token.js";
+import {
+  WorkflowApprovalGroupCollectionRepository,
+  type WorkflowApprovalGroupCollectionModel,
+} from "@umbraco-workflow/approval-group";
 
 const elementName = "workflow-group-picker-modal-element";
 
@@ -85,15 +85,6 @@ export class WorkflowGroupPickerModalElement extends UmbModalBaseElement<
     this.modalContext?.dispatchEvent(new UmbDeselectedEvent(item.unique));
   }
 
-  #onSubmit() {
-    const selection = this.#selectionManager.getSelection();
-    this.updateValue({
-      selection,
-      selectedItems: this._groups?.filter((g) => selection.includes(g.unique)),
-    });
-    this._submitModal();
-  }
-
   render() {
     return html`
       <umb-body-layout
@@ -112,7 +103,7 @@ export class WorkflowGroupPickerModalElement extends UmbModalBaseElement<
                 ?selected=${this.#selectionManager.isSelected(item.unique)}
               >
                 <umb-icon
-                  .name=${item.icon ? `icon-${item.icon}` : undefined}
+                  .name=${item.icon ?? "icon-users"}
                   slot="icon"
                 ></umb-icon>
               </uui-menu-item>
@@ -128,7 +119,7 @@ export class WorkflowGroupPickerModalElement extends UmbModalBaseElement<
             label=${this.localize.term("general_submit")}
             look="primary"
             color="positive"
-            @click=${this.#onSubmit}
+            @click=${this._submitModal}
           ></uui-button>
         </div>
       </umb-body-layout>

@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
@@ -9,9 +8,7 @@ import {
 const elementName = "workflow-workspace-config";
 
 @customElement(elementName)
-export class WorkflowWorkspaceConfigElement extends UmbElementMixin(
-  LitElement
-) {
+export class WorkflowWorkspaceConfigElement extends UmbLitElement {
   render() {
     return html` <workflow-config-content></workflow-config-content>
 

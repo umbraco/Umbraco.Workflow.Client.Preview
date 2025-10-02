@@ -1,11 +1,11 @@
-import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/extension-registry";
+import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/workspace";
 import {
   customElement,
   html,
   unsafeHTML,
 } from "@umbraco-cms/backoffice/external/lit";
 import { WorkflowSettingsWorkspaceViewBase } from "./settings-workspace-view-base.element.js";
-import { WorkspaceWithSettingsViewBase } from "@umbraco-workflow/core";
+import { WorkspaceWithSettingsViewBaseElement } from "@umbraco-workflow/core";
 
 const elementName = "workflow-settings-notifications-workspace-view";
 
@@ -38,14 +38,14 @@ export class WorkflowSettingsNotificationsViewElement
               ${this.localize.term("workflow_emailTemplates")}
               <small
                 >${unsafeHTML(
-                  this.localize.term("workflow_sendToDescription")
+                  this.localize.term("workflow_settings_sendToDescription")
                 )}</small
               >
             </div>
             <workflow-email-templates></workflow-email-templates>
 
             <p>
-              ${this.localize.term("workflow_installEmailTemplatesDescription")}
+              ${this.localize.term("workflow_settings_installEmailTemplatesDescription")}
             </p>
             <uui-button
               look="secondary"
@@ -53,14 +53,14 @@ export class WorkflowSettingsNotificationsViewElement
               label="Install"
               @click=${this.#installTemplates}
             >
-              ${this.localize.term("workflow_installEmailTemplates")}
+              ${this.localize.term("workflow_settings_installEmailTemplates")}
             </uui-button>
           </uui-box>
         </div>
       </div>`;
   }
 
-  static styles = [...WorkspaceWithSettingsViewBase.styles];
+  static styles = [...WorkspaceWithSettingsViewBaseElement.styles];
 }
 
 export default WorkflowSettingsNotificationsViewElement;

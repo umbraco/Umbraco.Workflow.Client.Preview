@@ -9,16 +9,17 @@ import {
 } from "@umbraco-cms/backoffice/observable-api";
 import type { UmbControllerHostElement } from "@umbraco-cms/backoffice/controller-api";
 import { WorkflowSettingsRepository } from "../repository/settings.repository.js";
-import type { SettingsAliasType, SettingsSectionType } from "../types.js";
+import { WORKFLOW_SETTINGS_ENTITY_TYPE, WORKFLOW_SETTINGS_WORKSPACE_ALIAS } from "../constants.js";
 import { WorkflowSettingsEditorElement } from "./settings-editor.element.js";
-import { WORKFLOW_SETTINGS_WORKSPACE_ALIAS } from "./manifests.js";
 import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "./settings-workspace.context-token.js";
 import {
+  ApprovalThresholdModel,
   type GeneralSettingsModel,
   type NotificationsSettingsModel,
   type SettingsPropertyDisplayModel,
   type WorkflowSettingsPropertiesModel,
 } from "@umbraco-workflow/generated";
+import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
 export class WorkflowSettingsWorkspaceContext
   extends UmbSubmittableWorkspaceContextBase<WorkflowSettingsPropertiesModel>
@@ -27,12 +28,12 @@ export class WorkflowSettingsWorkspaceContext
   public readonly IS_WORKFLOW_SETTINGS_WORKSPACE_CONTEXT = true;
   private readonly repository = new WorkflowSettingsRepository(this);
 
-  // only requires a value to ensure save button is enabled
-  #unique = new UmbObjectState<string>("workflow-settings");
+  readonly #configureApprovalThreshold = "configureApprovalThreshold";
+  readonly #approvalThreshold = "approvalThreshold";
 
-  #data = new UmbObjectState<WorkflowSettingsPropertiesModel | undefined>(
-    undefined
-  );
+  // only requires a value to ensure save button is enabled
+  #unique = new UmbObjectState<string>(WORKFLOW_SETTINGS_ENTITY_TYPE);
+
   #generalSettings = new UmbObjectState<GeneralSettingsModel | undefined>(
     undefined
   );
@@ -44,9 +45,11 @@ export class WorkflowSettingsWorkspaceContext
   generalSettings = this.#generalSettings.asObservable();
   notificationsSettings = this.#notificationsSettings.asObservable();
 
-  // TODO: this is a temp solution to bubble validation errors to the UI
-  #validationErrors = new UmbObjectState<unknown | undefined>(undefined);
-  validationErrors = this.#validationErrors.asObservable();
+  documentTypeApprovalFlows = this.#generalSettings.asObservablePart(x => x?.documentTypeApprovalFlows);
+  newNodeApprovalFlow = this.#generalSettings.asObservablePart(x => x?.newNodeApprovalFlow);
+
+  configureApprovalThreshold = false;
+  defaultApprovalThreshold = ApprovalThresholdModel.ONE;
 
   constructor(host: UmbControllerHostElement) {
     super(host, WORKFLOW_SETTINGS_WORKSPACE_ALIAS);
@@ -61,31 +64,56 @@ export class WorkflowSettingsWorkspaceContext
         },
       },
     ]);
+
+    this.consumeContext(WORKFLOW_CONTEXT, (context) => {
+      const globalVariables = context?.getVariables();
+      if (!globalVariables) return;
+
+      this.configureApprovalThreshold =
+        globalVariables.configureApprovalThreshold;
+      this.defaultApprovalThreshold =
+        globalVariables.defaultApprovalThreshold;
+    });
   }
 
   async load() {
     const { data } = await this.repository.read();
     if (data) {
-      this.#data.update(data);
       this.#generalSettings.update(data.generalSettings);
       this.#notificationsSettings.update(data.notificationsSettings);
     }
   }
 
   getData() {
-    return this.#data.getValue();
+    return undefined;
   }
 
   getEntityType() {
-    return "workflow-settings";
+    return WORKFLOW_SETTINGS_ENTITY_TYPE;
   }
 
   getUnique() {
     return this.#unique.getValue();
   }
 
-  set(value: Record<string, unknown>) {
-    this.#data.update(value);
+  getConfigureApprovalThreshold() {
+    return (
+      <boolean>(
+        this.#generalSettings
+          .getValue()
+          ?.properties?.find(
+            (x) => x.alias === this.#configureApprovalThreshold
+          )?.value
+      ) ?? this.configureApprovalThreshold
+    );
+  }
+
+  getDefaultApprovalThreshold() {
+    const prop = this.#generalSettings
+      .getValue()
+      ?.properties?.find((x) => x.alias === this.#approvalThreshold);
+
+    return (prop?.value ?? this.defaultApprovalThreshold) as ApprovalThresholdModel;
   }
 
   #setPropertyValue(
@@ -109,48 +137,43 @@ export class WorkflowSettingsWorkspaceContext
 
   setValue(
     value: unknown,
-    alias: SettingsAliasType,
-    sectionAlias: SettingsSectionType
+    alias: keyof GeneralSettingsModel | keyof NotificationsSettingsModel,
+    sectionAlias: keyof WorkflowSettingsPropertiesModel
   ) {
+    const section =
+      sectionAlias === "generalSettings"
+        ? this.#generalSettings
+        : this.#notificationsSettings;
+    if (!section) return;
+
+    // setPropertyValue looks up by alias
     const property = this.#setPropertyValue(
-      [this.getData()?.[sectionAlias]![alias]],
+      [{ ...section.getValue()?.[alias], ...{ alias } }],
       value,
       alias
     )[0];
 
-    const newValue = { [alias]: property };
-
-    if (sectionAlias === "generalSettings") {
-      this.#generalSettings.update(newValue);
-      this.#data.update({ generalSettings: this.#generalSettings.getValue() });
-    } else {
-      this.#notificationsSettings.update(newValue);
-      this.#data.update({
-        notificationsSettings: this.#notificationsSettings.getValue(),
-      });
-    }
+    section.update({ [alias]: property });
   }
 
   setPropertyValue(
     value: unknown,
     alias: string,
-    sectionAlias: SettingsSectionType
+    sectionAlias: keyof WorkflowSettingsPropertiesModel
   ) {
+    const section =
+      sectionAlias === "generalSettings"
+        ? this.#generalSettings
+        : this.#notificationsSettings;
+    if (!section) return;
+
     const properties = this.#setPropertyValue(
-      this.getData()?.[sectionAlias]?.properties ?? [],
+      section.getValue()?.properties ?? [],
       value,
       alias
     );
 
-    if (sectionAlias === "generalSettings") {
-      this.#generalSettings.update({ properties });
-      this.#data.update({ generalSettings: this.#generalSettings.getValue() });
-    } else {
-      this.#notificationsSettings.update({ properties });
-      this.#data.update({
-        notificationsSettings: this.#notificationsSettings.getValue(),
-      });
-    }
+    section.update({ properties });
   }
 
   async installEmailTemplates() {
@@ -158,13 +181,10 @@ export class WorkflowSettingsWorkspaceContext
   }
 
   async submit() {
-    const data = this.getData();
-    if (!data) return;
-    await this.repository.save(data);
-  }
-
-  destroy(): void {
-    super.destroy();
+    await this.repository.save({
+      generalSettings: this.#generalSettings.getValue()!,
+      notificationsSettings: this.#notificationsSettings.getValue()!,
+    });
   }
 }
 

@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   customElement,
   html,
   nothing,
@@ -10,20 +9,18 @@ import {
 const elementName = "approval-groups-table-name-column-layout";
 
 @customElement(elementName)
-export class ApprovalGroupsTableNameColumnLayoutElement extends UmbElementMixin(
-  LitElement
-) {
+export class ApprovalGroupsTableNameColumnLayoutElement extends UmbLitElement {
   @property({ attribute: false })
   value!: {
     name: string;
-    key: string;
+    unique: string;
   };
 
   render() {
     if (!this.value) return nothing;
 
     return html`<a
-      href="section/workflow/workspace/approval-group/edit/${this.value.key}"
+      href="section/workflow/workspace/approval-group/edit/${this.value.unique}"
       >${this.value.name}</a
     >`;
   }
@@ -34,3 +31,5 @@ declare global {
     [elementName]: ApprovalGroupsTableNameColumnLayoutElement;
   }
 }
+
+export default ApprovalGroupsTableNameColumnLayoutElement;

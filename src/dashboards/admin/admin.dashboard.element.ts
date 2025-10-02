@@ -1,52 +1,51 @@
 import {
-  LitElement,
   css,
   customElement,
   html,
   state,
+  unsafeHTML,
+  when,
 } from "@umbraco-cms/backoffice/external/lit";
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import type { UUIInputElement } from "@umbraco-cms/backoffice/external/uui";
-import type { PackageVersionModel } from "@umbraco-workflow/generated";
+import { type PackageVersionModel } from "@umbraco-workflow/generated";
+import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
 const elementName = "workflow-admin-dashboard";
 
 @customElement(elementName)
-export class AdminDashboardElement extends UmbElementMixin(LitElement) {
-  // TODO => populate this!
-  version?: PackageVersionModel;
+export class AdminDashboardElement extends UmbLitElement {
+  @state()
+  private _version?: PackageVersionModel;
 
   @state()
-  chartRange = 28;
+  private _licensed = false;
 
   @state()
-  reviewsChartRange = 28;
+  private _chartRange = 28;
+
+  @state()
+  private _reviewsChartRange = 28;
+
+  async connectedCallback() {
+    super.connectedCallback();
+
+    this.consumeContext(WORKFLOW_CONTEXT, (context) => {
+      this._licensed = context?.getLicense()?.isLicensed ?? false;
+      this._version = context?.getVersion() ?? undefined;
+    });
+  }
 
   #updateChartRange($event: CustomEvent) {
-    this.chartRange = Number(($event.target as UUIInputElement).value);
+    this._chartRange = Number(($event.target as UUIInputElement).value);
   }
 
   #updateReviewsChartRange($event: CustomEvent) {
-    this.reviewsChartRange = Number(($event.target as UUIInputElement).value);
+    this._reviewsChartRange = Number(($event.target as UUIInputElement).value);
   }
 
-  #packageModal = () => {
-    // TODO => ServerVars?
-    // const marketplaceUrl = new URL(
-    //   "Umbraco.Sys.ServerVariables.umbracoUrls.marketplaceUrl"
-    // ).origin;
-    // this.editorService.open({
-    //   view: `${Umbraco.Sys.ServerVariables.UmbracoWorkflow.viewsPath}overlays/iframe.overlay.html`,
-    //   url: `${marketplaceUrl}/embed/umbraco.workflow`,
-    //   submitButtonLabelKey: 'general_close',
-    //   size: constants.sizes.l,
-    //   submit: () => this.editorService.close(),
-    //   close: () => this.editorService.close(),
-    // });
-  };
-
   #renderOutOfDate() {
-    if (!this.version?.outOfDate) return null;
+    if (!this._version?.outOfDate) return null;
 
     return html`<div>
       <div class="alert alert-info flex items-center">
@@ -60,17 +59,6 @@ export class AdminDashboardElement extends UmbElementMixin(LitElement) {
             >Workflow is out of date.</umb-localize
           >
         </div>
-
-        <button
-          type="button"
-          @click=${() => this.#packageModal()}
-          class="btn btn-info ml-auto"
-        >
-          <umb-localize key="workflow_learnMoreAbout"
-            >Learn more about</umb-localize
-          >
-          v${this.version.latestVersion}
-        </button>
       </div>
     </div>`;
   }
@@ -82,12 +70,12 @@ export class AdminDashboardElement extends UmbElementMixin(LitElement) {
         </div>
         <workflow-day-range
           slot="header-actions"
-          .value=${this.chartRange}
+          .value=${this._chartRange}
           @change=${this.#updateChartRange}
         ></workflow-day-range>
       </div>
       <workflow-activity-chart
-        .range=${this.chartRange}
+        .range=${this._chartRange}
       ></workflow-activity-chart>
     </uui-box>`;
   }
@@ -99,34 +87,37 @@ export class AdminDashboardElement extends UmbElementMixin(LitElement) {
       </div>
       <workflow-day-range
         slot="header-actions"
+        .value=${this._reviewsChartRange}
         @change=${this.#updateReviewsChartRange}
-        [min]="7"
       ></workflow-day-range>
       <content-reviews-chart
-        .range=${this.reviewsChartRange}
+        .range=${this._reviewsChartRange}
       ></content-reviews-chart>
     </uui-box>`;
   }
 
   #renderVersion() {
-    if (!this.version) return null;
+    if (!this._version) return null;
 
     return html`
-      <div class="mt-5">
-        <p>
-          <umb-localize key="workflow_installedVersion"
-            >Current installed version of Umbraco Workflow:</umb-localize
-          >
-          <strong>${this.version.installedVersion}</strong>
-        </p>
+      <div id="version">
+        ${unsafeHTML(
+          this.localize.term(
+            "workflow_installedVersion",
+            this._version.installedVersion
+          )
+        )}
       </div>
     `;
   }
 
   render() {
-    return html`<workflow-license-box></workflow-license-box
-      >${this.#renderOutOfDate()} ${this.#renderWorkflowChart()}
-      ${this.#renderReviewsChart()} ${this.#renderVersion()}`;
+    return html`${when(
+      !this._licensed,
+      () => html`<workflow-license-box></workflow-license-box>`
+    )}${this.#renderOutOfDate()}
+    ${this.#renderWorkflowChart()} ${this.#renderReviewsChart()}
+    ${this.#renderVersion()}`;
   }
 
   static styles = [
@@ -136,6 +127,7 @@ export class AdminDashboardElement extends UmbElementMixin(LitElement) {
         padding: var(--uui-size-layout-1);
       }
 
+      #version,
       workflow-license-box:not([style]) + *,
       uui-box + * {
         margin-top: var(--uui-size-layout-1);

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<language alias="da" intName="Danish" localName="dansk" lcid="6" culture="da-DK">
+  <area alias="workflow">
+    <key alias="changeDescription">Skift beskrivelse</key>
+    <key alias="changeDescriptionDetail">%0% efterspurgt af %1% på %2% på %3%</key>
+    <key alias="summary">Resumé</key>
+    <key alias="currentStatus">Nuværende status</key>
+    <key alias="stage">Etape</key>
+    <key alias="by">ved</key>
+    <key alias="at">på</key>
+    <key alias="on">på</key>
+    <key alias="comment">Kommentar</key>
+
+    <key alias="status1">Godkendt</key>
+    <key alias="status2">Afvist</key>
+    <key alias="status3">Afventer godkendelse</key>
+    <key alias="status4">Ikke påkrævet</key>
+    <key alias="status5">Aflyst</key>
+    <key alias="status6">Der opstod en fejl</key>
+    <key alias="status7">Genindsendt</key>
+    <key alias="status8">Annulleret af tredjepart</key>
+    <key alias="status9">Udelukket</key>
+    <key alias="status10">Venter på genindsendelse</key>
+
+    <key alias="approved">Godkendt</key>
+    <key alias="rejected">Afvist</key>
+    <key alias="pendingapproval">Afventer godkendelse</key>
+    <key alias="notrequired">Ikke påkrævet</key>
+    <key alias="cancelled">Aflyst</key>
+    <key alias="errored">Der opstod en fejl</key>
+    <key alias="resubmitted">Genindsendt</key>
+    <key alias="cancelledbythirdparty">Annulleret af tredjepart</key>
+    <key alias="excluded">Udelukket</key>
+    <key alias="awaitingresubmission">Venter på genindsendelse</key>
+</area>
+</language>

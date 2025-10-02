@@ -5,15 +5,15 @@ import type {
 } from "@umbraco-cms/backoffice/property";
 import { observeMultiple } from "@umbraco-cms/backoffice/observable-api";
 import { WORKFLOW_SETTINGS_WORKSPACE_CONTEXT } from "../settings-workspace.context-token.js";
-import type { SettingsSectionType } from "../../types.js";
-import { WorkspaceWithSettingsViewBase } from "@umbraco-workflow/core";
+import { WorkspaceWithSettingsViewBaseElement } from "@umbraco-workflow/core";
 import type {
   GeneralSettingsModel,
   NotificationsSettingsModel,
   SettingsPropertyDisplayModel,
+  WorkflowSettingsPropertiesModel,
 } from "@umbraco-workflow/generated";
 
-export class WorkflowSettingsWorkspaceViewBase extends WorkspaceWithSettingsViewBase {
+export class WorkflowSettingsWorkspaceViewBase extends WorkspaceWithSettingsViewBaseElement {
   workspaceContext?: typeof WORKFLOW_SETTINGS_WORKSPACE_CONTEXT.TYPE;
 
   @state()
@@ -42,7 +42,7 @@ export class WorkflowSettingsWorkspaceViewBase extends WorkspaceWithSettingsView
     });
   }
 
-  onDataChange(e: Event, sectionAlias: SettingsSectionType) {
+  onDataChange(e: Event, sectionAlias: keyof WorkflowSettingsPropertiesModel) {
     const newValue = (e.target as UmbPropertyDatasetElement).value;
     (sectionAlias === "generalSettings"
       ? this._generalSettings
@@ -57,16 +57,19 @@ export class WorkflowSettingsWorkspaceViewBase extends WorkspaceWithSettingsView
   }
 
   renderPropertyDataSet(
-    alias: SettingsSectionType,
+    alias: keyof WorkflowSettingsPropertiesModel,
     value?: Array<SettingsPropertyDisplayModel>
   ) {
     return html` <umb-property-dataset
+      id="main"
       .value=${value as Array<UmbPropertyValueData>}
       @change=${(e: Event) => this.onDataChange(e, alias)}
     >
       ${value?.map(
         (p) =>
           html`<umb-property
+            ?inert=${p.readonly}
+            ?hidden=${p.hidden}
             .label=${this.localize.term(p.label)}
             .description=${this.localize.term(`${p.label}Description`)}
             .config=${p.config}

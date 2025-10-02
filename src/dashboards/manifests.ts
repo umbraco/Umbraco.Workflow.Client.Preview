@@ -1,20 +1,20 @@
-import type { ManifestDashboard } from "@umbraco-cms/backoffice/extension-registry";
+import { UMB_CONTENT_SECTION_ALIAS } from "@umbraco-cms/backoffice/content";
+import { WORKFLOW_SECTION_ALIAS } from '../constants.js';
 
-const dashboards: Array<ManifestDashboard> = [
+export const manifests: Array<UmbExtensionManifest> = [
   {
     type: "dashboard",
     alias: "workflow.admin.dashboard",
     name: "Workflow Admin Dashboard",
-    elementName: "workflow-admin-dashboard",
     element: () => import("./admin/admin.dashboard.element.js"),
     meta: {
-      label: "Admin",
+      label: "#workflow_admin",
       pathname: "admin",
     },
     conditions: [
       {
         alias: "Umb.Condition.SectionAlias",
-        match: "Umb.Section.Workflow",
+        match: WORKFLOW_SECTION_ALIAS,
       },
     ],
   },
@@ -22,20 +22,17 @@ const dashboards: Array<ManifestDashboard> = [
     type: "dashboard",
     alias: "workflow.editor.dashboard",
     name: "Workflow Editor Dashboard",
-    elementName: "workflow-editor-dashboard",
     weight: 1000,
-    element: () => import("./editor.dashboard.element.js"),
+    element: () => import("./editor/editor.dashboard.element.js"),
     meta: {
-      label: "Workflow",
+      label: "#workflow_workflow",
       pathname: "workflow",
     },
     conditions: [
       {
         alias: "Umb.Condition.SectionAlias",
-        match: "Umb.Section.Content",
+        match: UMB_CONTENT_SECTION_ALIAS,
       },
     ],
   },
 ];
-
-export const manifests = [...dashboards];

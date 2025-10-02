@@ -1,26 +1,16 @@
-import type { ManifestRepository } from "@umbraco-cms/backoffice/extension-registry";
-import { WorkflowContentReviewsRepository } from "./content-reviews.repository.js";
-import { ContentReviewsStore } from "./content-reviews.store.js";
-import type { ManifestWorkflowObjectStore } from "@umbraco-workflow/repository";
+import { WORKFLOW_CONTENTREVIEWS_REPOSITORY_ALIAS, WORKFLOW_CONTENTREVIEWS_STORE_ALIAS } from "./constants.js";
 
-export const WORKFLOW_CONTENTREVIEWS_REPOSITORY_ALIAS =
-  "Workflow.Repository.ContentReviews";
-
-export const WORKFLOW_CONTENTREVIEWS_STORE_ALIAS =
-  "Workflow.Store.ContentReviews";
-
-const repository: ManifestRepository = {
-  type: "repository",
-  alias: WORKFLOW_CONTENTREVIEWS_REPOSITORY_ALIAS,
-  name: "Workflow Content Reviews Repository",
-  api: WorkflowContentReviewsRepository,
-};
-
-const store: ManifestWorkflowObjectStore = {
-  type: "workflowObjectStore",
-  alias: WORKFLOW_CONTENTREVIEWS_STORE_ALIAS,
-  name: "Workflow Content Reviews Settings Store",
-  api: ContentReviewsStore,
-};
-
-export const manifests = [repository, store];
+export const manifests: Array<UmbExtensionManifest> = [
+  {
+    type: "repository",
+    alias: WORKFLOW_CONTENTREVIEWS_REPOSITORY_ALIAS,
+    name: "Workflow Content Reviews Repository",
+    api: () => import("./content-reviews.repository.js"),
+  },
+  {
+    type: "workflowObjectStore",
+    alias: WORKFLOW_CONTENTREVIEWS_STORE_ALIAS,
+    name: "Workflow Content Reviews Settings Store",
+    api: () => import("./content-reviews.store.js"),
+  },
+];

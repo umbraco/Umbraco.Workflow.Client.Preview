@@ -1,25 +1,16 @@
-import type { ManifestRepository } from "@umbraco-cms/backoffice/extension-registry";
-import { WorkflowSettingsRepository } from "./settings.repository.js";
-import { WorkflowSettingsStore } from "./settings.store.js";
-import type { ManifestWorkflowObjectStore } from "@umbraco-workflow/repository";
+import { WORKFLOW_SETTINGS_REPOSITORY_ALIAS, WORKFLOW_SETTINGS_STORE_ALIAS } from "./constants.js";
 
-export const WORKFLOW_SETTINGS_REPOSITORY_ALIAS =
-  "Workflow.Repository.Settings";
-
-export const WORKFLOW_SETTINGS_STORE_ALIAS = "Workflow.Store.Settings";
-
-const repository: ManifestRepository = {
-  type: "repository",
-  alias: WORKFLOW_SETTINGS_REPOSITORY_ALIAS,
-  name: "Workflow Settings Repository",
-  api: WorkflowSettingsRepository,
-};
-
-const store: ManifestWorkflowObjectStore = {
-  type: "workflowObjectStore",
-  alias: WORKFLOW_SETTINGS_STORE_ALIAS,
-  name: "Workflow Settings Store",
-  api: WorkflowSettingsStore,
-};
-
-export const manifests = [repository, store];
+export const manifests: Array<UmbExtensionManifest> = [
+  {
+    type: "repository",
+    alias: WORKFLOW_SETTINGS_REPOSITORY_ALIAS,
+    name: "Workflow Settings Repository",
+    api: () => import("./settings.repository.js"),
+  },
+  {
+    type: "workflowObjectStore",
+    alias: WORKFLOW_SETTINGS_STORE_ALIAS,
+    name: "Workflow Settings Store",
+    api: () => import("./settings.store.js"),
+  },
+];

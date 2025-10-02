@@ -4,8 +4,8 @@ import {
   customElement,
   state,
 } from "@umbraco-cms/backoffice/external/lit";
-import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/extension-registry";
-import { WorkflowApprovalGroupWorkspaceViewBase } from "./approval-group-workspace-view-base.element.js";
+import type { UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/workspace";
+import { WorkflowApprovalGroupWorkspaceViewBaseElement } from "./approval-group-workspace-view-base.element.js";
 import { WorkflowDetailModalRouterController, type TableQueryModel } from "@umbraco-workflow/core";
 import { InstanceService } from "@umbraco-workflow/generated";
 import { InstanceFilters } from "@umbraco-workflow/components";
@@ -14,7 +14,7 @@ const elementName = "workflow-approval-group-members-workspace-view";
 
 @customElement(elementName)
 export class ApprovalGroupMembersWorkspaceViewElement
-  extends WorkflowApprovalGroupWorkspaceViewBase
+  extends WorkflowApprovalGroupWorkspaceViewBaseElement
   implements UmbWorkspaceViewElement
 {
   @state()

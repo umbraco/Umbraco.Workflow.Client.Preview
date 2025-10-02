@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
@@ -8,14 +7,13 @@ import {
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
-import { observeMultiple } from "@umbraco-cms/backoffice/observable-api";
-import { ValidActionDescriptor, WorkflowStatus } from "@umbraco-workflow/core";
+import { TaskStatusModel, type WorkflowTaskModelReadable } from "@umbraco-workflow/generated";
+import { ValidActionDescriptor } from "@umbraco-workflow/core";
 import {
   WORKFLOW_REJECT_TASK_MODAL,
+  type WorkflowCommentsElement,
   type WorkflowActionButtonsElement,
 } from "@umbraco-workflow/editor-view";
-
-import type { WorkflowTaskModel } from "@umbraco-workflow/generated";
 import {
   type WorkflowState,
   WORKFLOW_MANAGER_CONTEXT,
@@ -24,59 +22,72 @@ import {
 const elementName = "workflow-actions";
 
 @customElement(elementName)
-export class WorkflowActionsElement extends UmbElementMixin(LitElement) {
+export class WorkflowActionsElement extends UmbLitElement {
   #workflowManagerContext?: typeof WORKFLOW_MANAGER_CONTEXT.TYPE;
 
   @state()
-  workflowState?: WorkflowState;
+  private _workflowState?: WorkflowState;
 
   @state()
-  currentTask?: WorkflowTaskModel;
+  private _currentTask?: WorkflowTaskModelReadable;
 
   @state()
-  comment? = "";
+  private _comment = "";
 
   @state()
-  commentInvalid? = true;
+  private _commentInvalid? = true;
 
   constructor() {
     super();
 
     this.consumeContext(WORKFLOW_MANAGER_CONTEXT, (context) => {
       if (!context) return;
-
       this.#workflowManagerContext = context;
-      this.observe(
-        observeMultiple([context.currentTask, context.state]),
-        ([currentTask, state]) => {
-          this.currentTask = currentTask;
-          this.workflowState = state;
-          this.commentInvalid = this.workflowState?.requireComment;
-        }
-      );
+
+      this.observe(context.state, (state) => {
+        if (!state) return;
+
+        this._workflowState = state;
+        this.#clearComment();
+      });
+
+      this.observe(context.scaffold, (scaffold) => {
+        this._currentTask = scaffold?.tasks?.invariantTask ?? undefined;
+        this.#clearComment();
+      });
     });
   }
 
+  #clearComment() {
+    this._comment = "";
+  }
+
   #handleCommentChange(e: CustomEvent) {
-    this.comment = e.detail.comment;
-    this.commentInvalid = e.detail.invalid && !this.workflowState?.isAdmin;
+    const target = e.target as WorkflowCommentsElement;
+    this._comment = target.value;
+    this._commentInvalid =
+      this._workflowState?.requireComment && target.invalid && !this._workflowState?.user?.isAdmin;
   }
 
   get controlLabelSuffix() {
-    if (!this.workflowState || this.workflowState.canAction) {
+    if (!this._workflowState || !this._workflowState.user) return "";
+
+    if (!this._workflowState.user.isAdmin) {
       return "";
     }
 
+    // only show isAdmin suffix if admin action would
+    // override their calculated permissions
     let suffix =
-      this.workflowState?.isAdmin &&
-      !this.workflowState?.canAction &&
-      !this.workflowState?.canResubmit
+      this._workflowState.user.isAdmin &&
+      !this._workflowState.user.canAction &&
+      !this._workflowState.user.canResubmit
         ? `(${this.localize.term("workflow_asAdmin")})`
         : "";
 
     if (
-      this.currentTask?.status === WorkflowStatus.REJECTED &&
-      this.workflowState?.canResubmit
+      this._currentTask?.status === TaskStatusModel.REJECTED &&
+      this._workflowState?.user?.canResubmit
     ) {
       suffix = "";
     }
@@ -84,11 +95,16 @@ export class WorkflowActionsElement extends UmbElementMixin(LitElement) {
     return suffix;
   }
 
-  #action(action?: ValidActionDescriptor, assignTo?: string) {
+  #execute(action?: ValidActionDescriptor, assignTo?: string) {
     if (action === undefined) return;
 
-    this.#workflowManagerContext?.action(action, this.comment, assignTo);
-    this.comment = "";
+    this.#workflowManagerContext?.action(action, this._comment, assignTo);
+    this._comment = "";
+  }
+
+  #action(e: CustomEvent) {
+    const action = (e.target as WorkflowActionButtonsElement)?.action;
+    this.#execute(action);
   }
 
   async #reject() {
@@ -99,36 +115,38 @@ export class WorkflowActionsElement extends UmbElementMixin(LitElement) {
       this.#workflowManagerContext?.getActivePermissions() ?? [];
 
     const activeIndex = activePermissions.findIndex(
-      (x) => x.groupKey === this.currentTask?.groupId
+      (x) => x.groupUnique === this._currentTask?.group?.unique
     );
 
     if (activeIndex === 0) {
-      this.#action(ValidActionDescriptor.REJECT, "user");
+      this.#execute(ValidActionDescriptor.REJECT, "user");
       return;
     }
 
     const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+    if (!modalContext) return;
+    
     const modalHandler = modalContext.open(this, WORKFLOW_REJECT_TASK_MODAL, {
       data: {
         groups: activePermissions.slice(0, activeIndex),
-        requestedBy: this.currentTask?.instance?.requestedBy,
+        requestedBy: this._currentTask?.instance?.requestedBy,
       },
     });
 
     await modalHandler.onSubmit().catch(() => undefined);
-    const value = modalHandler.getValue();
-    if (!value.assignTo) return;
+    const { assignTo } = modalHandler.getValue() ?? {};
+    if (!assignTo) return;
 
-    this.#action(ValidActionDescriptor.REJECT, value.assignTo);
+    this.#execute(ValidActionDescriptor.REJECT, assignTo);
   }
 
   #renderWorkflowActions() {
     return html`
       <workflow-comments
         labelKey="workflow_addComment"
-        ?mandatory=${this.workflowState?.requireComment}
-        .comment=${this.comment}
+        ?mandatory=${this._workflowState?.requireComment}
         @change=${this.#handleCommentChange}
+        .value=${this._comment}
       >
       </workflow-comments>
 
@@ -138,9 +156,8 @@ export class WorkflowActionsElement extends UmbElementMixin(LitElement) {
       >
         <workflow-action-buttons
           slot="editor"
-          ?disabled=${this.commentInvalid}
-          @action=${(e) =>
-            this.#action((e.target as WorkflowActionButtonsElement)?.action)}
+          ?disabled=${this._commentInvalid}
+          @action=${this.#action}
           @reject=${this.#reject}
         ></workflow-action-buttons>
       </umb-property-layout>
@@ -151,7 +168,8 @@ export class WorkflowActionsElement extends UmbElementMixin(LitElement) {
     return html`
       <uui-box headline=${this.localize.term("workflow_action")}>
         ${when(
-          this.workflowState?.userCanActionTask(),
+          this._workflowState?.user?.canActionTask ||
+            this._workflowState?.user?.isAdmin,
           () => this.#renderWorkflowActions(),
           () => html`<workflow-alert
             key="workflow_userCannotAction"

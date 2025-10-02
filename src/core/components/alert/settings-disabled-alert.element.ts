@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
@@ -11,7 +10,7 @@ import type { SettingsStatusModel } from "@umbraco-workflow/core";
 const elementName = "workflow-settings-disabled-alert";
 
 @customElement(elementName)
-export class WorkflowSettingsDisabledAlert extends UmbElementMixin(LitElement) {
+export class WorkflowSettingsDisabledAlertElement extends UmbLitElement {
   @property({ type: Object })
   statuses: SettingsStatusModel = {
     someDisabled: false,
@@ -42,6 +41,6 @@ export class WorkflowSettingsDisabledAlert extends UmbElementMixin(LitElement) {
 
 declare global {
   interface HTMLElementTagNameMap {
-    [elementName]: WorkflowSettingsDisabledAlert;
+    [elementName]: WorkflowSettingsDisabledAlertElement;
   }
 }

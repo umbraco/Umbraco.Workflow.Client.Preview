@@ -1,48 +1,75 @@
-import { html, customElement, css } from "@umbraco-cms/backoffice/external/lit";
+import {
+  html,
+  customElement,
+  css,
+  state,
+} from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
+import { tryExecute } from "@umbraco-cms/backoffice/resources";
 import type { WorkflowDetailReadonlyModalData } from "@umbraco-workflow/editor-view";
+import {
+  InstanceService,
+  type WorkflowInstanceResponseModel,
+} from "@umbraco-workflow/generated";
 
 const elementName = "workflow-detail-readonly-modal";
 
 @customElement(elementName)
 export class WorkflowDetailReadonlyModalElement extends UmbModalBaseElement<WorkflowDetailReadonlyModalData> {
-  #renderLanguageBlock() {
-    if (!this.data?.item) return;
+  @state()
+  private _workflow?: WorkflowInstanceResponseModel;
 
-    const language =
-      this.data?.item.instance?.variantCode !== "*"
-        ? this.data?.item.instance?.variantName ?? undefined
-        : undefined;
+  async connectedCallback() {
+    super.connectedCallback();
 
-    if (!language) return null;
+    const { data } = await tryExecute(
+      this,
+      InstanceService.getInstance({
+        query: {
+          unique: this.data?.unique,
+        },
+      })
+    );
 
-    return html` <workflow-language-block
-      .language=${language}
-    ></workflow-language-block>`;
+    this._workflow = data;
+  }
+
+  #renderSchedulingBlock() {
+    if (
+      !this._workflow?.instance?.releaseDate &&
+      !this._workflow?.instance?.expireDate
+    )
+      return null;
+
+    return html` <workflow-scheduling-block
+      release-date=${this._workflow.instance.releaseDate ?? ""}
+      expire-date=${this._workflow.instance.expireDate ?? ""}
+      ?complete=${!!this._workflow.instance.completedOn}
+      .status=${this._workflow.instance.status}
+      .action=${this._workflow.instance.type}
+    ></workflow-scheduling-block>`;
   }
 
   render() {
-    if (!this.data?.item) return;
+    if (!this._workflow) return;
 
     return html`
       <umb-body-layout
         .headline=${this.localize.term(
           "workflow_historyFor",
-          this.data?.item.node?.name
+          this._workflow.node?.name
         )}
       >
-        <div id="editor-box">
+        <div id="detail">
           <workflow-change-description
-            .item=${this.data?.item}
-            .comment=${this.data?.item.instance?.comment ?? undefined}
+            .item=${this._workflow}
+            .comment=${this._workflow.instance?.comment ?? undefined}
           ></workflow-change-description>
-          ${this.#renderLanguageBlock()}
-          <workflow-status-block
-            .status=${this.data?.item.instance?.status ?? undefined}
-          ></workflow-status-block>
-          <workflow-scheduling .item=${this.data?.item}></workflow-scheduling>
+          ${this.#renderSchedulingBlock()}
           <workflow-task-list
-            .unique=${this.data?.item.instance?.key}
+            .unique=${this._workflow.instance?.key}
+            .status=${this._workflow.instance?.status}
+            .comment=${this._workflow.instance?.comment}
           ></workflow-task-list>
         </div>
         <uui-button
@@ -56,9 +83,12 @@ export class WorkflowDetailReadonlyModalElement extends UmbModalBaseElement<Work
 
   static styles = [
     css`
-      workflow-status-block {
-        display: block;
-        margin-top: var(--uui-size-space-5);
+      #detail {
+        --column-count: 1;
+
+        display: grid;
+        grid-template-columns: repeat(var(--column-count), [col-start] 1fr);
+        gap: var(--uui-size-layout-1);
       }
     `,
   ];

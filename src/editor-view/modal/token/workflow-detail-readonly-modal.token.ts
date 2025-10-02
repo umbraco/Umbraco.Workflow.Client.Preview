@@ -1,11 +1,13 @@
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
-import type { WorkflowInstanceResponseModel } from "@umbraco-workflow/generated";
 
 export const WORKFLOW_DETAIL_READONLY_MODAL_ALIAS =
   "Workflow.Modal.DetailReadonly";
 
 export interface WorkflowDetailReadonlyModalData {
-  item?: WorkflowInstanceResponseModel;
+  unique?: string;
+  isDashboard: boolean;
+  entityType?: string | null;
+  entityKey?: string | null;
 }
 
 export const WORKFLOW_DETAIL_READONLY_MODAL =
@@ -14,7 +16,7 @@ export const WORKFLOW_DETAIL_READONLY_MODAL =
     {
       modal: {
         type: "sidebar",
-        size: "full",
+        size: "medium",
       },
     }
   );

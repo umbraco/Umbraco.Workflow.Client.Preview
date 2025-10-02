@@ -1,13 +1,12 @@
 import type { UmbDropdownElement } from "@umbraco-cms/backoffice/components";
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   property,
   query,
 } from "@umbraco-cms/backoffice/external/lit";
 
-export class DropdownBaseElement<T> extends UmbElementMixin(LitElement) {
+export class DropdownBaseElement<T> extends UmbLitElement {
   @query("#dropdown")
   private _dropdown!: UmbDropdownElement;
 

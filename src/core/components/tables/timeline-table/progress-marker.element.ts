@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
@@ -14,7 +13,7 @@ import { TaskStatusModel } from "@umbraco-workflow/generated";
 const elementName = "workflow-progress-marker";
 
 @customElement(elementName)
-export class WorkflowProgressMarkerElement extends UmbElementMixin(LitElement) {
+export class WorkflowProgressMarkerElement extends UmbLitElement {
   @property({ type: Object })
   task?: WorkflowTaskModelWithCss;
 
@@ -33,7 +32,7 @@ export class WorkflowProgressMarkerElement extends UmbElementMixin(LitElement) {
         return "check";
       case TaskStatusModel.CANCELLED:
       case TaskStatusModel.REJECTED:
-        return "delete";
+        return "icon-delete";
       case TaskStatusModel.PENDING_APPROVAL:
       case TaskStatusModel.AWAITING_RESUBMISSION:
         return "pause";
@@ -58,7 +57,7 @@ export class WorkflowProgressMarkerElement extends UmbElementMixin(LitElement) {
         ${this.task.status === TaskStatusModel.RESUBMITTED ||
         this.task.status === TaskStatusModel.REJECTED
           ? this.task.completedBy
-          : this.task.groupName}
+          : this.task.group?.name}
       </span>
     </div>`;
   }
@@ -71,7 +70,7 @@ export class WorkflowProgressMarkerElement extends UmbElementMixin(LitElement) {
         flex: 1;
         z-index: 4050;
         --uui-icon-color: white;
-        --marker-size: var(--uui-size-7);
+        --marker-size: 20px;
         --tooltip-color: white;
         --step-color: var(--workflow-default);
       }
@@ -112,6 +111,7 @@ export class WorkflowProgressMarkerElement extends UmbElementMixin(LitElement) {
       :host(.status-rejected) {
         --step-color: var(--workflow-rejected);
         --tooltip-color: var(--workflow-pending);
+        --uui-icon-color: var(--uui-color-warning-contrast);
       }
       :host(.status-awaitingresubmission),
       :host(.status-pendingapproval) {
@@ -126,6 +126,7 @@ export class WorkflowProgressMarkerElement extends UmbElementMixin(LitElement) {
       :host(.status-cancelled) {
         --step-color: var(--workflow-cancelled);
         --tooltip-color: var(--workflow-pending);
+        --uui-icon-color: var(--uui-color-warning-contrast);
       }
       :host(.collapsed) {
         --step-color: var(--workflow-default);
@@ -223,8 +224,8 @@ export class WorkflowProgressMarkerElement extends UmbElementMixin(LitElement) {
       }
 
       uui-icon {
-        width: 17px;
-        height: 17px;
+        width: 16px;
+        height: 16px;
       }
     `,
   ];

@@ -1,6 +1,5 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   css,
   customElement,
   html,
@@ -8,9 +7,9 @@ import {
   state,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import { firstValueFrom } from "@umbraco-cms/backoffice/external/rxjs";
 import {
   WORKFLOW_MANAGER_CONTEXT,
+  type WorkflowStateUser,
   type WorkflowState,
 } from "@umbraco-workflow/context";
 
@@ -19,7 +18,7 @@ import { ValidActionDescriptor } from "@umbraco-workflow/core";
 const elementName = "workflow-action-buttons";
 
 @customElement(elementName)
-export class WorkflowActionButtonsElement extends UmbElementMixin(LitElement) {
+export class WorkflowActionButtonsElement extends UmbLitElement {
   @state()
   private _workflowState?: WorkflowState;
 
@@ -28,17 +27,30 @@ export class WorkflowActionButtonsElement extends UmbElementMixin(LitElement) {
 
   action?: ValidActionDescriptor;
 
+  #user?: WorkflowStateUser;
+  #isAdmin = false;
+  #culture?: string | null;
+
   async connectedCallback() {
     super.connectedCallback();
 
-    const managerContext = await this.getContext(WORKFLOW_MANAGER_CONTEXT);
-    this._workflowState = await firstValueFrom(managerContext.state);
+    this.consumeContext(WORKFLOW_MANAGER_CONTEXT, (context) => {
+      if (!context) return;
+      this.observe(context.state, (state) => {
+        this._workflowState = state;
+        this.#user = state?.user;
+        this.#isAdmin = state?.user?.isAdmin ?? false;
+        this.#culture = context?.getActiveVariant();
+      });
+    });
   }
 
   #goToNode() {
-    //     this.navigationService.changeSection('content');
-    // this.$location.path(`/content/content/edit/${this.state.nodeId}`);
-    // this.eventsService.emit(constants.events.goToNode);
+    window.history.pushState(
+      null,
+      "",
+      `/umbraco/section/content/workspace/document/edit/${this._workflowState?.unique}/${this.#culture}/`
+    );
   }
 
   #action(action: ValidActionDescriptor) {
@@ -52,7 +64,7 @@ export class WorkflowActionButtonsElement extends UmbElementMixin(LitElement) {
 
   render() {
     return html`${when(
-      this._workflowState?.userCanAction(),
+      (this.#user?.canAction || this.#isAdmin) && !this._workflowState?.rejected,
       () => html` <uui-button
         ?disabled=${this.disabled}
         @click=${() => this.#action(ValidActionDescriptor.APPROVE)}
@@ -62,7 +74,7 @@ export class WorkflowActionButtonsElement extends UmbElementMixin(LitElement) {
       ></uui-button>`
     )}
     ${when(
-      this._workflowState?.canResubmit,
+      this.#user?.canResubmit,
       () => html` <uui-button
         ?disabled=${this.disabled}
         look="primary"
@@ -72,7 +84,8 @@ export class WorkflowActionButtonsElement extends UmbElementMixin(LitElement) {
       ></uui-button>`
     )}
     ${when(
-      this._workflowState?.userCanAction(),
+      (this.#user?.canAction || this.#isAdmin) &&
+        !this._workflowState?.rejected,
       () => html` <uui-button
         ?disabled=${this.disabled}
         @click=${this.#reject}
@@ -82,7 +95,7 @@ export class WorkflowActionButtonsElement extends UmbElementMixin(LitElement) {
       ></uui-button>`
     )}
     ${when(
-      this._workflowState?.userCanCancel(),
+      this.#user?.canCancel || this.#isAdmin,
       () => html` <uui-button
         ?disabled=${this.disabled}
         @click=${() => this.#action(ValidActionDescriptor.CANCEL)}
@@ -92,10 +105,10 @@ export class WorkflowActionButtonsElement extends UmbElementMixin(LitElement) {
       ></uui-button>`
     )}
     ${when(
-      !this._workflowState?.offline && this._workflowState?.isDashboard,
+      this._workflowState?.isDashboard,
       () => html` <uui-button
         id="goToNodeBtn"
-        look="primary"
+        look="secondary"
         @click=${this.#goToNode}
         label=${this.localize.term("workflow_editButton")}
       ></uui-button>`

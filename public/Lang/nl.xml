@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<language alias="nl" intName="Dutch" localName="Nederlands" lcid="19" culture="nl-NL">
+  <area alias="workflow">
+    <key alias="changeDescription">Omschrijving aanpassen</key>
+    <key alias="changeDescriptionDetail">%0% aangevraagd door %1% on %2% op %3%</key>
+    <key alias="summary">Samenvatting</key>
+    <key alias="currentStatus">Huidige status</key>
+    <key alias="stage">Fase</key>
+    <key alias="by">door</key>
+    <key alias="on">op</key>
+    <key alias="at">op</key>
+    <key alias="comment">opmerking</key>
+
+    <key alias="status1">Goedgekeurd</key>
+    <key alias="status2">Afgekeurd</key>
+    <key alias="status3">In afwachting</key>
+    <key alias="status4">Niet verplicht</key>
+    <key alias="status5">Geannuleerd</key>
+    <key alias="status6">Fouten</key>
+    <key alias="status7">Opnieuw ingediend</key>
+    <key alias="status8">Geannuleerd door derde partij</key>
+    <key alias="status9">Uitgesloten</key>
+    <key alias="status10">In afwachting van herindiening</key>
+
+    <key alias="approved">Goedgekeurd</key>
+    <key alias="cancelled">Geannuleerd</key>
+    <key alias="cancelledbythirdparty">Geannuleerd door derde partij</key>
+    <key alias="errored">Fouten</key>
+    <key alias="excluded">Uitgesloten</key>
+    <key alias="notrequired">Niet verplicht</key>
+    <key alias="pendingapproval">In afwachting van goedkeuring</key>
+    <key alias="rejected">Afgewezen</key>
+    <key alias="resubmitted">Opnieuw ingediend</key>
+    <key alias="awaitingresubmission">In afwachting van herindiening</key>
+ </area>
+</language>

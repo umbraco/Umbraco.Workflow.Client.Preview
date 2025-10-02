@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { UmbContextBase } from "@umbraco-cms/backoffice/class-api";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import type { ManifestApi } from "@umbraco-cms/backoffice/extension-api";
@@ -10,7 +11,7 @@ export interface ManifestWorkflowObjectStore
 
 export abstract class WorkflowObjectStore<
   StoreItemType = any
-> extends UmbContextBase<any> {
+> extends UmbContextBase {
   #data?: UmbObjectState<StoreItemType>;
 
   readonly data = this.#data?.asObservable();
@@ -25,5 +26,11 @@ export abstract class WorkflowObjectStore<
 
   update(data: StoreItemType) {
     this.#data?.setValue(data);
+  }
+}
+
+declare global {
+  interface UmbExtensionManifestMap {
+    workflowObjectStore: ManifestWorkflowObjectStore
   }
 }

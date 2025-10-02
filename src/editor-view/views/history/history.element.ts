@@ -1,43 +1,45 @@
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import {
-  LitElement,
   customElement,
   html,
   state,
+  when,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
-import { type TableQueryModel } from "@umbraco-workflow/core";
+import { SortDirection, type TableQueryModel } from "@umbraco-workflow/core";
 import { InstanceService } from "@umbraco-workflow/generated";
 import { InstanceFilters } from "@umbraco-workflow/components";
+import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
 const elementName = "workflow-workspace-history";
 
 @customElement(elementName)
-export class WorkflowWorkspaceHistoryElement extends UmbElementMixin(
-  LitElement
-) {
-
+export class WorkflowWorkspaceHistoryElement extends UmbLitElement {
   @state()
   private _model!: TableQueryModel;
 
-  #init: Promise<unknown>;
-  #unique?: string;
+  #unique?: string | null;
+
+  #historyCleanupEnabled = false;
 
   constructor() {
     super();
 
-    this.#init = Promise.all([
-      this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (instance) => {
-        if (!instance) return;
-        this.#unique = instance.getUnique();
-      }).asPromise(),
-    ]);
+    this.consumeContext(WORKFLOW_CONTEXT, (context) => {
+      if (!context) return;
+
+      this.#historyCleanupEnabled =
+        context.getVariables()?.historyCleanupEnabled ?? false;
+    });
+
+    this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (instance) => {
+      if (!instance) return;
+      this.#unique = instance.getUnique()?.toString();
+    });
   }
 
   async connectedCallback() {
     super.connectedCallback();
-
-    await this.#init;
 
     this._model = {
       handler: InstanceService.postInstanceAll,
@@ -45,6 +47,7 @@ export class WorkflowWorkspaceHistoryElement extends UmbElementMixin(
         { historyOnly: true, unique: this.#unique },
         ["unique"]
       ),
+      direction: SortDirection.DESC,
     };
   }
 
@@ -53,9 +56,12 @@ export class WorkflowWorkspaceHistoryElement extends UmbElementMixin(
 
     return html`<workflow-table .config=${this._model}>
       <workflow-instances-table></workflow-instances-table>
-      <workflow-history-cleanup
-        .unique=${this.#unique}
-      ></workflow-history-cleanup>
+      ${when(
+        this.#historyCleanupEnabled,
+        () => html` <workflow-history-cleanup
+          .unique=${this.#unique}
+        ></workflow-history-cleanup>`
+      )}
     </workflow-table>`;
   }
 }

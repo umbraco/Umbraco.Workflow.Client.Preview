@@ -1,20 +1,16 @@
-import type { ManifestEntityAction } from "@umbraco-cms/backoffice/extension-registry";
-import { WORKFLOW_APPROVALGROUP_ENTITY_TYPE } from "../types.js";
-import { WORKFLOW_APPROVAL_GROUPS_DETAIL_REPOSITORY_ALIAS } from "../repository/detail/manifests.js";
-import { WorkflowDeleteGroupEntityAction } from "./delete.action.js";
+import { WORKFLOW_APPROVALGROUP_ENTITY_TYPE } from "../constants.js";
+import { WORKFLOW_APPROVAL_GROUPS_DETAIL_REPOSITORY_ALIAS } from "../repository/detail/constants.js";
 
-const entityActions: Array<ManifestEntityAction> = [
+export const manifests: Array<UmbExtensionManifest> = [
   {
     type: "entityAction",
     kind: "delete",
-    alias: "Umb.Workflow.EntityAction.ApprovalGroup.Delete",
+    alias: "Workflow.EntityAction.ApprovalGroup.Delete",
     name: "Delete Approval Group Entity Action",
-    api: WorkflowDeleteGroupEntityAction,
+    api: () => import('./delete.action.js'),
     forEntityTypes: [WORKFLOW_APPROVALGROUP_ENTITY_TYPE],
     meta: {
       repositoryAlias: WORKFLOW_APPROVAL_GROUPS_DETAIL_REPOSITORY_ALIAS,
     },
   },
 ];
-
-export const manifests = [...entityActions];
