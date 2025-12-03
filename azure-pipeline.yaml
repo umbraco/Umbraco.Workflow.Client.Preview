@@ -1,0 +1,36 @@
+trigger:
+  branches:
+    include:
+    - main
+pr: none
+
+parameters:
+  - name: skipSBOM
+    displayName: Skip SBOM Generation
+    type: boolean
+    default: false
+
+variables:
+  # SBOM variables
+  productGroup: 'DXP'
+  productName: 'Umbraco.Workflow.Client.Preview'
+  productVersion: 'main'
+  DT_BASE_URL: $(dtBaseUrl)
+  DT_API_KEY: $(dtApiKey)
+
+stages:
+  # Generate SBOM Stage
+  # Generates Software Bill of Materials for dependency tracking.
+  # Only runs on main branch unless skipSBOM parameter is checked.
+  # Note: DT_API_KEY secret variable must be configured in
+  # Azure DevOps for SBOM upload. If not configured, job
+  # will gracefully skip with a warning message.
+  - stage: GenerateSBOM
+    displayName: Generate SBOM
+    condition: |
+      and(
+        eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+        ne('${{ parameters.skipSBOM }}', true)
+      )
+    jobs:
+      - template: devops/cloud-sbom.yml
