@@ -8,7 +8,7 @@ import {
   UmbModalBaseElement,
 } from "@umbraco-cms/backoffice/modal";
 import type { WorkflowReleaseSetItemEditorModalResult } from "../token/index.js";
-import { WORKFLOW_RELEASESET_ITEM_EDITOR_CONTEXT } from "../../components/release-set-versions/release-set-versions-editor.context.js";
+import { WORKFLOW_RELEASESET_VERSIONS_EDITOR_CONTEXT } from "../../components/index.js";
 import { firstValueFrom } from "@umbraco-cms/backoffice/external/rxjs";
 
 const elementName = "workflow-releaseset-item-editor-modal";
@@ -25,7 +25,7 @@ export class WorkflowReleaseSetItemModalElement extends UmbModalBaseElement<
     super();
 
     this.consumeContext(
-      WORKFLOW_RELEASESET_ITEM_EDITOR_CONTEXT,
+      WORKFLOW_RELEASESET_VERSIONS_EDITOR_CONTEXT,
       async (context) => {
         this.observe(context?.current, (item) => {
           this._headline = item?.name ?? "";

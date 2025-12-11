@@ -42,10 +42,8 @@ export class WorkflowTaskInfoElement extends UmbLitElement {
     return html`
       <div class="user-info">
         <uui-avatar
+          ?warning=${this.avatar === "!"}
           name=${this.avatar ?? this.name ?? ""}
-          style="--uui-palette-spanish-pink: ${this.avatar === "!"
-            ? "var(--uui-color-warning)"
-            : "var(--uui-palette-spanish-pink)"}"
           >${this.avatar}</uui-avatar
         >
         <div>
@@ -60,7 +58,7 @@ export class WorkflowTaskInfoElement extends UmbLitElement {
             this.date,
             () => html` <span class="detail"
               ><umb-localize-date
-                .date=${this.date}
+                .date=${this.date!}
                 .options=${this.#dateOptions}
               ></umb-localize-date>
             </span>`
@@ -81,6 +79,8 @@ export class WorkflowTaskInfoElement extends UmbLitElement {
     UmbHistoryItemElement.styles,
     css`
       :host {
+        --avatar-color-background: white;
+        --avatar-color-border: var(--uui-color-border);
         display: block;
       }
 
@@ -99,6 +99,16 @@ export class WorkflowTaskInfoElement extends UmbLitElement {
 
       .user-info {
         align-items: center;
+      }
+
+      uui-avatar {
+        background: var(--avatar-color-background);
+        box-shadow: 0 0 0 1.5px var(--avatar-color-border);
+      }
+
+      uui-avatar[warning] {
+        --avatar-color-background: var(--uui-color-warning);
+        --avatar-color-border: currentColor;
       }
     `,
   ];

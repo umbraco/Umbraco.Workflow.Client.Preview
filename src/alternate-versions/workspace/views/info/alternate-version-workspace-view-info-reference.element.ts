@@ -29,7 +29,9 @@ export class WorkflowAlternateVersionWorkspaceViewInfoReferenceElement extends U
 
     new UmbModalRouteRegistrationController(this, UMB_WORKSPACE_MODAL)
       .addAdditionalPath(RELEASESET_ENTITY_TYPE)
-      .onSetup(() => ({ data: { entityType: RELEASESET_ENTITY_TYPE, preset: {} }}))
+      .onSetup(() => ({
+        data: { entityType: RELEASESET_ENTITY_TYPE, preset: {} },
+      }))
       .observeRouteBuilder((routeBuilder) => {
         this._editDocumentPath = routeBuilder({});
       });
@@ -44,9 +46,11 @@ export class WorkflowAlternateVersionWorkspaceViewInfoReferenceElement extends U
       WORKFLOW_ALTERNATEVERSION_WORKSPACE_CONTEXT
     );
     if (!context) {
-      throw new Error("Could not find context: WORKFLOW_ALTERNATEVERSION_WORKSPACE_CONTEXT");
+      throw new Error(
+        "Could not find context: WORKFLOW_ALTERNATEVERSION_WORKSPACE_CONTEXT"
+      );
     }
-    
+
     this._items = context.getData()?.sets ?? [];
   }
 
@@ -91,8 +95,7 @@ export class WorkflowAlternateVersionWorkspaceViewInfoReferenceElement extends U
                   ></uui-button>
                 </uui-table-cell>
                 <uui-table-cell>
-                  <status-tag .value=${item.status}>
-                  </status-tag>
+                  <status-tag .value=${item.status}> </status-tag>
                 </uui-table-cell>
               </uui-table-row>`
           )}
@@ -111,17 +114,6 @@ export class WorkflowAlternateVersionWorkspaceViewInfoReferenceElement extends U
       }
       uui-table-cell:not(.link-cell) {
         color: var(--uui-color-text-alt);
-      }
-
-      uui-pagination {
-        flex: 1;
-        display: inline-block;
-      }
-
-      .pagination {
-        display: flex;
-        justify-content: center;
-        margin-top: var(--uui-size-space-4);
       }
     `,
   ];

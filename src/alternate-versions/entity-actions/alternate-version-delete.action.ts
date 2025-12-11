@@ -38,7 +38,7 @@ export class WorkflowAlternateVersionCollectionDeleteEntityAction extends UmbEnt
       ),
       color: "danger",
       confirmLabel: localize.term("actions_delete"),
-    }).catch(() => {});
+    });
 
     const repository = new WorkflowAlternateVersionDetailRepository(this);
     await repository.deleteVersion(version);

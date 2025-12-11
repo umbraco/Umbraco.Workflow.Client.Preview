@@ -7,13 +7,14 @@ import { ALTERNATEVERSION_ENTITY_TYPE } from "../../constants.js";
 import {
   AlternateVersionStatusModel,
   VersionsService,
-  type AlternateVersionDetailResponseModelReadable,
+  type AlternateVersionDetailResponseModel,
 } from "@umbraco-workflow/generated";
 import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
+import { WORKFLOW_INVARIANT } from "@umbraco-workflow/core";
 
 export class WorkflowAlternateVersionDetailServerDataSource
   extends UmbControllerBase
-  implements UmbDetailDataSource<AlternateVersionDetailResponseModelReadable>
+  implements UmbDetailDataSource<AlternateVersionDetailResponseModel>
 {
   #documentWorkspaceContext?: typeof UMB_DOCUMENT_WORKSPACE_CONTEXT.TYPE;
 
@@ -25,8 +26,8 @@ export class WorkflowAlternateVersionDetailServerDataSource
     }).skipHost();
   }
 
-  #variantMapper(variant?: string | null) {
-    return variant === "invariant" ? undefined : variant ?? undefined; 
+  #cultureMapper(culture?: string | null) {
+    return culture === WORKFLOW_INVARIANT ? undefined : culture ?? undefined;
   }
 
   async read(unique: string) {
@@ -37,14 +38,14 @@ export class WorkflowAlternateVersionDetailServerDataSource
     const activeVariant =
       this.#documentWorkspaceContext?.splitView.getActiveVariants()?.[0];
 
-    const variant = activeVariant?.culture ?? undefined;
+    const culture = activeVariant?.culture ?? undefined;
     const segment = activeVariant?.segment ?? undefined;
 
     const { data, error } = await tryExecute(
       this,
       VersionsService.getVersionById({
         path: { id: unique },
-        query: { variant: this.#variantMapper(variant), segment },
+        query: { culture: this.#cultureMapper(culture), segment },
       })
     );
 
@@ -56,7 +57,9 @@ export class WorkflowAlternateVersionDetailServerDataSource
   }
 
   async createScaffold(
-    preset?: Partial<AlternateVersionDetailResponseModelReadable>
+    preset?: Partial<
+      AlternateVersionDetailResponseModel & { culture?: string | null }
+    >
   ) {
     if (!preset?.parentUnique) throw new Error("Parent unique is missing");
 
@@ -65,11 +68,12 @@ export class WorkflowAlternateVersionDetailServerDataSource
         unique: UmbId.new(),
         parentUnique: preset?.parentUnique,
         entityType: ALTERNATEVERSION_ENTITY_TYPE,
-        status: AlternateVersionStatusModel.DRAFT,
+        status: "Draft" as AlternateVersionStatusModel,
+        isStatusUpdate: false,
         versionName: null,
         documentName: preset?.documentName,
         createDate: null,
-        variant: this.#variantMapper(preset.variant),
+        variant: this.#cultureMapper(preset.culture),
         segment: preset.segment ?? null,
         updateDate: null,
         values: [],
@@ -79,7 +83,7 @@ export class WorkflowAlternateVersionDetailServerDataSource
     };
   }
 
-  async create(version: AlternateVersionDetailResponseModelReadable) {
+  async create(version: AlternateVersionDetailResponseModel) {
     const { error } = await tryExecute(
       this,
       VersionsService.postVersion({ body: version })
@@ -92,7 +96,7 @@ export class WorkflowAlternateVersionDetailServerDataSource
     return { error };
   }
 
-  async update(version: AlternateVersionDetailResponseModelReadable) {
+  async update(version: AlternateVersionDetailResponseModel) {
     if (!version.unique) {
       throw new Error("Unique is missing");
     }

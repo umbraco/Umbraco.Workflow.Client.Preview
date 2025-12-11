@@ -23,6 +23,7 @@ import { umbExtensionsRegistry } from "@umbraco-cms/backoffice/extension-registr
 import type { WorkflowAlternateVersionCollectionModel } from "../../types.js";
 import { ALTERNATEVERSION_ENTITY_TYPE } from "../../../constants.js";
 import { TimeFormatOptions } from "@umbraco-workflow/core";
+import { WORKFLOW_EDIT_ALTERNATEVERSION_WORKSPACE_PATH_PATTERN } from "../../../paths.js";
 
 import "./elements/alternate-version-table-name-column-layout.element.js";
 import "./elements/alternate-version-table-inset-column-layout.element.js";
@@ -43,7 +44,7 @@ export class AlternateVersionsTableElement extends UmbLitElement {
   };
 
   @state()
-  private _modalPath?: string;
+  private _modalPath = "";
 
   @state()
   private _selection: Array<string> = [];
@@ -149,7 +150,13 @@ export class AlternateVersionsTableElement extends UmbLitElement {
               value: {
                 name: version.name,
                 unique: version.unique,
-                modalPath: this._modalPath,
+                modalPath:
+                  WORKFLOW_EDIT_ALTERNATEVERSION_WORKSPACE_PATH_PATTERN.generateAbsolute(
+                    {
+                      base: this._modalPath.slice(0, -1),
+                      unique: version.unique,
+                    }
+                  ),
               },
             },
             {

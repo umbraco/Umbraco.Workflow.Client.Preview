@@ -1,12 +1,11 @@
 import { css, customElement, html } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
-import { WorkflowContentCalendarContext } from "./context/content-calendar.context";
+import { WorkflowContentCalendarContext } from "./context/content-calendar.context.js";
 
 const elementName = "workflow-content-calendar-dashboard";
 
 @customElement(elementName)
 export class ContentCalendarDashboardElement extends UmbLitElement {
-  
   constructor() {
     super();
 

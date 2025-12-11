@@ -1,10 +1,6 @@
 import type { UmbDropdownElement } from "@umbraco-cms/backoffice/components";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
-import {
-  css,
-  property,
-  query,
-} from "@umbraco-cms/backoffice/external/lit";
+import { css, property, query } from "@umbraco-cms/backoffice/external/lit";
 
 export class DropdownBaseElement<T> extends UmbLitElement {
   @query("#dropdown")
@@ -27,7 +23,6 @@ export class DropdownBaseElement<T> extends UmbLitElement {
       :host {
         display: block;
         position: relative;
-        --uui-button-height: var(--uui-size-7);
       }
 
       umb-dropdown {

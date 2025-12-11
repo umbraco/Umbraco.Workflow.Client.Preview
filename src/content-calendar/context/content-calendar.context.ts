@@ -1,6 +1,6 @@
 import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
-import { WorkflowContentCalendarContextBase } from "./content-calendar-base.context";
-import { CalendarConfig, CalendarItem } from "../entities";
+import { WorkflowContentCalendarContextBase } from "./content-calendar-base.context.js";
+import { CalendarConfig, CalendarItem } from "../entities.js";
 import {
   ContentService,
   ScheduledContentLegendItemResponseModel,
@@ -15,7 +15,7 @@ export class WorkflowContentCalendarContext extends WorkflowContentCalendarConte
 
   async hostConnected() {
     super.hostConnected();
-    
+
     await this.#getItems();
     this.setCurrentMonth();
   }
@@ -40,9 +40,9 @@ export class WorkflowContentCalendarContext extends WorkflowContentCalendarConte
       ContentService.getContentScheduled()
     );
 
-    let items = this.#mapItems(data?.items);   
-    this.items =  this.groupItems(items);
-    
+    let items = this.#mapItems(data?.items);
+    this.items = this.groupItems(items);
+
     this.legend.setValue(mapLegend(data?.legend));
   }
 

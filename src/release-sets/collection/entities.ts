@@ -12,5 +12,6 @@ export interface WorkflowReleaseSetCollectionModel {
   unique: string;
   icon: string;
   status: ReleaseSetStatusModel;
+  description?: string;
   itemCount: number;
 }

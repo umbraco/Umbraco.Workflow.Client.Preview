@@ -19,9 +19,11 @@ export class AlternateVersionItemServerDataSource extends UmbItemServerDataSourc
 }
 
 const getItems = async (uniques: Array<string>) => {
-  const data = await VersionsService.getVersionAll({ query: { unique: uniques[0] } });
+  const data = await VersionsService.getVersionAll({
+    query: { unique: uniques[0] },
+  });
   return { data: data.data.items };
-}
+};
 
 const mapper = (item: AlternateVersionCollectionResponseModel) => {
   return {

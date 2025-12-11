@@ -26,7 +26,6 @@ import type {
 
 export type ChartHeaderCard = {
   action?: ({ $event }: { $event: Event }) => void;
-  label: string;
   value: string;
   status?: string;
   background?: string;

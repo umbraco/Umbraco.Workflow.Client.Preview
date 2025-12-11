@@ -5,17 +5,20 @@ import {
   state,
 } from "@umbraco-cms/backoffice/external/lit";
 import type { UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
-import { ADVANCED_SEARCH_CONTEXT } from "../../advanced-search-context.token.js";
+import { WORKFLOW_ADVANCEDSEARCH_CONTEXT } from "../../advanced-search-context.token.js";
 import type { WorkflowAdvancedSearchPropertyElement } from "./views/search-property.element.js";
 import { AdvancedSearchTypeModel } from "@umbraco-workflow/generated";
 import { UmbChangeEvent } from "@umbraco-cms/backoffice/event";
-import { AdvancedSearchFieldElement, AdvancedSearchFieldsValue } from "../../entities.js";
+import {
+  AdvancedSearchFieldElement,
+  AdvancedSearchFieldsValue,
+} from "../../entities.js";
 
 const elementName = "workflow-advanced-search-field-type";
 
 @customElement(elementName)
 export class WorkflowAdvancedSearchFieldTypeElement extends UmbLitElement {
-  #advancedSearchContext?: typeof ADVANCED_SEARCH_CONTEXT.TYPE;
+  #advancedSearchContext?: typeof WORKFLOW_ADVANCEDSEARCH_CONTEXT.TYPE;
 
   @state()
   private _searchType: AdvancedSearchTypeModel | undefined;
@@ -29,7 +32,7 @@ export class WorkflowAdvancedSearchFieldTypeElement extends UmbLitElement {
   constructor() {
     super();
 
-    this.consumeContext(ADVANCED_SEARCH_CONTEXT, (context) => {
+    this.consumeContext(WORKFLOW_ADVANCEDSEARCH_CONTEXT, (context) => {
       if (!context) return;
 
       this.#advancedSearchContext = context;
@@ -48,7 +51,7 @@ export class WorkflowAdvancedSearchFieldTypeElement extends UmbLitElement {
   }
 
   #renderAllSearchType() {
-    if (this._searchType !== AdvancedSearchTypeModel.ALL) return;
+    if (this._searchType !== "All") return;
 
     return html`<workflow-advanced-search-all
       @change=${(e) =>
@@ -60,11 +63,7 @@ export class WorkflowAdvancedSearchFieldTypeElement extends UmbLitElement {
   }
 
   #renderPropertySearchType() {
-    if (
-      this._searchType !== AdvancedSearchTypeModel.SINGLE &&
-      this._searchType !== AdvancedSearchTypeModel.SOME
-    )
-      return;
+    if (this._searchType !== "Single" && this._searchType !== "Some") return;
 
     return html`<workflow-advanced-search-property
       @change=${(e) =>
@@ -81,8 +80,8 @@ export class WorkflowAdvancedSearchFieldTypeElement extends UmbLitElement {
 
   #renderEditorSearchType() {
     if (
-      this._searchType !== AdvancedSearchTypeModel.DATATYPE &&
-      this._searchType !== AdvancedSearchTypeModel.PROPERTY_EDITOR
+      this._searchType !== "Datatype" &&
+      this._searchType !== "PropertyEditor"
     )
       return;
 
@@ -112,7 +111,7 @@ export class WorkflowAdvancedSearchFieldTypeElement extends UmbLitElement {
 
     return html`
       <uui-box
-        .headline=${this.localize.term("workflowSearch_selectSearchFields")}
+        .headline=${this.localize.term("workflow_search_selectSearchFields")}
       >
         <div slot="header-actions">
           <uui-toggle
@@ -120,7 +119,7 @@ export class WorkflowAdvancedSearchFieldTypeElement extends UmbLitElement {
             @change=${() =>
               (this._showBaseProperties = !this._showBaseProperties)}
             label-position="left"
-            label=${this.localize.term("workflowSearch_showBaseProperties")}
+            label=${this.localize.term("workflow_search_showBaseProperties")}
           ></uui-toggle>
         </div>
 

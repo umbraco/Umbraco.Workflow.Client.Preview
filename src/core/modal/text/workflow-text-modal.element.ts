@@ -1,6 +1,6 @@
 import { customElement, html } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
-import { WorkflowTextModalData } from "./workflow-text-modal.token";
+import type { WorkflowTextModalData } from "./workflow-text-modal.token.js";
 
 const elementName = "workflow-text-modal";
 

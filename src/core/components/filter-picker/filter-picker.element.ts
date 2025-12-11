@@ -8,6 +8,7 @@ import {
 import type { WorkflowFilterConfig } from "./types.js";
 import { WorkflowFilterPickerContext } from "./workflow-filterpicker-context.js";
 import type { WorkflowSearchFilterModel } from "@umbraco-workflow/generated";
+import { UmbChangeEvent } from "@umbraco-cms/backoffice/event";
 
 const elementName = "workflow-filter-picker";
 
@@ -28,8 +29,15 @@ export class FilterPickerElement extends UmbLitElement {
     this.observe(
       this.#filterPickerContext.value,
       (filterValues) => {
+        if (!Object.keys(filterValues).length) return;
+
+        // Only dispatch change event if value was already set (i.e., this is an update)
+        const wasSet = this.value !== undefined;
         this.value = filterValues;
-        this.dispatchEvent(new CustomEvent("change"));
+
+        if (wasSet) {
+          this.dispatchEvent(new UmbChangeEvent());
+        }
       },
       "workflowFilterPickerValueObserver"
     );

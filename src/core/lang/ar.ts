@@ -106,7 +106,7 @@ export default {
     membership: "أعضاء المجموعة",
     most: "معظم",
     mySubmissions: "تقديماتي",
-    myTasks: "المهام التي تتطلب موافقتي",
+    myTasks: "مهامي",
     newNodeConfig: "يجب حفظ العقد الجديدة قبل تكوين سير العمل",
     noActiveWorkflow: "لم يتم العثور على سير عمل نشط",
     noApproval: "الموافقة غير مطلوبة",
@@ -286,24 +286,6 @@ export default {
     siteUrlDescription:
       "عنوان الموقع الحي لإدراجه في إشعارات البريد الإلكتروني (مثل http://www.mydomain.com)",
   },
-  workflowNotifications: {
-    approved: "اكتمل سير العمل.",
-    approvedLog: "تمت الموافقة على سير العمل بواسطة %0% في %1% [%2%].",
-    cancelled: "تم إلغاء طلب %0%.",
-    cancelledLog: "تم إلغاء طلب %0% لـ %1% [%2%] بواسطة %3%.",
-    initiate: "تم تقديم %0% للموافقة على %1%.",
-    initiateScheduled: "تم جدولة التغييرات لـ %2% %0% عند %1%.",
-    pageHasBeen: "تم %0% الصفحة",
-    pendingApproval: "تم إكمال المهمة. سيتم %0% الصفحة بعد إكمال سير العمل.",
-    pendingApprovalLog:
-      "تمت الموافقة على مهمة سير العمل %0% في %1% [%2%] بواسطة %3%.",
-    pendingApprovalResubmit:
-      "تمت إعادة تقديم التغييرات. سيتم %0% الصفحة بعد إكمال سير العمل.",
-    pendingApprovalResubmitLog:
-      "تم إعادة تقديم طلب %0% لـ %1% [%2%] بواسطة %3%.",
-    rejected: "تم رفض طلب %0%.",
-    rejectedLog: "تم رفض طلب %0% لـ %1% [%2%] بواسطة %3%.",
-  },
   workflow_treeHeaders: {
     active: `سير العمل النشط`,
     approvalGroups: `مجموعات الموافقة`,
@@ -311,7 +293,7 @@ export default {
     history: `تاريخ`,
     settings: `إعدادات`,
   },
-  contentReviews: {
+  workflow_contentReviews: {
     contentItemReviewed: "تم وضع علامة على عنصر المحتوى كمراجَع",
     contentItemReviews: "مراجعات عناصر المحتوى",
     contentItemReviewsDescription: "قم بتكوين المراجعات لعناصر المحتوى الفردية",
@@ -362,7 +344,7 @@ export default {
       "قد يستغرق هذا بعض الوقت - يؤدي الحفظ إلى إنشاء تاريخ استحقاق المراجعة لكل محتوى قابل للمراجعة، والذي قد يكون عددًا كبيرًا من العقد. لا يقوم هذا بتعديل إعدادات المراجعة على مستوى العقدة.",
     staleContent: "محتوى قديم",
   },
-  workflowCleanup: {
+  workflow_cleanup: {
     cleanupEnabled: "تمكين تنظيف السجل",
     contentRules: "قواعد تنظيف المحتوى",
     daysToKeepHistory: "الأيام التي يتم الاحتفاظ بها في سجل سير العمل",
@@ -374,7 +356,7 @@ export default {
     rulesUpdated: "تم تحديث قواعد تنظيف سجل سير العمل",
     statusesToDelete: "حالات سير العمل التي سيتم حذفها",
   },
-  workflowSearch: {
+  workflow_search: {
     addContentTypes: "إضافة نوع (أنواع) المحتوى",
     addDataType: "إضافة نوع بيانات",
     addProperties: "إضافة خصائص",
@@ -397,5 +379,79 @@ export default {
     showBaseProperties: "عرض الخصائص الأساسية",
     singleProperty: "خاصية واحدة",
     someProperties: "بعض الخصائص",
+  },
+  user_permissionsEntityGroup: {
+    workflow: "سير العمل",
+  },
+  workflow_permissions: {
+    activeWorkflowsRead: `السماح بالوصول لعرض سير العمل النشط`,
+    advancedSearchRead: `السماح بالوصول لعرض لوحة البحث المتقدم`,
+    approvalGroupRead: `السماح بالوصول لعرض مجموعات الموافقة`,
+    approvalGroupCreate: `السماح بالوصول لإنشاء مجموعات الموافقة`,
+    approvalGroupUpdate: `السماح بالوصول لتحديث مجموعات الموافقة`,
+    configurationRead: `السماح بالوصول لعرض تكوين سير العمل`,
+    configurationUpdate: `السماح بالوصول لتحديث تكوين سير العمل`,
+    contentReviewRead: `السماح بالوصول لعرض مراجعات المحتوى`,
+    documentInitiate: `السماح ببدء سير العمل على المستندات`,
+    documentUnlock: `السماح بإلغاء قفل المستندات`,
+    historyRead: `السماح بالوصول لعرض تاريخ سير العمل`,
+  },
+  workflow_property: {
+    adminCanEdit: "يمكن للمسؤولين التحرير",
+    allowAttachments: "السماح بالمرفقات",
+    allowScheduling: "السماح بالجدولة",
+    approvalThreshold: "حد الموافقة",
+    configureApprovalThreshold: "السماح بتكوين حد الموافقة",
+    editUrl: "تحرير عنوان الموقع",
+    email: "بريد سير العمل الإلكتروني",
+    extendPermissions: "تمديد الأذونات",
+    lockIfActive: "قفل المحتوى النشط",
+    mandatoryComments: "التعليقات الإلزامية",
+    rejectionResetsApprovals: "إعادة تعيين الموافقات بعد الرفض",
+    reminderDelay: "تأخير التذكير (أيام)",
+    requireUnpublish: "استخدام سير العمل لإلغاء النشر",
+    scheduledContentLock: "قفل المحتوى المجدول",
+    sendNotifications: "إرسال الإشعارات",
+    siteUrl: "عنوان الموقع",
+    enableContentReviews: "تمكين مراجعات المحتوى",
+    publishIsReview: "معاملة النشر كمراجعة؟",
+    reminderThreshold: "عتبة التذكير (أيام)",
+    reviewPeriod: "فترة المراجعة (أيام)",
+  },
+  workflow_propertyDescription: {
+    adminCanEdit:
+      "اضبط على true للسماح للمسؤولين بتحرير المحتوى في أي مرحلة من مراحل سير العمل",
+    allowAttachments:
+      "اضبط على true للسماح بإرفاق عنصر وسائط عند بدء سير العمل",
+    allowScheduling: "اضبط على true للسماح بجدولة النشر عند بدء سير العمل",
+    approvalThreshold:
+      "كم عدد أعضاء المجموعة الذين يجب أن يوافقوا على كل مهمة سير العمل؟",
+    configureApprovalThreshold:
+      "تمكين إعداد حد الموافقة لأي مرحلة من مراحل سير العمل",
+    editUrl:
+      "تحرير عنوان الموقع لإدراجه في إشعارات البريد الإلكتروني (مثل http://edit.mydomain.com)",
+    email: "عنوان FROM لإشعارات البريد الإلكتروني",
+    extendPermissions:
+      "اضبط على true لتمديد أذونات الحفظ والنشر الافتراضية للمستخدمين. عند الضبط على false، تتم إزالة زر الحفظ والنشر",
+    lockIfActive:
+      "اضبط على true لمنع التحريرات بينما يكون المحتوى في سير العمل",
+    mandatoryComments: "اضبط على true لطلب التعليقات على موافقات سير العمل",
+    rejectionResetsApprovals:
+      "اضبط على true مع ضبط حد الموافقة على معظم أو الكل، لإعادة تعيين الموافقات السابقة عند رفض مرحلة من مراحل سير العمل",
+    reminderDelay:
+      "إرسال رسائل تذكير للمهام غير النشطة، بعد هذا العدد من الأيام. اضبط على 0 للتعطيل",
+    requireUnpublish:
+      "اضبط على true لطلب موافقة سير العمل عند إلغاء نشر المحتوى",
+    scheduledContentLock:
+      "اضبط على سير العمل أو الكل لمنع التعديلات بينما يكون المحتوى في انتظار النشر المجدول",
+    sendNotifications: "اضبط على true لإرسال إشعارات البريد الإلكتروني",
+    siteUrl:
+      "عنوان الموقع الحي لإدراجه في إشعارات البريد الإلكتروني (مثل http://www.mydomain.com)",
+    enableContentReviews: "هل يجب تذكير المستخدمين بمراجعة محتواهم؟",
+    publishIsReview:
+      "هل يجب معاملة نشر المحتوى كمراجعة، أم يجب أن يتطلب المحتوى مراجعة صريحة؟",
+    reminderThreshold:
+      "سيتم إرسال إشعارات المراجعة بهذا العدد من الأيام قبل تاريخ المراجعة. الافتراضي هو 1",
+    reviewPeriod: "الحد الأقصى للفترة الزمنية بين المراجعات المطلوبة للمحتوى",
   },
 } as UmbLocalizationDictionary;

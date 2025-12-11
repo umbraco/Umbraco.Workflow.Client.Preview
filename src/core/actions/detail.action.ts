@@ -1,13 +1,11 @@
-import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
-import {
-  UmbWorkspaceActionBase,
-} from "@umbraco-cms/backoffice/workspace";
-import type { WorkflowTaskModelReadable } from "@umbraco-workflow/generated";
+import { umbOpenModal } from "@umbraco-cms/backoffice/modal";
+import { UmbWorkspaceActionBase } from "@umbraco-cms/backoffice/workspace";
+import type { WorkflowTaskModel } from "@umbraco-workflow/generated";
 import { WORKFLOW_MANAGER_CONTEXT } from "@umbraco-workflow/context";
-import { WORKFLOW_DETAIL_MODAL } from "@umbraco-workflow/editor-view";
+import { WORKFLOW_DETAIL_MODAL } from "@umbraco-workflow/core";
 
 export class WorkflowDetailWorkspaceAction extends UmbWorkspaceActionBase {
-  #currentTask?: WorkflowTaskModelReadable | null;
+  #currentTask?: WorkflowTaskModel | null;
 
   hostConnected() {
     super.hostConnected();
@@ -22,23 +20,25 @@ export class WorkflowDetailWorkspaceAction extends UmbWorkspaceActionBase {
   }
 
   async execute() {
-    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-    if (!this.#currentTask?.instance?.entityType || !modalContext) return;
+    if (!this.#currentTask?.instance?.entityType) return;
 
-    modalContext.open(this, WORKFLOW_DETAIL_MODAL, {
+    await umbOpenModal(this, WORKFLOW_DETAIL_MODAL, {
       data: {
         document: {
           name: this.#currentTask.node?.name ?? undefined,
           unique: this.#currentTask.node?.key,
         },
         entityKey: this.#currentTask?.instance?.entityKey,
-        entityType: this.#currentTask.instance?.entityType,        
-        variant: this.#currentTask.instance?.variantCode ?? undefined, 
-        action: this.#currentTask.instance?.type === "Unpublish" ? "unpublish" : "publish",
+        entityType: this.#currentTask.instance?.entityType,
+        culture: this.#currentTask.instance?.cultureCode ?? undefined,
+        action:
+          this.#currentTask.instance?.type === "Unpublish"
+            ? "unpublish"
+            : "publish",
         isDashboard: false,
       },
     });
   }
 }
 
-export { WorkflowDetailWorkspaceAction as api }
+export { WorkflowDetailWorkspaceAction as api };

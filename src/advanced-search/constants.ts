@@ -1,1 +1,2 @@
-export const WORKFLOW_ADVANCED_SEARCH_CONTEXT_ALIAS = "Workflow.AdvancedSearch.Context";
+export const WORKFLOW_ADVANCEDSEARCH_CONTEXT_ALIAS =
+  "Workflow.AdvancedSearch.Context";

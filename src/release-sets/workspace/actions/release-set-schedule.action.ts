@@ -3,8 +3,8 @@ import {
   UmbWorkspaceActionBase,
   type UmbWorkspaceActionArgs,
 } from "@umbraco-cms/backoffice/workspace";
-import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
-import { WORKFLOW_RELEASESET_WORKSPACE_CONTEXT } from "../release-set-workspace.context-token.js";
+import { umbOpenModal } from "@umbraco-cms/backoffice/modal";
+import { WORKFLOW_RELEASESET_WORKSPACE_CONTEXT } from "../index.js";
 import { WORKFLOW_RELEASESET_SCHEDULE_MODAL } from "../../modal/index.js";
 
 export class WorkflowReleaseSetScheduleAction extends UmbWorkspaceActionBase<never> {
@@ -18,33 +18,24 @@ export class WorkflowReleaseSetScheduleAction extends UmbWorkspaceActionBase<nev
     );
 
     if (!workspaceContext) {
-      throw new Error("Context not found: WORKFLOW_RELEASESET_WORKSPACE_CONTEXT");
+      throw new Error(
+        "Context not found: WORKFLOW_RELEASESET_WORKSPACE_CONTEXT"
+      );
     }
 
-    const releaseDate = workspaceContext.getData()?.releaseDate;
-
-    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-    if (!modalContext) {
-      throw new Error("Context not found: UMB_MODAL_MANAGER_CONTEXT");
-    }
-    
-    const modalHandler = modalContext.open(
+    const newReleaseDate = await umbOpenModal(
       this,
       WORKFLOW_RELEASESET_SCHEDULE_MODAL,
       {
         data: {
-          releaseDate,
+          releaseDate: workspaceContext.getData()?.releaseDate,
         },
       }
-    );
+    )
+      .then((result) => (result.releaseDate === "" ? null : result.releaseDate))
+      .catch(() => {});
 
-    await modalHandler.onSubmit().catch(() => {});
-    const value = modalHandler.getValue();
-
-    let newReleaseDate = value?.releaseDate ?? null;
-    newReleaseDate = newReleaseDate === "" ? null : newReleaseDate;
-
-    workspaceContext.update({ releaseDate: newReleaseDate });
+    workspaceContext.update({ releaseDate: newReleaseDate ?? null });
   }
 }
 

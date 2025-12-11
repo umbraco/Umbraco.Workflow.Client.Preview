@@ -9,11 +9,6 @@ import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import type { UmbInputToggleElement } from "@umbraco-cms/backoffice/components";
 import { umbConfirmModal } from "@umbraco-cms/backoffice/modal";
 import { WORKFLOW_RELEASESET_WORKSPACE_CONTEXT } from "../../workspace/release-set-workspace.context-token.js";
-import {
-  ReleaseSetItemStatusModel,
-  ReleaseSetStatusModel,
-  ReleaseSetTaskStatusModel,
-} from "@umbraco-workflow/generated";
 
 const elementName = "workflow-release-set-status";
 
@@ -48,13 +43,13 @@ export class WorkflowReleaseSetStatusElement extends UmbLitElement {
 
       this._hasPending =
         data?.tasks.some(
-          (x) => x.status === ReleaseSetTaskStatusModel.ACTIVE
+          (x) => x.status === "Active"
         ) ||
         data?.items.some((x) =>
-          x.items.some((y) => y.status === ReleaseSetItemStatusModel.DRAFT)
+          x.items.some((y) => y.status === "Draft")
         );
-      this._disabled = data?.status === ReleaseSetStatusModel.PUBLISHED;
-      this._value = data?.status !== ReleaseSetStatusModel.DRAFT;
+      this._disabled = data?.status === "Published";
+      this._value = data?.status !== "Draft";
       this.ready = this._value === true;
     });
   }
@@ -66,8 +61,8 @@ export class WorkflowReleaseSetStatusElement extends UmbLitElement {
       this._value = value;
       this.#workspaceContext?.updateSetStatus(
         this._value
-          ? ReleaseSetStatusModel.PUBLISHED
-          : ReleaseSetStatusModel.DRAFT
+          ? "Published"
+          : "Draft"
       );
       return;
     }
@@ -85,7 +80,7 @@ export class WorkflowReleaseSetStatusElement extends UmbLitElement {
       .then(() => {
         this._value = true;
         this.#workspaceContext?.updateSetStatus(
-          ReleaseSetStatusModel.PUBLISHED,
+          "Published",
           true
         );
       })
@@ -93,7 +88,7 @@ export class WorkflowReleaseSetStatusElement extends UmbLitElement {
         this._value = false;
         // setting value to false doesn't update correctly, but this does?
         this.shadowRoot!.querySelector("umb-input-toggle")!.checked = false;
-        this.#workspaceContext?.updateSetStatus(ReleaseSetStatusModel.DRAFT);
+        this.#workspaceContext?.updateSetStatus("Draft");
       });
   }
 

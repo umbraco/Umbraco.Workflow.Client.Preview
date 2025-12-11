@@ -1,16 +1,14 @@
 import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
-import type { UmbSubmittableWorkspaceContext } from "@umbraco-cms/backoffice/workspace";
-import type { WorkflowSettingsWorkspaceContext } from "./settings-workspace.context.js";
-
-export const WORKFLOW_SETTINGS_WORKSPACE_CONTEXT_ALIAS = "WorkflowSettingsContext";
+import { UmbSubmittableWorkspaceContext } from "@umbraco-cms/backoffice/workspace";
+import { WorkflowSettingsWorkspaceContext } from "./settings-workspace.context";
+import { WORKFLOW_SETTINGS_ENTITY_TYPE } from "../constants";
 
 export const WORKFLOW_SETTINGS_WORKSPACE_CONTEXT = new UmbContextToken<
   UmbSubmittableWorkspaceContext,
   WorkflowSettingsWorkspaceContext
 >(
-  WORKFLOW_SETTINGS_WORKSPACE_CONTEXT_ALIAS,
+  "UmbWorkspaceContext",
   undefined,
   (context): context is WorkflowSettingsWorkspaceContext =>
-    (context as WorkflowSettingsWorkspaceContext)
-      .IS_WORKFLOW_SETTINGS_WORKSPACE_CONTEXT
+    context.getEntityType?.() === WORKFLOW_SETTINGS_ENTITY_TYPE
 );

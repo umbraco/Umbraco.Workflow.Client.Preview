@@ -6,25 +6,25 @@ import {
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
-import {
-  UMB_MODAL_MANAGER_CONTEXT,
-  umbConfirmModal,
-  umbOpenModal,
-} from "@umbraco-cms/backoffice/modal";
+import { umbConfirmModal, umbOpenModal } from "@umbraco-cms/backoffice/modal";
 import {
   WORKFLOW_RELEASESET_VERSION_SCHEDULE_MODAL,
   type ReleaseSetVersionSchedule,
 } from "../../modal/index.js";
 import { WORKFLOW_RELEASESET_WORKSPACE_CONTEXT } from "../../workspace/release-set-workspace.context-token.js";
-import { type ReleaseSetVersionResponseModelReadable } from "@umbraco-workflow/generated";
+import { type ReleaseSetVersionResponseModel } from "@umbraco-workflow/generated";
 import { TimeFormatOptions } from "@umbraco-workflow/core";
+import { WorkflowAlternateVersionDetailRepository } from "@umbraco-workflow/alternate-versions";
+import { WORKFLOW_RELEASESET_VERSIONS_EDITOR_CONTEXT } from "./release-set-versions-editor.context-token.js";
 
 const elementName = "release-set-version";
 
 @customElement(elementName)
 export class WorkflowReleaseSetVersionElement extends UmbLitElement {
+  #versionEditorContext?: typeof WORKFLOW_RELEASESET_VERSIONS_EDITOR_CONTEXT.TYPE;
+
   @property({ type: Object })
-  version?: ReleaseSetVersionResponseModelReadable;
+  version?: ReleaseSetVersionResponseModel;
 
   @property({ type: Boolean, reflect: true, attribute: "invalid" })
   requiresReleaseDate = false;
@@ -54,11 +54,17 @@ export class WorkflowReleaseSetVersionElement extends UmbLitElement {
       if (!context) return;
       this.#minReleaseDate = context.getData()?.releaseDate;
     });
+
+    this.consumeContext(
+      WORKFLOW_RELEASESET_VERSIONS_EDITOR_CONTEXT,
+      (context) => {
+        this.#versionEditorContext = context;
+      }
+    );
   }
 
   connectedCallback() {
     super.connectedCallback();
-
     this.#checkInvalidReleaseDate();
   }
 
@@ -85,7 +91,7 @@ export class WorkflowReleaseSetVersionElement extends UmbLitElement {
       confirmLabel: this.localize.term("actions_remove"),
     }).catch(() => {});
 
-    this.dispatchEvent(new CustomEvent("remove"));
+    this.#versionEditorContext?.removeVersion(this.version?.unique);
   }
 
   async #schedule() {
@@ -110,11 +116,36 @@ export class WorkflowReleaseSetVersionElement extends UmbLitElement {
     };
 
     this.#checkInvalidReleaseDate();
-    this.dispatchEvent(new CustomEvent("schedule"));
+    this.#versionEditorContext?.updateVersion(this.version);
   }
 
-  #selected() {
-    this.dispatchEvent(new CustomEvent("selected"));
+  async #setStatus() {
+    if (!this.version) return;
+
+    await umbConfirmModal(this, {
+      headline: this.localize.term("buttons_confirmActionConfirm"),
+      content: this.localize.term(
+        "workflow_releaseSets_readyToPublishDescription"
+      ),
+    });
+
+    // TODO => really should add a separate endpoint just for setting status
+    const detailRepository = new WorkflowAlternateVersionDetailRepository(this);
+    const { data } = await detailRepository.requestByUnique(
+      this.version.unique
+    );
+    if (!data) return;
+
+    this.#versionEditorContext?.updateVersion({
+      ...this.version,
+      status: "ReadyToPublish",
+    });
+
+    await detailRepository.save({
+      ...data,
+      status: "ReadyToPublish",
+      isStatusUpdate: true,
+    });
   }
 
   #getDetail() {
@@ -154,13 +185,22 @@ export class WorkflowReleaseSetVersionElement extends UmbLitElement {
   render() {
     if (!this.version) return;
 
-    return html`<uui-ref-node name=${this.version.name} @open=${this.#selected}>
+    return html`<uui-ref-node name=${this.version.name} readonly>
       <div slot="tag">
         <status-tag .value=${this.version.status}></status-tag>
         <uui-action-bar>
           <uui-button label="schedule" @click=${this.#schedule}>
             <uui-icon name="calendar"></uui-icon>
           </uui-button>
+          ${when(
+            this.version.status === "Draft",
+            () => html` <uui-button
+              label="update status"
+              @click=${this.#setStatus}
+            >
+              <uui-icon name="icon-badge-add"></uui-icon>
+            </uui-button>`
+          )}
           <uui-button label="remove" @click=${this.#remove}>
             <uui-icon name="delete"></uui-icon>
           </uui-button>

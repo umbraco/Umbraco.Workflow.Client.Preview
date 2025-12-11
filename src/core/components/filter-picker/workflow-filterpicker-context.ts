@@ -1,6 +1,9 @@
-import { UmbNumberState, UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
+import {
+  UmbNumberState,
+  UmbObjectState,
+} from "@umbraco-cms/backoffice/observable-api";
 import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
-import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
+import { umbOpenModal } from "@umbraco-cms/backoffice/modal";
 import { WORKFLOW_FILTER_PICKER_MODAL } from "./modal/filter-picker-modal.token.js";
 import type { WorkflowFilterConfig } from "@umbraco-workflow/components";
 import type { WorkflowSearchFilterModel } from "@umbraco-workflow/generated";
@@ -16,18 +19,15 @@ export class WorkflowFilterPickerContext extends UmbControllerBase {
   activeCount = this.#activeCount.asObservable();
 
   async openPicker() {
-    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-    if (!modalContext) return;
-    
-    const modalHandler = modalContext.open(this, WORKFLOW_FILTER_PICKER_MODAL, {
+    const result = await umbOpenModal(this, WORKFLOW_FILTER_PICKER_MODAL, {
       data: {
         config: this.getConfig(),
       },
       value: this.#value.getValue(),
-    });
+    }).catch(() => {});
 
-    await modalHandler.onSubmit().catch(() => undefined);
-    this.setValue(modalHandler.getValue());
+    if (!result) return;
+    this.setValue(result);
   }
 
   getConfig() {

@@ -1,0 +1,2 @@
+export const WORKFLOW_CONTENTREVIEWS_SETTINGS_WORKSPACE_CONTEXT_ALIAS =
+  "WorkflowContentReviewsSettingsWorkspaceContext";

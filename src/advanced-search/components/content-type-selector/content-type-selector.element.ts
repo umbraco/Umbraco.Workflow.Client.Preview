@@ -8,8 +8,8 @@ import {
   state,
   when,
 } from "@umbraco-cms/backoffice/external/lit";
-import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
-import { ADVANCED_SEARCH_CONTEXT } from "../../advanced-search-context.token.js";
+import { umbOpenModal } from "@umbraco-cms/backoffice/modal";
+import { WORKFLOW_ADVANCEDSEARCH_CONTEXT } from "../../advanced-search-context.token.js";
 import type { VariantDropdownElement } from "../index.js";
 import type { SelectableLanguageModel } from "@umbraco-workflow/core";
 import type { SelectableContentTypePropertyDetailModel } from "@umbraco-workflow/generated";
@@ -18,7 +18,7 @@ const elementName = "workflow-advanced-search-content-types";
 
 @customElement(elementName)
 export class WorkflowAdvancedSearchContentTypesElement extends UmbLitElement {
-  #advancedSearchContext?: typeof ADVANCED_SEARCH_CONTEXT.TYPE;
+  #advancedSearchContext?: typeof WORKFLOW_ADVANCEDSEARCH_CONTEXT.TYPE;
 
   @state()
   languages: Array<SelectableLanguageModel> = [];
@@ -37,7 +37,7 @@ export class WorkflowAdvancedSearchContentTypesElement extends UmbLitElement {
   constructor() {
     super();
 
-    this.consumeContext(ADVANCED_SEARCH_CONTEXT, (context) => {
+    this.consumeContext(WORKFLOW_ADVANCEDSEARCH_CONTEXT, (context) => {
       if (!context) return;
       this.#advancedSearchContext = context;
 
@@ -60,29 +60,22 @@ export class WorkflowAdvancedSearchContentTypesElement extends UmbLitElement {
   }
 
   async #addContentType() {
-    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-    if (!modalContext) return;
+    const selection = await umbOpenModal(this, UMB_DOCUMENT_TYPE_PICKER_MODAL, {
+      data: {
+        multiple: true,
+        hideTreeRoot: true,
+      },
+      value: {
+        selection: [
+          ...(this.contentTypes?.filter((x) => x.selected).map((x) => x.key!) ??
+            []),
+        ],
+      },
+    })
+      .then((result) => result.selection)
+      .catch(() => {});
 
-    const modalHandler = modalContext.open(
-      this,
-      UMB_DOCUMENT_TYPE_PICKER_MODAL,
-      {
-        data: {
-          multiple: true,
-          hideTreeRoot: true,
-        },
-        value: {
-          selection: [
-            ...(this.contentTypes
-              ?.filter((x) => x.selected)
-              .map((x) => x.key!) ?? []),
-          ],
-        },
-      }
-    );
-
-    await modalHandler.onSubmit().catch(() => undefined);
-    const { selection } = modalHandler.getValue();
+    if (!selection) return;
 
     this.contentTypes?.forEach((contentType) => {
       this.#advancedSearchContext?.setContentTypeSelected(
@@ -105,7 +98,7 @@ export class WorkflowAdvancedSearchContentTypesElement extends UmbLitElement {
 
   render() {
     return html`<uui-box
-      .headline=${this.localize.term("workflowSearch_selectContentTypes")}
+      .headline=${this.localize.term("workflow_search_selectContentTypes")}
     >
       ${when(
         this.selectedContentTypes?.some((x) => x.varies),
@@ -138,7 +131,7 @@ export class WorkflowAdvancedSearchContentTypesElement extends UmbLitElement {
       <uui-button
         look="placeholder"
         @click=${this.#addContentType}
-        label=${this.localize.term("workflowSearch_addContentTypes")}
+        label=${this.localize.term("workflow_search_addContentTypes")}
       ></uui-button>
     </uui-box>`;
   }

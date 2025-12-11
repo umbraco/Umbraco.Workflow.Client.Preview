@@ -1,0 +1,2 @@
+export const WORKFLOW_CONTENTAPPROVAL_SETTINGS_WORKSPACE_CONTEXT_ALIAS =
+  "WorkflowContentApprovalSettingsContext";

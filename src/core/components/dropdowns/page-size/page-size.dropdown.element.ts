@@ -34,7 +34,7 @@ export class PageSizeDropdownElement extends DropdownBaseElement<number> {
   }
 
   render() {
-    return html` <umb-dropdown label="Page size" compact id="dropdown">
+    return html` <umb-dropdown label="Page size" id="dropdown" look="outline">
       <span slot="label"><umb-localize key="workflow_pageSize">Page size</umb-localize>: <span>${
         this.value
       }</span></umb-localize></span>

@@ -1,9 +1,12 @@
 import { UMB_WORKSPACE_CONDITION_ALIAS } from "@umbraco-cms/backoffice/workspace";
 import {
+  ALTERNATEVERSION_ACTION_VISIBILITY_CONDITION_ALIAS,
   ALTERNATEVERSION_DELETE_VISIBILITY_CONDITION_ALIAS,
-  ALTERNATEVERSION_MAKECURRENT_VISIBILITY_CONDITION_ALIAS,
 } from "../workspace/conditions/constants.js";
-import { ALTERNATEVERSION_ENTITY_TYPE,WORKFLOW_ALTERNATEVERSION_WORKSPACE_ALIAS } from "../constants.js";
+import {
+  ALTERNATEVERSION_ENTITY_TYPE,
+  WORKFLOW_ALTERNATEVERSION_WORKSPACE_ALIAS,
+} from "../constants.js";
 
 export const manifests: Array<UmbExtensionManifest> = [
   {
@@ -23,7 +26,8 @@ export const manifests: Array<UmbExtensionManifest> = [
         match: WORKFLOW_ALTERNATEVERSION_WORKSPACE_ALIAS,
       },
       {
-        alias: ALTERNATEVERSION_MAKECURRENT_VISIBILITY_CONDITION_ALIAS,
+        alias: ALTERNATEVERSION_ACTION_VISIBILITY_CONDITION_ALIAS,
+        status: "ReadyToPublish",
       },
     ],
   },

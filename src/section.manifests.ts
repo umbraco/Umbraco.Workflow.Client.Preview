@@ -1,5 +1,17 @@
-import { UMB_SECTION_USER_PERMISSION_CONDITION_ALIAS } from "@umbraco-cms/backoffice/section";
-import { WORKFLOW_SECTION_ALIAS, WORKFLOW_SECTION_MENU_ALIAS } from './constants.js';
+import { WORKFLOW_USER_PERMISSION_HISTORY_READ } from "@umbraco-workflow/history";
+import { WORKFLOW_USER_PERMISSION_ACTIVEWORKFLOWS_READ } from "@umbraco-workflow/active-workflows";
+import { WORKFLOW_USER_PERMISSION_APPROVALGROUP_READ } from "@umbraco-workflow/approval-group";
+import { WORKFLOW_USER_PERMISSION_CONTENTREVIEW_READ } from "@umbraco-workflow/content-reviews";
+import {
+  UMB_SECTION_ALIAS_CONDITION_ALIAS,
+  UMB_SECTION_USER_PERMISSION_CONDITION_ALIAS,
+} from "@umbraco-cms/backoffice/section";
+import {
+  WORKFLOW_USER_PERMISSION_CONDITION_ALIAS,
+  WORKFLOW_SECTION_ALIAS,
+  WORKFLOW_SECTION_MENU_ALIAS,
+  WORKFLOW_SECTION_PATHNAME,
+} from "@umbraco-workflow/core";
 
 export const manifests: Array<UmbExtensionManifest> = [
   {
@@ -9,7 +21,7 @@ export const manifests: Array<UmbExtensionManifest> = [
     weight: 0,
     meta: {
       label: "#workflow_workflow",
-      pathname: "workflow",
+      pathname: WORKFLOW_SECTION_PATHNAME,
     },
     conditions: [
       {
@@ -35,8 +47,17 @@ export const manifests: Array<UmbExtensionManifest> = [
     },
     conditions: [
       {
-        alias: "Umb.Condition.SectionAlias",
+        alias: UMB_SECTION_ALIAS_CONDITION_ALIAS,
         match: WORKFLOW_SECTION_ALIAS,
+      },
+      {
+        alias: WORKFLOW_USER_PERMISSION_CONDITION_ALIAS,
+        oneOf: [
+          WORKFLOW_USER_PERMISSION_ACTIVEWORKFLOWS_READ,
+          WORKFLOW_USER_PERMISSION_HISTORY_READ,
+          WORKFLOW_USER_PERMISSION_CONTENTREVIEW_READ,
+          WORKFLOW_USER_PERMISSION_APPROVALGROUP_READ,
+        ],
       },
     ],
   },

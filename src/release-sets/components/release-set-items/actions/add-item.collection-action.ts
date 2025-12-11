@@ -4,19 +4,16 @@ import {
   UmbDocumentPickerInputContext,
 } from "@umbraco-cms/backoffice/document";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
-import { WORKFLOW_RELEASESET_WORKSPACE_CONTEXT } from "../../../workspace/release-set-workspace.context-token.js";
+import { WORKFLOW_RELEASESET_WORKSPACE_CONTEXT } from "../../../workspace/index.js";
 import { RELEASESET_ITEM_ENTITY_TYPE } from "../../../constants.js";
-import {
-  ReleaseSetItemStatusModel,
-  type ReleaseSetItemResponseModelReadable,
-} from "@umbraco-workflow/generated";
 import { umbOpenModal } from "@umbraco-cms/backoffice/modal";
 import { WORKFLOW_RELEASESET_ITEM_EDITOR_MODAL } from "../../../modal/index.js";
-import { WORKFLOW_RELEASESET_ITEM_EDITOR_CONTEXT } from "../../release-set-versions/release-set-versions-editor.context.js";
+import { WORKFLOW_RELEASESET_VERSIONS_EDITOR_CONTEXT } from "../../release-set-versions/index.js";
+import { ReleaseSetItemResponseModel } from "@umbraco-workflow/generated";
 
 export class WorkflowReleaseSetItemCollectionAddItemAction extends UmbControllerBase {
   #workspaceContext?: typeof WORKFLOW_RELEASESET_WORKSPACE_CONTEXT.TYPE;
-  #editorContext?: typeof WORKFLOW_RELEASESET_ITEM_EDITOR_CONTEXT.TYPE;
+  #editorContext?: typeof WORKFLOW_RELEASESET_VERSIONS_EDITOR_CONTEXT.TYPE;
 
   #currentItems?: Array<string>;
 
@@ -32,10 +29,13 @@ export class WorkflowReleaseSetItemCollectionAddItemAction extends UmbController
       });
     });
 
-    this.consumeContext(WORKFLOW_RELEASESET_ITEM_EDITOR_CONTEXT, (context) => {
-      if (!context) return;
-      this.#editorContext = context;
-    });
+    this.consumeContext(
+      WORKFLOW_RELEASESET_VERSIONS_EDITOR_CONTEXT,
+      (context) => {
+        if (!context) return;
+        this.#editorContext = context;
+      }
+    );
   }
 
   async execute() {
@@ -73,19 +73,19 @@ export class WorkflowReleaseSetItemCollectionAddItemAction extends UmbController
 
     const item = data[0];
 
-    const newItem: ReleaseSetItemResponseModelReadable = {
+    const newItem: ReleaseSetItemResponseModel = {
       entityType: RELEASESET_ITEM_ENTITY_TYPE,
-      name: item.name,
+      name: item.variants.at(0)?.name ?? "",
       icon: item.documentType.icon,
       unique: item.unique,
-      status: ReleaseSetItemStatusModel.DRAFT,
+      status: "Draft",
       items: [],
     };
 
     await this.#edit(newItem);
   }
 
-  async #edit(item?: ReleaseSetItemResponseModelReadable) {
+  async #edit(item?: ReleaseSetItemResponseModel) {
     if (!item || !this.#editorContext) return;
 
     await this.#editorContext?.setValue(item);
@@ -119,7 +119,7 @@ export class WorkflowReleaseSetItemCollectionAddItemAction extends UmbController
       entityType: RELEASESET_ITEM_ENTITY_TYPE,
       name: value.item.name ?? "",
       unique: value.item.unique,
-      status: ReleaseSetItemStatusModel.DRAFT,
+      status: "Draft",
       items: value.item.items ?? [],
     });
   }

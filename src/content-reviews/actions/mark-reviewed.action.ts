@@ -51,9 +51,11 @@ export class WorkflowMarkReviewedWorkspaceAction extends UmbWorkspaceActionBase 
 
   async #showExpiredDialog() {
     await umbConfirmModal(this, {
-      headline: this.#localize.term("contentReviews_contentRequiresReview"),
+      headline: this.#localize.term(
+        "workflow_contentReviews_contentRequiresReview"
+      ),
       content: this.#localize.term(
-        "contentReviews_contentRequiresReviewDescription"
+        "workflow_contentReviews_contentRequiresReviewDescription"
       ),
       cancelLabel: this.#localize.term("general_close"),
       confirmLabel: this.#localize.term("general_ok"),
@@ -68,6 +70,7 @@ export class WorkflowMarkReviewedWorkspaceAction extends UmbWorkspaceActionBase 
       this,
       WORKFLOW_CONTENTREVIEWS_REVIEW_MODAL
     ).catch(() => {});
+
     if (!result) return;
 
     const { reviewDate } = result;
@@ -78,7 +81,7 @@ export class WorkflowMarkReviewedWorkspaceAction extends UmbWorkspaceActionBase 
       ContentReviewService.putContentReviewReview({
         body: {
           document: {
-            culture: this.#workflowManagerContext.getActiveVariant() ?? "",
+            culture: this.#workflowManagerContext.getActiveCulture() ?? "",
             unique: this.#workspaceContext.getUnique()!,
           },
           dueOn: reviewDate,

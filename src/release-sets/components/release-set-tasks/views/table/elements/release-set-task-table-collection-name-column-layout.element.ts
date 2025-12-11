@@ -4,29 +4,25 @@ import {
   nothing,
   property,
 } from "@umbraco-cms/backoffice/external/lit";
-import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
+import { umbOpenModal } from "@umbraco-cms/backoffice/modal";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import { WORKFLOW_RELEASESET_TASK_EDITOR_MODAL } from "../../../../../modal/index.js";
-import { taskProperties } from "../../../../../task-properties.js";
-import { WORKFLOW_RELEASESET_WORKSPACE_CONTEXT } from "../../../../../workspace/release-set-workspace.context-token.js";
-import type { ReleaseSetTaskResponseModelReadable } from "@umbraco-workflow/generated";
+import { taskProperties } from "../../../task-properties.js";
+import { WORKFLOW_RELEASESET_WORKSPACE_CONTEXT } from "../../../../../workspace/index.js";
+import type { ReleaseSetTaskResponseModel } from "@umbraco-workflow/generated";
 
 const elementName = "release-set-task-table-name-column-layout";
 
 @customElement(elementName)
 export class ReleaseSetTaskTableNameColumnLayoutElement extends UmbLitElement {
   @property({ attribute: false })
-  value!: ReleaseSetTaskResponseModelReadable;
+  value!: ReleaseSetTaskResponseModel;
 
   async #onClick(e: Event) {
     e.preventDefault();
     e.stopPropagation();
 
-    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-    if (!modalContext) {
-      throw new Error("Could not find context: UMB_MODAL_MANAGER_CONTEXT");
-    }
-    const modalHandler = modalContext.open(
+    const task = await umbOpenModal(
       this,
       WORKFLOW_RELEASESET_TASK_EDITOR_MODAL,
       {
@@ -35,20 +31,22 @@ export class ReleaseSetTaskTableNameColumnLayoutElement extends UmbLitElement {
           properties: taskProperties.filter((x) => x.edit !== false),
         },
       }
-    );
+    )
+      .then((result) => result.task)
+      .catch(() => {});
 
-    await modalHandler.onSubmit().catch(() => {});
-    const value = modalHandler.getValue();
-    if (!value) return;
+    if (!task) return;
 
     const context = await this.getContext(
       WORKFLOW_RELEASESET_WORKSPACE_CONTEXT
     );
     if (!context) {
-      throw new Error("Could not find context: WORKFLOW_RELEASESET_WORKSPACE_CONTEXT");
+      throw new Error(
+        "Could not find context: WORKFLOW_RELEASESET_WORKSPACE_CONTEXT"
+      );
     }
-    
-    context.updateTask({ ...this.value, ...value.task });
+
+    context.updateTask({ ...this.value, ...task });
   }
 
   render() {

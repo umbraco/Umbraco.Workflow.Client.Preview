@@ -14,8 +14,11 @@ import {
 import {
   type ChartResponseModel,
   ChartService,
-  WorkflowStatusModel,
 } from "@umbraco-workflow/generated";
+import { UMB_WORKSPACE_PATH_PATTERN } from "@umbraco-cms/backoffice/workspace";
+import { WORKFLOW_ACTIVEWORKFLOWS_ROOT_ENTITY_TYPE } from "@umbraco-workflow/active-workflows";
+import { WORKFLOW_HISTORY_ROOT_ENTITY_TYPE } from "@umbraco-workflow/history";
+import { WORKFLOW_SECTION_PATHNAME } from "../../constants.js";
 
 const elementName = "workflow-activity-chart";
 
@@ -28,15 +31,7 @@ export class WorkflowActivityChartElement extends ChartBaseElement {
   #minSeconds!: string;
   #maxSeconds!: string;
 
-  #statusValues = [
-    { key: "Approved", value: WorkflowStatusModel.APPROVED.toLowerCase() },
-    { key: "Cancelled", value: WorkflowStatusModel.CANCELLED.toLowerCase() },
-    { key: "Errored", value: WorkflowStatusModel.ERRORED.toLowerCase() },
-    {
-      key: "Pending",
-      value: WorkflowStatusModel.PENDING_APPROVAL.toLowerCase(),
-    },
-  ];
+  #statusValues = ["approved", "cancelled", "errored", "pending"];
 
   #humanize = (x: number) => humanizeDuration(x, { round: true });
 
@@ -44,13 +39,12 @@ export class WorkflowActivityChartElement extends ChartBaseElement {
     this.headerCards = [];
 
     this.#statusValues.forEach((s) => {
-      const lower = s.key.toLowerCase();
+      const lower = s.toLowerCase();
 
       this.headerCards.push({
         background: lower,
-        status: s.value,
-        action: () => this.getActivity(s.key),
-        label: s.key,
+        status: s,
+        action: () => this.getActivity(s),
         value: this.numberFormat(
           <number>(chartData?.additionalData ?? {})[`${lower}Count`] ?? 0,
           chartData?.currentUserLocale
@@ -95,30 +89,34 @@ export class WorkflowActivityChartElement extends ChartBaseElement {
     this.#buildChartSeries(data);
   }
 
-  getActivity(filter: string) {
-    if (filter === "Pending") {
+  getActivity(status: string) {
+    if (status === "pending") {
       window.history.pushState(
         null,
         "",
-        "/umbraco/section/workflow/workspace/active-workflows-root"
+        UMB_WORKSPACE_PATH_PATTERN.generateAbsolute({
+          sectionName: WORKFLOW_SECTION_PATHNAME,
+          entityType: WORKFLOW_ACTIVEWORKFLOWS_ROOT_ENTITY_TYPE,
+        })
       );
       return;
     }
 
-    const f = this.#statusValues.find((x) => x.key === filter);
-    if (f) {
-      const o = {
-        status: f.value,
+    window.localStorage.setItem(
+      "workflow_historyFilter",
+      JSON.stringify({
+        status,
         from: new Date(Date.now() - this.range * 24 * 60 * 60 * 1000),
-      };
-
-      window.localStorage.setItem("workflow_historyFilter", JSON.stringify(o));
-    }
+      })
+    );
 
     window.history.pushState(
       null,
       "",
-      "/umbraco/section/workflow/workspace/workflow-history-root"
+      UMB_WORKSPACE_PATH_PATTERN.generateAbsolute({
+        sectionName: WORKFLOW_SECTION_PATHNAME,
+        entityType: WORKFLOW_HISTORY_ROOT_ENTITY_TYPE,
+      })
     );
   }
 

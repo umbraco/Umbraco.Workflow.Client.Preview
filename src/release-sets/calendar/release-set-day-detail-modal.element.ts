@@ -16,22 +16,25 @@ import {
   CalendarItemVersion,
   WorkflowContentCalendarDayDetailModalBaseElement,
 } from "@umbraco-workflow/calendar";
-import { WORKFLOW_RELEASESET_ITEM_EDITOR_CONTEXT } from "../components/release-set-versions/release-set-versions-editor.context";
+import { WORKFLOW_RELEASESET_VERSIONS_EDITOR_CONTEXT } from "../components/index.js";
 
 const elementName = "release-set-day-detail-modal";
 
 @customElement(elementName)
 export class WorkflowReleaseSetDayDetailModalElement extends WorkflowContentCalendarDayDetailModalBaseElement {
   #versionSorter = new WorkflowVersionSorterController();
-  #editorContext?: typeof WORKFLOW_RELEASESET_ITEM_EDITOR_CONTEXT.TYPE;
+  #editorContext?: typeof WORKFLOW_RELEASESET_VERSIONS_EDITOR_CONTEXT.TYPE;
 
   constructor() {
     super();
 
-    this.consumeContext(WORKFLOW_RELEASESET_ITEM_EDITOR_CONTEXT, (context) => {
-      if (!context) return;
-      this.#editorContext = context;
-    });
+    this.consumeContext(
+      WORKFLOW_RELEASESET_VERSIONS_EDITOR_CONTEXT,
+      (context) => {
+        if (!context) return;
+        this.#editorContext = context;
+      }
+    );
   }
 
   connectedCallback(): void {

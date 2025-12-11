@@ -23,7 +23,6 @@ export class WorkflowReadonlyManagerController extends UmbControllerBase {
 
     this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (context) => {
       if (!context) return;
-      
       this.workspaceContext = context;
     });
   }

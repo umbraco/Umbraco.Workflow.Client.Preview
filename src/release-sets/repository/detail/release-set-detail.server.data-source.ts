@@ -7,14 +7,14 @@ import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
 import { UmbId } from "@umbraco-cms/backoffice/id";
 import { RELEASESET_ENTITY_TYPE } from "../../constants.js";
 import {
-  type ReleaseSetDetailResponseModelReadable,
+  type ReleaseSetDetailResponseModel,
   ReleaseSetsService,
   ReleaseSetStatusModel,
 } from "@umbraco-workflow/generated";
 
 export class WorkflowReleaseSetDetailServerDataSource
   extends UmbControllerBase
-  implements UmbDetailDataSource<ReleaseSetDetailResponseModelReadable>
+  implements UmbDetailDataSource<ReleaseSetDetailResponseModel>
 {
   constructor(host: UmbControllerHost) {
     super(host);
@@ -49,7 +49,7 @@ export class WorkflowReleaseSetDetailServerDataSource
         unique: UmbId.new(),
         createDate: null,
         itemCount: 0,
-        status: ReleaseSetStatusModel.DRAFT,
+        status: "Draft" as ReleaseSetStatusModel,
         entityType: RELEASESET_ENTITY_TYPE,
         collaborators: [],
         items: [],
@@ -71,29 +71,29 @@ export class WorkflowReleaseSetDetailServerDataSource
     return await firstValueFrom(context.currentUser);
   }
 
-  async create(set: ReleaseSetDetailResponseModelReadable) {
+  async create(set: ReleaseSetDetailResponseModel) {
     if (!set) {
       throw new Error("Release Set is missing");
     }
 
-    const { data, error } = await tryExecute(
+    const { error } = await tryExecute(
       this,
       ReleaseSetsService.postReleaseSet({ body: set })
     );
 
-    if (data) {
-      return this.read(set.unique);
+    if (error) {
+      return { error };
     }
 
-    return { error };
+    return this.read(set.unique);
   }
 
-  async update(set: ReleaseSetDetailResponseModelReadable) {
+  async update(set: ReleaseSetDetailResponseModel) {
     if (!set.unique) {
       throw new Error("Release Set ID is missing");
     }
 
-    const { data, error } = await tryExecute(
+    const { error } = await tryExecute(
       this,
       ReleaseSetsService.putReleaseSetById({
         path: { id: set.unique },
@@ -101,11 +101,11 @@ export class WorkflowReleaseSetDetailServerDataSource
       })
     );
 
-    if (data) {
-      return this.read(set.unique);
+    if (error) {
+      return { error };
     }
 
-    return { error };
+    return this.read(set.unique);
   }
 
   async delete(key: string) {

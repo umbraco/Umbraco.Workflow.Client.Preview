@@ -1,10 +1,12 @@
 import { UmbContextBase } from "@umbraco-cms/backoffice/class-api";
-import { HubConnectionBuilder, type HubConnection } from "@microsoft/signalr";
+import {
+  HubConnectionBuilder,
+  type HubConnection,
+} from "@umbraco-cms/backoffice/external/signalr";
 import { Subject } from "@umbraco-cms/backoffice/external/rxjs";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { UMB_CURRENT_USER_CONTEXT } from "@umbraco-cms/backoffice/current-user";
-import { WORKFLOW_CONTEXT } from "../token/workflow.context-token.js";
-import { WORKFLOW_SIGNALR_CONTEXT } from "../token/workflow-signalr.context-token.js";
+import { WORKFLOW_CONTEXT, WORKFLOW_SIGNALR_CONTEXT } from "../token/index.js";
 
 export class WorkflowSignalRContext extends UmbContextBase {
   #connection: HubConnection | null = null;
@@ -26,11 +28,12 @@ export class WorkflowSignalRContext extends UmbContextBase {
 
     this.consumeContext(UMB_CURRENT_USER_CONTEXT, (context) => {
       if (!context) return;
-      this.observe(context?.unique, (unique) => (this.#userUnique = unique));
+      this.observe(context.unique, (unique) => (this.#userUnique = unique));
     });
 
     this.consumeContext(WORKFLOW_CONTEXT, (context) => {
-      this.observe(context?.hubUrl, (hubUrl) => {
+      if (!context) return;
+      this.observe(context.hubUrl, (hubUrl) => {
         if (!hubUrl) return;
         this.#hubUrl = hubUrl;
         this.#setupConnection();

@@ -11,7 +11,7 @@ import type {
   UmbPropertyValueData,
 } from "@umbraco-cms/backoffice/property";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
-import { ADVANCED_SEARCH_CONTEXT } from "../../../advanced-search-context.token.js";
+import { WORKFLOW_ADVANCEDSEARCH_CONTEXT } from "../../../advanced-search-context.token.js";
 import { WORKFLOW_ITEM_PICKER_MODAL } from "../../../modal/index.js";
 import { AdvancedSearchFieldElement } from "../../../entities.js";
 import {
@@ -28,7 +28,7 @@ export class WorkflowAdvancedSearchEditorElement
   extends UmbLitElement
   implements AdvancedSearchFieldElement
 {
-  #advancedSearchContext?: typeof ADVANCED_SEARCH_CONTEXT.TYPE;
+  #advancedSearchContext?: typeof WORKFLOW_ADVANCEDSEARCH_CONTEXT.TYPE;
 
   @state()
   value: Array<UmbPropertyValueData<any>> = [];
@@ -53,7 +53,7 @@ export class WorkflowAdvancedSearchEditorElement
   constructor() {
     super();
 
-    this.consumeContext(ADVANCED_SEARCH_CONTEXT, (context) => {
+    this.consumeContext(WORKFLOW_ADVANCEDSEARCH_CONTEXT, (context) => {
       if (!context) return;
       this.#advancedSearchContext = context;
 
@@ -99,20 +99,21 @@ export class WorkflowAdvancedSearchEditorElement
 
   async #addSelectedType() {
     const items =
-      this._searchType === AdvancedSearchTypeModel.DATATYPE
+      this._searchType === "Datatype"
         ? this._availableDataTypes
         : this._availablePropertyEditors;
 
-    const result = await umbOpenModal(this, WORKFLOW_ITEM_PICKER_MODAL, {
+    const selectedType = await umbOpenModal(this, WORKFLOW_ITEM_PICKER_MODAL, {
       data: {
         multiple: false,
         items,
       },
-    }).catch(() => {});
+    })
+      .then((result) => result.selection.at(0))
+      .catch(() => {});
 
-    if (!result) return;
+    if (!selectedType) return;
 
-    const selectedType = result.selection[0];
     this._selectedType = items.find((x) => x.key === selectedType);
 
     const typeSearchKey = this.#typeSearchKey();
@@ -141,11 +142,11 @@ export class WorkflowAdvancedSearchEditorElement
   }
 
   #typeSearchKey() {
-    if (this._searchType === AdvancedSearchTypeModel.DATATYPE) {
+    if (this._searchType === "Datatype") {
       return "dataTypeKey";
     }
 
-    if (this._searchType === AdvancedSearchTypeModel.PROPERTY_EDITOR) {
+    if (this._searchType === "PropertyEditor") {
       return "propertyEditorAlias";
     }
 
@@ -199,10 +200,8 @@ export class WorkflowAdvancedSearchEditorElement
             @click=${this.#addSelectedType}
             look="placeholder"
             .label=${this.localize.term(
-              `workflowSearch_add${
-                this._searchType === AdvancedSearchTypeModel.DATATYPE
-                  ? "DataType"
-                  : "PropertyEditor"
+              `workflow_search_add${
+                this._searchType === "Datatype" ? "DataType" : "PropertyEditor"
               }`
             )}
           ></uui-button>`

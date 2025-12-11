@@ -3,7 +3,7 @@ import {
   RELEASESET_ENTITY_TYPE,
   WORKFLOW_RELEASESET_WORKSPACE_ALIAS,
 } from "../constants.js";
-import { manifests as actionManifests } from './actions/manifests.js';
+import { manifests as actionManifests } from "./actions/manifests.js";
 
 export const manifests: Array<UmbExtensionManifest> = [
   ...actionManifests,
@@ -31,7 +31,7 @@ export const manifests: Array<UmbExtensionManifest> = [
     },
     conditions: [
       {
-				alias: UMB_WORKSPACE_CONDITION_ALIAS,
+        alias: UMB_WORKSPACE_CONDITION_ALIAS,
         match: WORKFLOW_RELEASESET_WORKSPACE_ALIAS,
       },
     ],
@@ -43,7 +43,7 @@ export const manifests: Array<UmbExtensionManifest> = [
     name: "Workflow Release Set Workspace Info View",
     element: () =>
       import("./views/info/release-set-workspace-view-info.element.js"),
-    weight: 1000,
+    weight: 100,
     meta: {
       label: "#general_info",
       pathname: "info",
@@ -51,7 +51,7 @@ export const manifests: Array<UmbExtensionManifest> = [
     },
     conditions: [
       {
-				alias: UMB_WORKSPACE_CONDITION_ALIAS,
+        alias: UMB_WORKSPACE_CONDITION_ALIAS,
         match: WORKFLOW_RELEASESET_WORKSPACE_ALIAS,
       },
     ],

@@ -1,10 +1,14 @@
 import type { UmbContextBase } from "@umbraco-cms/backoffice/class-api";
+import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
+import { ClassConstructor } from "@umbraco-cms/backoffice/extension-api";
 import type { Observable } from "@umbraco-cms/backoffice/observable-api";
 import type { UmbVariantId } from "@umbraco-cms/backoffice/variant";
+import { UmbSubmittableWorkspaceContext } from "@umbraco-cms/backoffice/workspace";
 import type {
   ContentReviewsScaffoldResponseModel,
   ScaffoldRequestModel,
 } from "@umbraco-workflow/generated";
+import { WorkflowRepositoryBase } from "@umbraco-workflow/repository";
 
 export interface ScaffoldArgsModel extends ScaffoldRequestModel {
   instanceUnique?: string;
@@ -20,10 +24,11 @@ export interface WorkflowState {
   requireComment?: boolean;
   requireUnpublish?: boolean;
   allowAttachments?: boolean;
-  activeVariants?: Array<string>;
+  activeCultures?: Array<string>;
   review?: ContentReviewsScaffoldResponseModel;
   user?: WorkflowStateUser;
   unique?: string;
+  entityType?: string;
 }
 
 export interface WorkflowStateUser {
@@ -47,4 +52,17 @@ export interface WorkflowApprovableWorkspaceContext extends UmbContextBase {
   getEntityType: () => string;
   getCurrentVariant: () => UmbVariantId | undefined;
   getUnique: () => string | undefined;
+}
+
+export interface WorkflowSettingsWorkspaceContextCtorArgs<
+  ModelType extends object,
+  SaveModelType
+> {
+  workspaceAlias: string;
+  entityTypeAlias: string;
+  title: string;
+  contextToken: UmbContextToken<UmbSubmittableWorkspaceContext>;
+  repositoryCtor: ClassConstructor<
+    WorkflowRepositoryBase<ModelType, SaveModelType>
+  >;
 }

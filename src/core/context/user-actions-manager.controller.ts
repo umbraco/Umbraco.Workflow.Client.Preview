@@ -1,14 +1,10 @@
 import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { UMB_CURRENT_USER_CONTEXT } from "@umbraco-cms/backoffice/current-user";
-import { WORKFLOW_SECTION_ALIAS } from "../../constants.js";
 import type { WorkflowStateUser } from "./entities.js";
 import {
-  FlowTypeModel,
-  TaskStatusModel,
-  WorkflowStatusModel,
   type GlobalWorkflowVariablesModel,
-  type WorkflowTaskModelReadable,
+  type WorkflowTaskModel,
 } from "@umbraco-workflow/generated";
 
 export class UserActionsManagerController extends UmbControllerBase {
@@ -22,14 +18,14 @@ export class UserActionsManagerController extends UmbControllerBase {
   #contentLocked = false;
 
   #globalVariables?: GlobalWorkflowVariablesModel;
-  #currentTask?: WorkflowTaskModelReadable | null;
+  #currentTask?: WorkflowTaskModel | null;
 
   #init: Promise<unknown>;
 
   constructor(
     host: UmbControllerHost,
     globalVariables?: GlobalWorkflowVariablesModel,
-    currentTask?: WorkflowTaskModelReadable | null
+    currentTask?: WorkflowTaskModel | null
   ) {
     super(host, "WorkflowUserActionsManagerController");
 
@@ -39,11 +35,8 @@ export class UserActionsManagerController extends UmbControllerBase {
     this.#init = Promise.all([
       this.consumeContext(UMB_CURRENT_USER_CONTEXT, (context) => {
         if (!context) return;
-
-        this.isAdmin =
-          context.getAllowedSection()?.includes(WORKFLOW_SECTION_ALIAS) ??
-          false;
         this.#currentUserUnique = context.getUnique();
+        this.isAdmin = context.getIsAdmin() ?? false;
       }).asPromise(),
     ]);
   }
@@ -82,7 +75,7 @@ export class UserActionsManagerController extends UmbControllerBase {
       this.#isChangeAuthor &&
       this.#currentTask.currentStep === 0 &&
       this.#currentTask.approvedByIds?.length === 0 &&
-      this.#currentTask.status === TaskStatusModel.PENDING_APPROVAL;
+      this.#currentTask.status === "PendingApproval";
 
     const isAdminAndCanEdit =
       this.#globalVariables?.adminCanEdit && this.isAdmin;
@@ -106,8 +99,7 @@ export class UserActionsManagerController extends UmbControllerBase {
   }
 
   #setRejected() {
-    this.rejected =
-      this.#currentTask?.instance?.status === WorkflowStatusModel.REJECTED;
+    this.rejected = this.#currentTask?.instance?.status === "Rejected";
   }
 
   #setChangeAuthor() {
@@ -131,7 +123,7 @@ export class UserActionsManagerController extends UmbControllerBase {
       userInAssignedGroup && !this.rejected && !this.#hasAlreadyApproved();
 
     if (
-      this.#globalVariables?.flowType !== FlowTypeModel.EXPLICIT &&
+      this.#globalVariables?.flowType !== "Explicit" &&
       this.#isChangeAuthor
     ) {
       this.#canAction = false;

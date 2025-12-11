@@ -1,4 +1,3 @@
-import { UMB_CONTENT_SECTION_ALIAS } from "@umbraco-cms/backoffice/content";
 import { manifests as modalManifests } from "./modal/manifests.js";
 
 export const manifests: Array<UmbExtensionManifest> = [
@@ -15,8 +14,8 @@ export const manifests: Array<UmbExtensionManifest> = [
   //   },
   //   conditions: [
   //     {
-  //       alias: "Umb.Condition.SectionAlias",
-  //       match: UMB_CONTENT_SECTION_ALIAS
+  //       alias: UMB_SECTION_ALIAS_CONDITION_ALIAS,
+  //       match: UMB_CONTENT_SECTION_ALIAS,
   //     },
   //   ],
   // },

@@ -1,10 +1,10 @@
 export const extensions = [
-	{
-		name: 'Workflow Content Reviews Bundle',
-		alias: 'Workflow.Bundle.ContentReviews',
-		type: 'bundle',
-		js: () => import('./manifests.js'),
-	},
+  {
+    name: "Workflow Content Reviews Bundle",
+    alias: "Workflow.Bundle.ContentReviews",
+    type: "bundle",
+    js: () => import("./manifests.js"),
+  },
 ];
 
-export * from "./components/index.js"
+export * from "./index.js";

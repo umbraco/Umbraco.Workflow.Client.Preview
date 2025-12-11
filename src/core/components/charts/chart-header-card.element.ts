@@ -7,7 +7,7 @@ import {
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import type { ChartHeaderCard } from "./chart-base.element.js";
-import { WorkflowColorStyles } from "@umbraco-workflow/core";
+import { WorkflowColorStyles } from "../../css/index.js";
 
 const elementName = "workflow-chart-header-card";
 
@@ -21,27 +21,27 @@ export class ChartHeaderCardElement extends UmbLitElement {
   }
 
   render() {
+    const status = this.card.status?.toLowerCase();
+
     return when(
       this.card.static,
       () => html` <div
-        class="chart-header-card background-status-${this.card
-          .status} color-status-${this.card.status}"
+        class="chart-header-card background-status-${status} color-status-${status}"
       >
         <span class="jumbo">${this.card.value}</span>
-        <span>${this.localize.term(this.card.label)}</span>
+        <span>${this.localize.term(`workflow_${status}`)}</span>
       </div>`,
       () => html`<button
         type="button"
         @click=${this.cardClick}
-        class="chart-header-card background-status-${this.card
-          .status} color-status-${this.card.status}"
+        class="chart-header-card background-status-${status} color-status-${status}"
       >
         <uui-icon
           name="info"
-          title="Click to view workflows by state: ${this.card.label}"
+          title="Click to view workflows by state: ${status}"
         ></uui-icon>
         <span class="jumbo">${this.card.value}</span>
-        <span>${this.localize.term(this.card.label)}</span>
+        <span>${this.localize.term(`workflow_${status}`)}</span>
       </button>`
     );
   }

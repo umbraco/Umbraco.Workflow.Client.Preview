@@ -16,7 +16,7 @@ export default defineConfig({
     },
     {
       name: "@hey-api/typescript",
-      enums: "typescript",
+      enums: false,
     },
     {
       name: "@hey-api/sdk",

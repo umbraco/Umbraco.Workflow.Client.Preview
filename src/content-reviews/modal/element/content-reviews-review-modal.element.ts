@@ -49,7 +49,7 @@ export class WorkflowContentReviewsReviewModalElement extends UmbModalBaseElemen
   }
 
   #handleSubmit() {
-    this.modalContext?.setValue({ reviewDate: this._value });
+    this.updateValue({ reviewDate: this._value });
     this._submitModal();
   }
 
@@ -60,18 +60,20 @@ export class WorkflowContentReviewsReviewModalElement extends UmbModalBaseElemen
 
   render() {
     return html`<uui-dialog-layout
-      .headline=${this.localize.term("contentReviews_contentRequiresReview")}
+      .headline=${this.localize.term(
+        "workflow_contentReviews_contentRequiresReview"
+      )}
     >
       <div id="main">
         <p>
           ${this.localize.term(
-            "contentReviews_reviewOverlayPeriod",
+            "workflow_contentReviews_reviewOverlayPeriod",
             this._config?.reviewPeriod
           )}
         </p>
 
         <umb-property-layout
-          .label=${this.localize.term("contentReviews_nextReviewDue")}
+          .label=${this.localize.term("workflow_contentReviews_nextReviewDue")}
         >
           <umb-input-date
             slot="editor"

@@ -8,10 +8,16 @@ import {
   WORKFLOW_USER_PERMISSION_RELEASESET_PUBLISH,
   WORKFLOW_USER_PERMISSION_RELEASESET_UPDATE,
 } from "../../user-permissions/constants.js";
-import { WORKFLOW_USER_PERMISSION_CONDITION_ALIAS } from "@umbraco-workflow/core";
+import {
+  WORKFLOW_REQUEST_APPROVAL_VISIBILITY_CONDITION_ALIAS,
+  WORKFLOW_USER_PERMISSION_CONDITION_ALIAS,
+} from "@umbraco-workflow/core";
 
 const WORKFLOW_RELEASESET_WORKSPACE_ACTION_PUBLISH =
   "Workflow.WorkspaceAction.ReleaseSet.Publish";
+
+const WORKFLOW_RELEASESET_WORKSPACE_ACTION_SUBMIT =
+  "Workflow.WorkspaceAction.ReleaseSet.Submit";
 
 export const manifests: Array<UmbExtensionManifest> = [
   {
@@ -57,6 +63,32 @@ export const manifests: Array<UmbExtensionManifest> = [
       {
         alias: WORKFLOW_USER_PERMISSION_CONDITION_ALIAS,
         match: WORKFLOW_USER_PERMISSION_RELEASESET_PUBLISH,
+      },
+    ],
+  },
+  {
+    type: "workspaceAction",
+    kind: "default",
+    alias: WORKFLOW_RELEASESET_WORKSPACE_ACTION_SUBMIT,
+    name: "Subit Workflow Release Set Workspace Action",
+    weight: 75,
+    api: () => import("./release-set-submit.action.js"),
+    meta: {
+      label: "#workflow_approvalButton",
+      look: "primary",
+      color: "positive",
+    },
+    conditions: [
+      {
+        alias: UMB_WORKSPACE_CONDITION_ALIAS,
+        match: WORKFLOW_RELEASESET_WORKSPACE_ALIAS,
+      },
+      {
+        alias: WORKFLOW_USER_PERMISSION_CONDITION_ALIAS,
+        match: WORKFLOW_USER_PERMISSION_RELEASESET_UPDATE,
+      },
+      {
+        alias: WORKFLOW_REQUEST_APPROVAL_VISIBILITY_CONDITION_ALIAS,
       },
     ],
   },

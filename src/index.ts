@@ -9,6 +9,7 @@ import styles from "./core/css/workflow.css?inline";
 import { WORKFLOW_PACKAGES } from "./packages.js";
 import { WorkflowActionRegistrar } from "@umbraco-workflow/core";
 import { client } from "@umbraco-workflow/generated";
+import { WORKFLOW_OBJECT_STORE_TYPE_ALIAS } from "@umbraco-workflow/repository";
 
 document.head.insertAdjacentHTML("beforeend", `<style>${styles}</style>`);
 
@@ -16,7 +17,7 @@ export const onInit: UmbEntryPointOnInit = (host, extensionRegistry) => {
   new UmbExtensionsApiInitializer(
     host,
     extensionRegistry,
-    "workflowObjectStore",
+    WORKFLOW_OBJECT_STORE_TYPE_ALIAS,
     [host]
   );
 
@@ -31,10 +32,10 @@ export const onInit: UmbEntryPointOnInit = (host, extensionRegistry) => {
 
   host.consumeContext(UMB_AUTH_CONTEXT, async (auth) => {
     const config = auth?.getOpenApiConfiguration();
-    
+
     client.setConfig({
       baseUrl: config?.base ?? "",
-      auth: async () => await auth?.getLatestToken(),
+      auth: config?.token ?? undefined,
       credentials: config?.credentials ?? "same-origin",
     });
   });

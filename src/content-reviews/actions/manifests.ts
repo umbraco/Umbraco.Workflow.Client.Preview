@@ -11,13 +11,13 @@ export const manifests: Array<UmbExtensionManifest> = [
     weight: 75,
     api: () => import("./mark-reviewed.action.js"),
     meta: {
-      label: "#contentReviews_markAsReviewed",
+      label: "#workflow_contentReviews_markAsReviewed",
       look: "primary",
       color: "secondary",
     },
     conditions: [
       {
-				alias: UMB_WORKSPACE_CONDITION_ALIAS,
+        alias: UMB_WORKSPACE_CONDITION_ALIAS,
         match: UMB_DOCUMENT_WORKSPACE_ALIAS,
       },
       {

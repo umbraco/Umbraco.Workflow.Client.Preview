@@ -9,28 +9,21 @@ import type {
   UUIInterfaceColor,
 } from "@umbraco-cms/backoffice/external/uui";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
-import type { StatusModel } from "@umbraco-workflow/core";
-import {
-  ReleaseSetItemStatusModel,
-  ReleaseSetStatusModel,
-} from "@umbraco-workflow/generated";
+import type { StatusModel } from "../../entities.js";
 
 const elementName = "status-tag";
 
 @customElement(elementName)
 export class StatusTagElement extends UmbLitElement {
   @property({ type: String })
-  value?: StatusModel;
+  value: StatusModel | undefined;
 
   #getColor(): UUIInterfaceColor {
-    if (
-      this.value === ReleaseSetStatusModel.PUBLISHED ||
-      this.value === ReleaseSetStatusModel.COMPLETE
-    ) {
+    if (this.value === "Published" || this.value === "Complete") {
       return "positive";
     }
 
-    if (this.value === ReleaseSetItemStatusModel.READY_TO_PUBLISH) {
+    if (this.value === "ReadyToPublish") {
       return "positive";
     }
 
@@ -38,14 +31,14 @@ export class StatusTagElement extends UmbLitElement {
   }
 
   #getLook(): UUIInterfaceLook {
-    if (this.value === ReleaseSetItemStatusModel.READY_TO_PUBLISH) {
+    if (this.value === "ReadyToPublish") {
       return "outline";
     }
 
     if (
-      this.value === ReleaseSetStatusModel.DRAFT ||
-      this.value === ReleaseSetStatusModel.PUBLISHED ||
-      this.value === ReleaseSetStatusModel.COMPLETE
+      this.value === "Draft" ||
+      this.value === "Published" ||
+      this.value === "Complete"
     ) {
       return "primary";
     }

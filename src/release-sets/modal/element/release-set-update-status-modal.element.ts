@@ -29,10 +29,12 @@ export class WorkflowReleaseSetUpdateStatusModalElement extends UmbModalBaseElem
 
   connectedCallback() {
     super.connectedCallback();
-    this.items = Object.values(this.data?.optionType ?? {}).map((x) => ({
-      value: x,
-      label: this.localize.term(`workflow_releaseSets_${x.toLowerCase()}`),
-    }));
+
+    this.items =
+      this.data?.optionType?.map((x) => ({
+        value: x,
+        label: this.localize.term(`workflow_releaseSets_${x.toLowerCase()}`),
+      })) ?? [];
   }
 
   #onValueChange(event: UUIRadioEvent) {
@@ -51,7 +53,9 @@ export class WorkflowReleaseSetUpdateStatusModalElement extends UmbModalBaseElem
   }
 
   render() {
-    return html`<uui-dialog-layout headline=${this.localize.term("workflow_releaseSets_updateStatus")}>
+    return html`<uui-dialog-layout
+      headline=${this.localize.term("workflow_releaseSets_updateStatus")}
+    >
       <div id="main">
         <uui-box>
           <uui-radio-group @change=${this.#onValueChange}>

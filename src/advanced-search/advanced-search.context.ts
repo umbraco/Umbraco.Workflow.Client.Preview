@@ -9,8 +9,12 @@ import { tryExecute } from "@umbraco-cms/backoffice/resources";
 import type { ManifestPropertyEditorUi } from "@umbraco-cms/backoffice/property-editor";
 import { UMB_APP_LANGUAGE_CONTEXT } from "@umbraco-cms/backoffice/language";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
-import type { SelectableLanguageModel } from "@umbraco-workflow/core";
 import {
+  makeArray,
+  type SelectableLanguageModel,
+} from "@umbraco-workflow/core";
+import {
+  AdvancedSearchResponseModel,
   AdvancedSearchService,
   AdvancedSearchTypeModel,
   type PropertyDetailModel,
@@ -18,16 +22,25 @@ import {
   type SelectableNameKeyPairModel,
 } from "@umbraco-workflow/generated";
 import { AdvancedSearchFieldsValue, TypeSearchKey } from "./entities.js";
-import { WORKFLOW_ADVANCED_SEARCH_CONTEXT_ALIAS } from "./constants.js";
+import { WORKFLOW_ADVANCEDSEARCH_CONTEXT_ALIAS } from "./constants.js";
 import { FieldQueryGenerator } from "./field-query-generator.controller.js";
 import { UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
 
 export class WorkflowAdvancedSearchContext extends UmbControllerBase {
+  readonly #searchTypes = makeArray<AdvancedSearchTypeModel>(
+    "All",
+    "Datatype",
+    "Null",
+    "PropertyEditor",
+    "Single",
+    "Some"
+  );
+
   #languages = new UmbArrayState<SelectableLanguageModel>([], (x) => x.unique);
 
   #contentTypes = new UmbArrayState<SelectableContentTypePropertyDetailModel>(
     [],
-    (x) => x?.key
+    (x) => x.key
   );
 
   #availablePropertyEditors = new UmbArrayState<SelectableNameKeyPairModel>(
@@ -54,7 +67,9 @@ export class WorkflowAdvancedSearchContext extends UmbControllerBase {
   );
 
   #fieldValues = new UmbObjectState<AdvancedSearchFieldsValue>({});
-  #searchModel = new UmbObjectState<Record<string, any> | undefined>(undefined);
+  #searchResults = new UmbObjectState<AdvancedSearchResponseModel | undefined>(
+    undefined
+  );
 
   #fuzzy = false;
   #dataTypes?: Array<SelectableNameKeyPairModel>;
@@ -67,8 +82,8 @@ export class WorkflowAdvancedSearchContext extends UmbControllerBase {
   availableDataTypes = this.#availableDataTypes.asObservable();
   availablePropertiesForType = this.#availablePropertiesForType.asObservable();
   searchType = this.#searchType.asObservable();
-  searchModel = this.#searchModel.asObservable();
   fieldValues = this.#fieldValues.asObservable();
+  searchResults = this.#searchResults.asObservable();
 
   #editorUis: Array<ManifestPropertyEditorUi> = [];
 
@@ -77,7 +92,7 @@ export class WorkflowAdvancedSearchContext extends UmbControllerBase {
   );
 
   constructor(host: UmbControllerHost) {
-    super(host, WORKFLOW_ADVANCED_SEARCH_CONTEXT_ALIAS);
+    super(host, WORKFLOW_ADVANCEDSEARCH_CONTEXT_ALIAS);
 
     this.consumeContext(UMB_APP_LANGUAGE_CONTEXT, (context) => {
       if (!context) return;
@@ -198,8 +213,7 @@ export class WorkflowAdvancedSearchContext extends UmbControllerBase {
     const fieldValues = this.#fieldValues.getValue();
 
     const props =
-      searchType === AdvancedSearchTypeModel.DATATYPE ||
-      searchType === AdvancedSearchTypeModel.PROPERTY_EDITOR
+      searchType === "Datatype" || searchType === "PropertyEditor"
         ? availablePropertiesForType
         : this.#availableProperties.getValue();
 
@@ -214,27 +228,37 @@ export class WorkflowAdvancedSearchContext extends UmbControllerBase {
       availablePropertiesForType,
     });
 
-    const toObject = (arr: Array<UmbPropertyValueData> | undefined) =>
-      arr?.reduce((obj, item) => {
+    const toObject = (arr: Array<UmbPropertyValueData> = []) =>
+      arr.reduce((obj, item) => {
         obj[item.alias as string] = item.value;
         return obj;
-      }, {} as Record<string, unknown>);
+      }, {}) ?? ({} as Record<string, unknown>);
 
-    this.#searchModel.setValue({
+    const searchParams = {
       fields: generator.generate(),
       baseFields: toObject(fieldValues.baseFields),
-      searchType: Object.keys(AdvancedSearchTypeModel).indexOf(
-        searchType.toUpperCase()
-      ),
+      searchType,
       cultures: this.#languages
         .getValue()
         .filter((x) => x.selected)
         .map((x) => x.unique),
       contentTypes: (await firstValueFrom(this.selectedContentTypes)).map(
-        (x) => x.alias
+        (x) => x.alias as string
       ),
       fuzzy: this.#fuzzy,
-    });
+      category: "content",
+      skip: 0,
+      take: 1000,
+    };
+
+    const { data } = await tryExecute(
+      this,
+      AdvancedSearchService.postAdvancedSearchSearch({
+        body: searchParams,
+      })
+    );
+
+    this.#searchResults.setValue(data);
   }
 
   #setAvailableProperties(

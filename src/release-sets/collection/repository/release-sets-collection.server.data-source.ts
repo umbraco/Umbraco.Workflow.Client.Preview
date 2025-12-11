@@ -1,7 +1,5 @@
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
-import {
-  tryExecute,
-} from "@umbraco-cms/backoffice/resources";
+import { tryExecute } from "@umbraco-cms/backoffice/resources";
 import type { UmbCollectionDataSource } from "@umbraco-cms/backoffice/collection";
 import type {
   WorkflowReleaseSetCollectionFilterModel,
@@ -38,6 +36,7 @@ export class WorkflowReleaseSetsCollectionServerDataSource
       const items = data.items.map((item) => {
         const model: WorkflowReleaseSetCollectionModel = {
           ...item,
+          description: item.description ?? undefined,
           icon: item.icon ?? "icon-document",
           entityType: RELEASESET_ENTITY_TYPE,
         };

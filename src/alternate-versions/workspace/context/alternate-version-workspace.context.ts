@@ -18,17 +18,19 @@ import {
   ALTERNATEVERSION_ENTITY_TYPE,
   WORKFLOW_ALTERNATEVERSION_WORKSPACE_ALIAS,
 } from "../../constants.js";
-import { type AlternateVersionDetailResponseModelReadable } from "@umbraco-workflow/generated";
+import {
+  AlternateVersionStatusModel,
+  type AlternateVersionDetailResponseModel,
+} from "@umbraco-workflow/generated";
 import type { WorkflowApprovableWorkspaceContext } from "@umbraco-workflow/context";
 import { UmbEntityUpdatedEvent } from "@umbraco-cms/backoffice/entity-action";
 import { UmbId } from "@umbraco-cms/backoffice/id";
 import { UMB_ACTION_EVENT_CONTEXT } from "@umbraco-cms/backoffice/action";
 
 export class WorkflowAlternateVersionWorkspaceContext
-  extends UmbSubmittableWorkspaceContextBase<AlternateVersionDetailResponseModelReadable>
+  extends UmbSubmittableWorkspaceContextBase<AlternateVersionDetailResponseModel>
   implements WorkflowApprovableWorkspaceContext
 {
-  public readonly IS_ALTERNATEVERSION_WORKSPACE_CONTEXT = true;
   public readonly IS_APPROVABLE_WORKSPACE_CONTEXT = true;
 
   #eventContext?: typeof UMB_ACTION_EVENT_CONTEXT.TYPE;
@@ -41,9 +43,9 @@ export class WorkflowAlternateVersionWorkspaceContext
     new UmbDocumentTypeDetailRepository(this)
   );
 
-  data = new UmbObjectState<
-    AlternateVersionDetailResponseModelReadable | undefined
-  >(undefined);
+  data = new UmbObjectState<AlternateVersionDetailResponseModel | undefined>(
+    undefined
+  );
 
   readonly unique = this.data.asObservablePart(
     (data) => data?.unique as string
@@ -58,6 +60,8 @@ export class WorkflowAlternateVersionWorkspaceContext
   );
 
   readonly values = this.data.asObservablePart((data) => data?.values ?? []);
+
+  readonly status = this.data.asObservablePart((data) => data?.status);
 
   #currentVariant = new UmbClassState<UmbVariantId | undefined>(undefined);
   readonly currentVariant = this.#currentVariant.asObservable();
@@ -107,27 +111,27 @@ export class WorkflowAlternateVersionWorkspaceContext
     ]);
   }
 
-  async #load(args: {
-    unique?: string;
-    parentUnique?: string;
-    variant?: string | null;
-    segment?: string | null;
-  }) {
+  async #load(args: { unique?: string; parentUnique?: string }) {
     const { data } = args.unique
       ? await this.#detailRepository.requestByUnique(args.unique)
-      : await this.#detailRepository.createScaffold(args);
+      : await this.#detailRepository.createScaffold({
+          ...args,
+          ...this.#currentVariant.getValue(),
+        });
 
     if (!data) return;
-
-    this.#currentVariant.setValue(new UmbVariantId(data.variant, data.segment));
 
     this.setIsNew(!args.unique);
     this.data.update(data);
 
+    // this needs to be set after getting the data, else we don't know the current variant values
+    // as we are not observing the document workspace as this may not be available
+    this.#currentVariant.setValue(new UmbVariantId(data.culture, data.segment));
+
     await this.getStructure(
       data.parentUnique,
-      data.variant ?? null,
-      data.segment ?? null,
+      data?.culture ?? null,
+      data?.segment ?? null,
       args.unique === undefined
     );
 
@@ -138,11 +142,18 @@ export class WorkflowAlternateVersionWorkspaceContext
     return await this.#load({ unique });
   }
 
-  async create(parentUnique: string, variant?: string, segment?: string) {
+  async create(
+    parentUnique: string,
+    variant: string | null,
+    segment: string | null
+  ) {
+    const v = variant === "null" ? null : variant;
+    const s = segment === "null" ? null : segment;
+
+    this.#currentVariant.setValue(new UmbVariantId(v, s));
+
     return await this.#load({
       parentUnique,
-      variant: variant === "null" ? null : variant,
-      segment: segment === "null" ? null : segment,
     });
   }
 
@@ -185,6 +196,10 @@ export class WorkflowAlternateVersionWorkspaceContext
     const model = this.getData();
     if (!model) return;
 
+    if (!model.isStatusUpdate) {
+      this.data.update({ status: "Draft" });
+    }
+
     this.getIsNew()
       ? await this.#detailRepository.create(model, null)
       : await this.#detailRepository.save(model);
@@ -220,6 +235,10 @@ export class WorkflowAlternateVersionWorkspaceContext
     return ALTERNATEVERSION_ENTITY_TYPE;
   }
 
+  getStatus() {
+    return this.getData()?.status;
+  }
+
   getUnique() {
     return this.getData()?.unique;
   }
@@ -234,6 +253,11 @@ export class WorkflowAlternateVersionWorkspaceContext
 
   setName(documentName: string) {
     this.data.update({ documentName });
+  }
+
+  async setStatus(status: AlternateVersionStatusModel) {
+    this.data.update({ status, isStatusUpdate: true });
+    await this.#handleSubmit();
   }
 
   setVersionName(versionName: string) {

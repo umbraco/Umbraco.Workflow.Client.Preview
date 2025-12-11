@@ -7,7 +7,7 @@ export const WORKFLOW_DOCUMENTVERSION_PICKER_MODAL_ALIAS =
 export interface WorkflowDocumentVersionPickerModalData {
   unique: string;
   culture?: string | null;
-  multiple?: boolean;
+  segment?: string | null;
 }
 
 export interface WorkflowDocumentVersionPickerModalResult {

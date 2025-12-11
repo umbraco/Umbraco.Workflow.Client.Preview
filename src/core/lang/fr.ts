@@ -3,7 +3,8 @@ import type { UmbLocalizationDictionary } from "@umbraco-cms/backoffice/localiza
 export default {
   workflow: {
     action: (suffix = "") => `Action ${suffix}`,
-    actionCompleted: (action: string) => `Action de workflow terminée : ${action}`,
+    actionCompleted: (action: string) =>
+      `Action de workflow terminée : ${action}`,
     active: `actif`,
     activity: `Activité de workflow`,
     addComment: `Ajouter un commentaire`,
@@ -19,7 +20,9 @@ export default {
     approvalGroupSaved: "Groupe d'approbation sauvegardé",
     approvalRejection: "Refus d'approbation",
     approvalRequest: (documentName?: string) =>
-      `Demande d'approbation de workflow ${documentName ? `- ${documentName}` : ""}`,
+      `Demande d'approbation de workflow ${
+        documentName ? `- ${documentName}` : ""
+      }`,
     approvalRequested: (action: string, variants: Array<string>) =>
       `Approbation de workflow ${action} demandée ${
         variants.length > 0 ? `(${variants.join(", ")})` : ""
@@ -27,7 +30,8 @@ export default {
     approve: `Approuver`,
     approved: "Approuvé",
     approvedAndCompleted: "Approuvé et terminé",
-    approvedAndCompletedForScheduler: "Approuvé et terminé pour le planificateur",
+    approvedAndCompletedForScheduler:
+      "Approuvé et terminé pour le planificateur",
     asAdmin: `en tant qu'admin`,
     assignTo: `Assigner la tâche rejetée`,
     attachment: `Pièce jointe`,
@@ -102,7 +106,7 @@ export default {
     membership: `Membres du groupe`,
     most: `La plupart`,
     mySubmissions: `Mes soumissions`,
-    myTasks: `Tâches nécessitant mon approbation`,
+    myTasks: `Mes tâches`,
     newNodeConfig: `Les nouveaux nœuds doivent être sauvegardés avant de configurer le workflow`,
     noApproval: `APPROBATION NON REQUISE`,
     noDocumentFlow: `Aucun flux d'approbation de document défini pour ce document`,
@@ -121,6 +125,7 @@ export default {
     outOfDate: `Le workflow est obsolète.`,
     overview: `Vue d'ensemble`,
     pageSize: `Taille de page`,
+    pending: "En attente",
     pendingapproval: "Approbation en attente",
     pendingApproval: "Approbation en attente",
     pendingForNode: `Workflow %0% en attente pour '%1%'`,
@@ -149,8 +154,11 @@ export default {
     scheduling: `Programmation`,
     segments: "Segments",
     selectDocumentTypes: (plural) =>
-      `Sélectionner le${plural ? "s" : ""} type${plural ? "s" : ""} de document`,
-    selectVariants: (plural) => `Sélectionner ${plural ? "les langues" : "la langue"}`,
+      `Sélectionner le${plural ? "s" : ""} type${
+        plural ? "s" : ""
+      } de document`,
+    selectVariants: (plural) =>
+      `Sélectionner ${plural ? "les langues" : "la langue"}`,
     settingsHiddenOrReadonly: `%0% paramètres sont cachés ou en lecture seule - contactez votre administrateur de site`,
     settingsSaved: "Paramètres sauvegardés",
     showDiff: `Voir les différences`,
@@ -230,7 +238,8 @@ export default {
     groupEmailDescription: `Les notifications seront envoyées à cette adresse au lieu des membres du groupe`,
     groupHasNoMembers: `Le groupe n'a pas de membres`,
     groupLanguage: "Langue du groupe",
-    groupLanguageDescription: "Requis seulement quand l'email de groupe est défini",
+    groupLanguageDescription:
+      "Requis seulement quand l'email de groupe est défini",
     inheritedMembership: `Appartenance de groupe héritée`,
     inheritedMembershipDescription: `Hériter l'appartenance de groupe d'un groupe Umbraco existant`,
     installEmailTemplates: "Installer les modèles d'email",
@@ -270,21 +279,6 @@ export default {
     siteUrl: `URL du site`,
     siteUrlDescription: `URL du site en direct pour inclusion dans les notifications email (ex : http://www.mondomain.com)`,
   },
-  workflowNotifications: {
-    approved: `Workflow terminé.`,
-    approvedLog: `Workflow approuvé par %0% le %1% [%2%].`,
-    cancelled: `La demande %0% a été annulée.`,
-    cancelledLog: `Demande %0% pour %1% [%2%] annulée par %3%.`,
-    initiate: `%0% soumis pour approbation %1%.`,
-    initiateScheduled: `Modifications programmées pour %2% %0% à %1%.`,
-    pageHasBeen: `La page a été %0%`,
-    pendingApproval: `Tâche terminée. La page sera %0% après la fin du workflow.`,
-    pendingApprovalLog: `Tâche de workflow %0% sur %1% [%2%] approuvée par %3%.`,
-    pendingApprovalResubmit: `Modifications re-soumises. La page sera %0% après la fin du workflow.`,
-    pendingApprovalResubmitLog: `Demande %0% pour %1% [%2%] a été re-soumise par %3%.`,
-    rejected: `La demande %0% a été rejetée.`,
-    rejectedLog: `Demande %0% pour %1% [%2%] rejetée par %3%.`,
-  },
   workflow_treeHeaders: {
     active: `Workflows actifs`,
     approvalGroups: `Groupes d'approbation`,
@@ -292,7 +286,7 @@ export default {
     history: `Historique`,
     settings: `Paramètres`,
   },
-  contentReviews: {
+  workflow_contentReviews: {
     contentItemReviewed: `L'élément de contenu a été marqué comme révisé`,
     contentItemReviews: `Révisions d'éléments de contenu`,
     contentItemReviewsDescription: `Configurer les révisions pour les éléments de contenu individuels`,
@@ -329,19 +323,20 @@ export default {
     saveReviewConfigMessage: `Ceci peut prendre du temps - la sauvegarde génère la date d'échéance de révision pour tout le contenu révisable, ce qui peut représenter beaucoup de nœuds. Ceci ne modifie pas la configuration de révision au niveau du nœud.`,
     staleContent: `Contenu obsolète`,
   },
-  workflowCleanup: {
+  workflow_cleanup: {
     cleanupEnabled: `Nettoyage de l'historique activé`,
     contentRules: `Règles de nettoyage de contenu`,
     daysToKeepHistory: `Jours de conservation de l'historique de workflow`,
     docTypeRules: `Règles de nettoyage de type de document`,
     globalSettings: `Paramètres globaux de nettoyage`,
     modalHeadline: `Configuration du nettoyage de l'historique de workflow`,
-    rulesNotSaved: "Impossible de sauvegarder les règles de nettoyage de l'historique de workflow",
+    rulesNotSaved:
+      "Impossible de sauvegarder les règles de nettoyage de l'historique de workflow",
     rulesSaved: "Règles de nettoyage de l'historique sauvegardées",
     rulesUpdated: `Règles de nettoyage de l'historique de workflow mises à jour`,
     statusesToDelete: `Statuts de workflow à supprimer`,
   },
-  workflowSearch: {
+  workflow_search: {
     addContentTypes: `Ajouter le(s) type(s) de contenu`,
     addDataType: `Ajouter un type de données`,
     addProperties: `Ajouter des propriétés`,
@@ -351,7 +346,8 @@ export default {
     allProperties: `Toutes les propriétés`,
     datatype: `Type de données`,
     emptyFieldSearch: "Rechercher un champ vide",
-    emptyFieldSearchDescription: "La recherche de champs vides peut être coûteuse et prendre plus de temps que prévu",
+    emptyFieldSearchDescription:
+      "La recherche de champs vides peut être coûteuse et prendre plus de temps que prévu",
     fuzzy: `Recherche approximative`,
     fuzzyDescription: `La recherche approximative permet de trouver des termes qui correspondent approximativement au terme recherché, en considérant de légères variations.`,
     propertyEditor: `Éditeur de propriété`,
@@ -362,5 +358,66 @@ export default {
     showBaseProperties: `Afficher les propriétés de base`,
     singleProperty: `Propriété unique`,
     someProperties: `Quelques propriétés`,
+  },
+  workflow_property: {
+    adminCanEdit: `Les administrateurs peuvent modifier`,
+    allowAttachments: `Autoriser les pièces jointes`,
+    allowScheduling: `Autoriser la programmation`,
+    approvalThreshold: `Seuil d'approbation`,
+    configureApprovalThreshold: `Permettre la configuration du seuil d'approbation`,
+    editUrl: `URL du site d'édition`,
+    email: `Email de workflow`,
+    extendPermissions: `Étendre les permissions`,
+    lockIfActive: `Verrouiller le contenu actif`,
+    mandatoryComments: `Commentaires obligatoires`,
+    rejectionResetsApprovals: `Le rejet remet à zéro les approbations`,
+    reminderDelay: `Délai de rappel (jours)`,
+    requireUnpublish: `Utiliser le workflow pour la dépublication`,
+    scheduledContentLock: "Verrouiller le contenu programmé",
+    sendNotifications: `Envoyer des notifications`,
+    siteUrl: `URL du site`,
+    enableContentReviews: `Activer les révisions de contenu`,
+    publishIsReview: `Traiter la publication comme une révision ?`,
+    reminderThreshold: `Seuil de rappel (jours)`,
+    reviewPeriod: `Période de révision (jours)`,
+  },
+  workflow_propertyDescription: {
+    adminCanEdit: `Définir sur vrai pour permettre aux administrateurs de modifier le contenu à n'importe quelle étape d'un workflow`,
+    allowAttachments: `Définir sur vrai pour permettre d'attacher un élément média lors de l'initiation d'un workflow`,
+    allowScheduling: `Définir sur vrai pour permettre de programmer la publication lors de l'initiation d'un workflow`,
+    approvalThreshold: `Combien de membres du groupe doivent approuver chaque tâche de workflow ?`,
+    configureApprovalThreshold: `Activer la définition du seuil d'approbation pour n'importe quelle étape d'un workflow`,
+    editUrl: `URL du site d'édition pour inclusion dans les notifications email (ex : http://edit.mondomain.com)`,
+    email: `Adresse FROM pour les notifications email`,
+    extendPermissions: `Définir sur vrai pour étendre les permissions de sauvegarde et publication par défaut des utilisateurs. Quand faux, le bouton sauvegarder et publier est supprimé`,
+    lockIfActive: `Définir sur vrai pour empêcher les modifications pendant qu'un contenu est dans un workflow`,
+    mandatoryComments: `Définir sur vrai pour exiger des commentaires sur les approbations de workflow`,
+    rejectionResetsApprovals: `Définir sur vrai avec le seuil d'approbation défini sur La plupart ou Tous, pour remettre à zéro les approbations précédentes quand une étape de workflow est rejetée`,
+    reminderDelay: `Envoyer des emails de rappel pour les tâches inactives, après ce nombre de jours. Définir sur 0 pour désactiver`,
+    requireUnpublish: `Définir sur vrai pour exiger une approbation de workflow lors de la dépublication de contenu`,
+    scheduledContentLock:
+      "Définir sur Workflow ou Tous pour empêcher les modifications pendant qu'un contenu est en attente de publication programmée",
+    sendNotifications: `Définir sur vrai pour envoyer des notifications email`,
+    siteUrl: `URL du site en direct pour inclusion dans les notifications email (ex : http://www.mondomain.com)`,
+    enableContentReviews: `Les utilisateurs doivent-ils être rappelés de réviser leur contenu ?`,
+    publishIsReview: `La publication de contenu doit-elle être traitée comme une révision, ou le contenu nécessite-t-il une révision explicite`,
+    reminderThreshold: `Les notifications de révision seront envoyées ce nombre de jours avant la date de révision. La valeur par défaut est 1`,
+    reviewPeriod: `Période de temps maximale entre les révisions de contenu requises`,
+  },
+  user_permissionsEntityGroup: {
+    workflow: "Workflow",
+  },
+  workflow_permissions: {
+    activeWorkflowsRead: `Autoriser l'accès pour voir les workflows actifs`,
+    advancedSearchRead: `Autoriser l'accès pour voir le tableau de bord de recherche avancée`,
+    approvalGroupRead: `Autoriser l'accès pour voir les groupes d'approbation`,
+    approvalGroupCreate: `Autoriser l'accès pour créer des groupes d'approbation`,
+    approvalGroupUpdate: `Autoriser l'accès pour mettre à jour les groupes d'approbation`,
+    configurationRead: `Autoriser l'accès pour voir la configuration de workflow`,
+    configurationUpdate: `Autoriser l'accès pour mettre à jour la configuration de workflow`,
+    contentReviewRead: `Autoriser l'accès pour voir les révisions de contenu`,
+    documentInitiate: `Autoriser l'initiation de workflows sur les documents`,
+    documentUnlock: `Autoriser le déverrouillage des documents`,
+    historyRead: `Autoriser l'accès pour voir l'historique de workflow`,
   },
 } as UmbLocalizationDictionary;

@@ -24,6 +24,7 @@ export const WorkflowColorStyles = css`
     color: var(--workflow-approved);
   }
 
+  .background-status-reviewed,
   .background-status-approved {
     background-color: var(--workflow-approved);
   }
@@ -36,8 +37,9 @@ export const WorkflowColorStyles = css`
     background-color: var(--workflow-rejected);
   }
 
-  .color-status-pendingapproval,
+  [class*="color-status-pending"],
   .color-status-awaitingresubmission,
+  .background-status-expiring,
   .background-status-cancelled,
   .background-status-cancelledbythirdparty,
   .background-status-notrequired,
@@ -45,15 +47,18 @@ export const WorkflowColorStyles = css`
     color: var(--workflow-pending);
   }
 
-  .background-status-pendingapproval,
+  [class*="background-status-pending"],
+  .background-status-expiring,
   .background-status-awaitingresubmission {
     background-color: var(--workflow-pending);
   }
 
+  .color-status-overdue,
   .color-status-errored {
     color: var(--workflow-errored);
   }
 
+  .background-status-overdue,
   .background-status-errored {
     background-color: var(--workflow-errored);
   }
@@ -82,9 +87,12 @@ export const WorkflowColorStyles = css`
     color: var(--workflow-default);
   }
 
+  [class*="background-status-pending"],
   .background-status-approved,
-  .background-status-pendingapproval,
+  .background-status-reviewed,
+  .background-status-expiring,
   .background-status-errored,
+  .background-status-overdue,
   .background-status-resubmitted,
   .background-status-awaitingresubmission,
   [class*="uui-badge--status-"] {

@@ -12,8 +12,8 @@ import type {
   WorkflowReleaseSetTaskEditorModalData,
   WorkflowReleaseSetTaskEditorModalResult,
 } from "../token/index.js";
-import { type ReleaseSetTaskResponseModelReadable } from "@umbraco-workflow/generated";
-import { EMPTY_GUID } from "@umbraco-workflow/core";
+import { type ReleaseSetTaskResponseModel } from "@umbraco-workflow/generated";
+import { EMPTY_GUID } from "../../constants.js";
 
 const elementName = "workflow-releaseset-task-editor-modal";
 
@@ -56,7 +56,7 @@ export class WorkflowReleaseSetTaskCreateModalElement extends UmbModalBaseElemen
 
   #flattenByAlias(
     arr: Array<UmbPropertyValueData>
-  ): Partial<ReleaseSetTaskResponseModelReadable>  {
+  ): Partial<ReleaseSetTaskResponseModel> {
     return arr.reduce((result, item) => {
       if (item.alias && item.value) {
         // not flat - object has unique and name props

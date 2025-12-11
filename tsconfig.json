@@ -2,11 +2,7 @@
   "compilerOptions": {
     "module": "esnext",
     "target": "ES2020",
-    "lib": [
-      "es2022",
-      "dom",
-      "dom.iterable"
-    ],
+    "lib": ["es2024", "dom", "dom.iterable"],
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
@@ -24,48 +20,30 @@
     "noImplicitReturns": true,
     "noImplicitAny": false,
     "paths": {
-      "@umbraco-workflow/generated": [
-        "./generated/index.ts"
-      ],
-      "@umbraco-workflow/context": [
-        "./src/core/context/index.ts"
-      ],
-      "@umbraco-workflow/components": [
-        "./src/core/components/index.ts"
-      ],
-      "@umbraco-workflow/css": [
-        "src/core/css/index.ts"
-      ],
+      "@umbraco-workflow/generated": ["./generated/index.ts"],
+      "@umbraco-workflow/context": ["./src/core/context/index.ts"],
+      "@umbraco-workflow/components": ["./src/core/components/index.ts"],
+      "@umbraco-workflow/css": ["./src/core/css/index.ts"],
       "@umbraco-workflow/approval-group": [
-        "./src/approval-group/index.ts"
+        "./src/content-approvals/approval-group/index.ts"
       ],
-      "@umbraco-workflow/editor-view": [
-        "./src/editor-view/index.ts"
+      "@umbraco-workflow/active-workflows": [
+        "./src/content-approvals/active-workflows/index.ts"
       ],
-      "@umbraco-workflow/core": [
-        "./src/core/index.ts"
-      ],
-      "@umbraco-workflow/settings": [
-        "./src/settings/index.ts"
-      ],
-      "@umbraco-workflow/repository": [
-        "./src/core/repository/index.ts"
-      ],
-      "@umbraco-workflow/content-reviews": [
-        "./src/content-reviews/index.ts"
-      ],
-      "@umbraco-workflow/release-sets": [
-        "./src/release-sets/index.ts"
-      ],
+      "@umbraco-workflow/core": ["./src/core/index.ts"],
+      "@umbraco-workflow/settings": ["./src/settings/index.ts"],
+      "@umbraco-workflow/history": ["./src/content-approvals/history/index.ts"],
+      "@umbraco-workflow/repository": ["./src/core/repository/index.ts"],
+      "@umbraco-workflow/content-reviews": ["./src/content-reviews/index.ts"],
+      "@umbraco-workflow/release-sets": ["./src/release-sets/index.ts"],
       "@umbraco-workflow/alternate-versions": [
         "./src/alternate-versions/index.ts"
       ],
-      "@umbraco-workflow/calendar": [
-        "./src/content-calendar/index.ts"
+      "@umbraco-workflow/calendar": ["./src/content-calendar/index.ts"],
+      "@umbraco-workflow/content-approvals": [
+        "./src/content-approvals/index.ts"
       ],
-      "@umbraco-workflow/document": [
-        "./src/document/index.ts"
-      ],
+      "@umbraco-workflow/document": ["./src/document/index.ts"]
     },
     "types": [
       "@umbraco-cms/backoffice/extension-registry",
@@ -74,7 +52,5 @@
       "@umbraco-cms/backoffice/localization"
     ]
   },
-  "include": [
-    "src/**/*.ts"
-  ]
+  "include": ["src/**/*.ts"]
 }

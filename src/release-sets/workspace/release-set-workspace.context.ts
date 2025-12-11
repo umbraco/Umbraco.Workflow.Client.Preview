@@ -15,13 +15,10 @@ import {
   WORKFLOW_RELEASESET_WORKSPACE_ALIAS,
 } from "../constants.js";
 import {
-  ReleaseSetItemStatusModel,
   ReleaseSetStatusModel,
-  ReleaseSetTaskStatusModel,
-  type ReleaseSetItemResponseModelReadable,
-  type ReleaseSetDetailResponseModelReadable,
-  type ReleaseSetTaskResponseModelReadable,
-  VersionExpireActionModel,
+  type ReleaseSetDetailResponseModel,
+  type ReleaseSetTaskResponseModel,
+  ReleaseSetItemResponseModel,
 } from "@umbraco-workflow/generated";
 import { type StatusModel } from "@umbraco-workflow/core";
 import { UMB_ACTION_EVENT_CONTEXT } from "@umbraco-cms/backoffice/action";
@@ -32,19 +29,20 @@ import {
   ObservableArraySetterFnType,
 } from "../entities.js";
 
-export class WorkflowReleaseSetWorkspaceContext extends UmbSubmittableWorkspaceContextBase<ReleaseSetDetailResponseModelReadable> {
+export class WorkflowReleaseSetWorkspaceContext extends UmbSubmittableWorkspaceContextBase<ReleaseSetDetailResponseModel> {
   public readonly IS_RELEASESET_WORKSPACE_CONTEXT = true;
 
   #detailRepository = new WorkflowReleaseSetDetailRepository(this);
   #versionRepository = new WorkflowAlternateVersionDetailRepository(this);
 
-  #data = new UmbObjectState<ReleaseSetDetailResponseModelReadable | undefined>(
+  #data = new UmbObjectState<ReleaseSetDetailResponseModel | undefined>(
     undefined
   );
 
   data = this.#data.asObservable();
   icon = this.#data.asObservablePart((x) => x?.icon ?? "icon-document");
-  unique = this.#data.asObservablePart((data) => data?.unique);
+  unique = this.#data.asObservablePart((x) => x?.unique);
+  description = this.#data.asObservablePart((x) => x?.description);
   name = this.#data.asObservablePart((x) => x?.name);
   owner = this.#data.asObservablePart((x) => x?.owner);
   items = this.#data.asObservablePart((x) => x?.items);
@@ -152,7 +150,7 @@ export class WorkflowReleaseSetWorkspaceContext extends UmbSubmittableWorkspaceC
     return this.getData()?.unique;
   }
 
-  update(args: Partial<ReleaseSetDetailResponseModelReadable>) {
+  update(args: Partial<ReleaseSetDetailResponseModel>) {
     this.#data.update(args);
   }
 
@@ -174,21 +172,18 @@ export class WorkflowReleaseSetWorkspaceContext extends UmbSubmittableWorkspaceC
       tasks: data?.tasks.map((task) => ({
         ...task,
         ...{
-          status:
-            task.status === ReleaseSetTaskStatusModel.ACTIVE
-              ? ReleaseSetTaskStatusModel.CLOSED
-              : task.status,
+          status: task.status === "Active" ? "Closed" : task.status,
         },
       })),
       items: data?.items.map((item) => ({
         ...item,
-        ...{ status: ReleaseSetItemStatusModel.READY_TO_PUBLISH },
+        ...{ status: "ReadyToPublish" },
       })),
       status,
     });
   }
 
-  addTask(task: ReleaseSetTaskResponseModelReadable) {
+  addTask(task: ReleaseSetTaskResponseModel) {
     this.#data.update({
       tasks: appendToFrozenArray(this.getData()?.tasks ?? [], {
         ...task,
@@ -198,13 +193,13 @@ export class WorkflowReleaseSetWorkspaceContext extends UmbSubmittableWorkspaceC
           createdBy: {
             unique: this.#currentUserUnique!,
           },
-          status: ReleaseSetTaskStatusModel.ACTIVE,
+          status: "Active",
         },
       }),
     });
   }
 
-  updateTask(task: ReleaseSetTaskResponseModelReadable) {
+  updateTask(task: ReleaseSetTaskResponseModel) {
     this.#data.update({
       tasks: partialUpdateFrozenArray(
         this.getData()?.tasks ?? [],
@@ -225,13 +220,13 @@ export class WorkflowReleaseSetWorkspaceContext extends UmbSubmittableWorkspaceC
     });
   }
 
-  addItem(item: ReleaseSetItemResponseModelReadable) {
+  addItem(item: ReleaseSetItemResponseModel) {
     this.#data.update({
       items: appendToFrozenArray(this.getData()?.items ?? [], item),
     });
   }
 
-  updateItem(item: ReleaseSetItemResponseModelReadable) {
+  updateItem(item: ReleaseSetItemResponseModel) {
     this.#data.update({
       items: partialUpdateFrozenArray(
         this.getData()?.items ?? [],
@@ -291,9 +286,9 @@ export class WorkflowReleaseSetWorkspaceContext extends UmbSubmittableWorkspaceC
         ...data,
         entityType: RELEASESET_VERSION_ENTITY_TYPE,
         name: data.versionName ?? "",
-        expireAction: VersionExpireActionModel.REVERT,
+        expireAction: "Revert",
         nodeUnique: data.parentUnique,
-        status: ReleaseSetItemStatusModel.DRAFT,
+        status: "Draft",
       }),
     });
   };

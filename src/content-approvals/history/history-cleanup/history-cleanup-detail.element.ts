@@ -1,0 +1,154 @@
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
+import {
+  css,
+  customElement,
+  html,
+  property,
+  when,
+} from "@umbraco-cms/backoffice/external/lit";
+import type { WorkflowHistoryCleanupRuleSet } from "./types.js";
+import type { HistoryCleanupConfigModel } from "@umbraco-workflow/generated";
+
+const elementName = "workflow-history-cleanup-detail";
+
+@customElement(elementName)
+export class WorkflowHistoryCleanupDetailElement extends UmbLitElement {
+  @property({ type: Object })
+  model: WorkflowHistoryCleanupRuleSet = {};
+
+  @property({ type: Boolean })
+  hideName = false;
+
+  #emitValueChange(valueSetter) {
+    valueSetter();
+    this.dispatchEvent(
+      new CustomEvent("change", { detail: Object.values(this.model)[0] })
+    );
+    this.requestUpdate("model");
+  }
+
+  #renderHistoryCleanupEnabledCell(value: HistoryCleanupConfigModel) {
+    return html`<uui-table-cell>
+      <uui-toggle
+        ?disabled=${!value.editable}
+        ?checked=${value.enableCleanup}
+        .label=${value.entityName}
+        @change=${() =>
+          this.#emitValueChange(
+            () => (value.enableCleanup = !value.enableCleanup)
+          )}
+      >
+      </uui-toggle>
+    </uui-table-cell>`;
+  }
+
+  #renderDaysToKeepHistoryCell(value: HistoryCleanupConfigModel) {
+    return html`<uui-table-cell>
+      <uui-input
+        type="number"
+        .value=${`${value.keepHistoryForDays}`}
+        ?disabled=${!value.enableCleanup || !value.editable}
+        @input=${(e) =>
+          this.#emitValueChange(
+            () => (value.keepHistoryForDays = Number(e.target.value))
+          )}
+      ></uui-input>
+    </uui-table-cell>`;
+  }
+
+  #renderStatusesToDeleteCell(value: HistoryCleanupConfigModel) {
+    return html`<uui-table-cell>
+      <ul>
+        ${Object.entries(value.statusesToDelete ?? []).map((status) => {
+          const [statusKey, statusValue] = status;
+
+          return html`<li>
+            <div>
+              <umb-property-layout
+                .label=${this.localize.term(
+                  `workflow_${statusKey.toLowerCase()}`
+                )}
+              >
+                <uui-toggle
+                  slot="editor"
+                  ?disabled=${!value.editable || !value.enableCleanup}
+                  ?checked=${value.statusesToDelete![statusKey]}
+                  .label=${value.entityName}
+                  @change=${() =>
+                    this.#emitValueChange(
+                      () =>
+                        (value.statusesToDelete![statusKey] =
+                          !value.statusesToDelete![statusKey])
+                    )}
+                >
+                </uui-toggle>
+              </umb-property-layout>
+            </div>
+          </li>`;
+        })}
+      </ul></uui-table-cell
+    >`;
+  }
+
+  render() {
+    return html`<uui-table>
+      <uui-table-head>
+        ${when(
+          !this.hideName,
+          () => html` <uui-table-head-cell
+            >${this.localize.term("general_name")}</uui-table-head-cell
+          >`
+        )}
+        <uui-table-head-cell
+          >${this.localize.term(
+            "workflow_cleanup_cleanupEnabled"
+          )}</uui-table-head-cell
+        >
+        <uui-table-head-cell
+          >${this.localize.term(
+            "workflow_cleanup_daysToKeepHistory"
+          )}</uui-table-head-cell
+        >
+        <uui-table-head-cell style="min-width:225px"
+          >${this.localize.term(
+            "workflow_cleanup_statusesToDelete"
+          )}</uui-table-head-cell
+        >
+      </uui-table-head>
+      ${Object.values(this.model).map(
+        (value) => html`<uui-table-row>
+          ${when(
+            !this.hideName,
+            () => html` <uui-table-cell>${value.entityName}</uui-table-cell>`
+          )}
+          ${this.#renderHistoryCleanupEnabledCell(value)}
+          ${this.#renderDaysToKeepHistoryCell(value)}
+          ${this.#renderStatusesToDeleteCell(value)}
+        </uui-table-row>`
+      )}
+    </uui-table>`;
+  }
+
+  static styles = [
+    css`
+      ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      umb-property-layout {
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+    `,
+  ];
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    [elementName]: WorkflowHistoryCleanupDetailElement;
+  }
+}

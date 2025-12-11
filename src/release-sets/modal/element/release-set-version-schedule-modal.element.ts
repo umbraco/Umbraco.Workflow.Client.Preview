@@ -32,13 +32,13 @@ export class WorkflowReleaseSetItemScheduleModalElement extends UmbModalBaseElem
   @state()
   private _hasExpireDate = false;
 
-  #expireActions = [
+  #expireActions: Array<{ value: VersionExpireActionModel, label: string }> = [
     {
-      value: VersionExpireActionModel.REVERT,
+      value: "Revert",
       label: this.localize.term("workflow_releaseSets_revert"),
     },
     {
-      value: VersionExpireActionModel.UNPUBLISH,
+      value: "Unpublish",
       label: this.localize.term("content_unpublish"),
     },
   ];
@@ -183,7 +183,7 @@ export class WorkflowReleaseSetItemScheduleModalElement extends UmbModalBaseElem
             <umb-input-radio-button-list
               @change=${this.#onExpireActionChange}
               .value=${this.data?.version.expireAction ??
-              VersionExpireActionModel.REVERT}
+              "Revert"}
               .list=${this.#expireActions}
             ></umb-input-radio-button-list>
           </div>

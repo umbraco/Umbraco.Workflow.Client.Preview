@@ -1,17 +1,20 @@
 import { customElement } from "@umbraco-cms/backoffice/external/lit";
-import { WORKFLOW_RELEASESET_ITEM_COLLECTION_CONTEXT, WorkflowReleaseSetItemCollectionContext } from "../../release-set-item-collection.context.js";
-import { WorkflowReleaseSetComponentTableCollectionViewBaseElement } from "../../../../components/release-set-component-table-collection-view-base.element.js";
 import {
-  ReleaseSetItemStatusModel,
-  type ReleaseSetItemResponseModelReadable,
-} from "@umbraco-workflow/generated";
+  WORKFLOW_RELEASESET_ITEM_COLLECTION_CONTEXT,
+  WorkflowReleaseSetItemCollectionContext,
+} from "../../index.js";
+import { WorkflowReleaseSetComponentTableCollectionViewBaseElement } from "../../../release-set-component-table-collection-view-base.element.js";
+import { type ReleaseSetItemResponseModel } from "@umbraco-workflow/generated";
 
 import "./elements/release-set-item-table-collection-name-column-layout.element.js";
 
 const elementName = "workflow-releaseset-item-table-collection-view";
 
 @customElement(elementName)
-export class WorkflowReleaseSetItemTableCollectionViewElement extends WorkflowReleaseSetComponentTableCollectionViewBaseElement<ReleaseSetItemResponseModelReadable, WorkflowReleaseSetItemCollectionContext> {
+export class WorkflowReleaseSetItemTableCollectionViewElement extends WorkflowReleaseSetComponentTableCollectionViewBaseElement<
+  ReleaseSetItemResponseModel,
+  WorkflowReleaseSetItemCollectionContext
+> {
   constructor() {
     super(WORKFLOW_RELEASESET_ITEM_COLLECTION_CONTEXT);
 
@@ -44,9 +47,7 @@ export class WorkflowReleaseSetItemTableCollectionViewElement extends WorkflowRe
     });
   }
 
-  #createTableItems<T extends ReleaseSetItemResponseModelReadable>(
-    result: Array<T>
-  ) {
+  #createTableItems<T extends ReleaseSetItemResponseModel>(result: Array<T>) {
     this.tableItems = result.map((item: T) => {
       return {
         id: item.unique,
@@ -69,11 +70,10 @@ export class WorkflowReleaseSetItemTableCollectionViewElement extends WorkflowRe
     });
   }
 
-  #calculateItemStatus<T extends ReleaseSetItemResponseModelReadable>(item: T) {
-    return !item.items.length ||
-      item.items.some((x) => x.status === ReleaseSetItemStatusModel.DRAFT)
-      ? ReleaseSetItemStatusModel.DRAFT
-      : ReleaseSetItemStatusModel.READY_TO_PUBLISH;
+  #calculateItemStatus<T extends ReleaseSetItemResponseModel>(item: T) {
+    return !item.items.length || item.items.some((x) => x.status === "Draft")
+      ? "Draft"
+      : "ReadyToPublish";
   }
 }
 

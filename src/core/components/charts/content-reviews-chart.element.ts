@@ -11,7 +11,6 @@ import {
 } from "./chart-base.element.js";
 import {
   ChartService,
-  WorkflowStatusModel,
   type ChartResponseModel,
 } from "@umbraco-workflow/generated";
 
@@ -19,24 +18,19 @@ const elementName = "content-reviews-chart";
 
 @customElement(elementName)
 export class ContentReviewsChartElement extends ChartBaseElement {
-  #headerCardKeys = [
-    { key: "Reviewed", value: WorkflowStatusModel.APPROVED.toLowerCase() },
-    { key: "Overdue", value: WorkflowStatusModel.ERRORED.toLowerCase() },
-    {
-      key: "Expiring",
-      value: WorkflowStatusModel.PENDING_APPROVAL.toLowerCase(),
-    },
-  ];
+  #headerCardKeys = ["approved", "errored", "pending"];
 
   buildChartSeries(chartData?: ChartResponseModel) {
     this.headerCards = [];
+
+    const mapKey = (k: string) => k === "errored" ? "overdue" : k === "pending" ? "expiring" : "reviewed";
+
     this.#headerCardKeys.forEach((k) => {
-      const lower = k.key.toLowerCase();
+      const lower = mapKey(k.toLowerCase());
 
       this.headerCards.push({
         static: true,
-        status: k.value,
-        label: k.key,
+        status: lower,
         value: this.numberFormat(
           <number>(chartData?.additionalData ?? {})[`${lower}Count`] ?? 0,
           chartData?.currentUserLocale

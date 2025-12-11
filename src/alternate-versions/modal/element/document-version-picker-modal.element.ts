@@ -3,26 +3,18 @@ import {
   customElement,
   state,
   css,
-  repeat,
   when,
+  nothing,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
-import type {
-  UUIMenuItemElement,
-  UUIMenuItemEvent,
-} from "@umbraco-cms/backoffice/external/uui";
-import {
-  UMB_APP_LANGUAGE_CONTEXT,
-  type UmbLanguageDetailModel,
-} from "@umbraco-cms/backoffice/language";
 import { AlternateVersionItemRepository } from "../../repository/item/alternate-version-item.repository.js";
 import type {
   WorkflowDocumentVersionPickerModalData,
   WorkflowDocumentVersionPickerModalResult,
 } from "../token/document-version-picker-modal.token.js";
-import { WorkflowVersionSorterController } from "@umbraco-workflow/release-sets";
-import { type WorkflowAlternateVersionCollectionModel } from "@umbraco-workflow/alternate-versions";
 import type { AlternateVersionCollectionResponseModel } from "@umbraco-workflow/generated";
+import { UmbPaginationManager } from "@umbraco-cms/backoffice/utils";
+import { UUIPaginationEvent } from "@umbraco-cms/backoffice/external/uui";
 
 const elementName = "workflow-document-version-picker-modal";
 
@@ -31,132 +23,117 @@ export class WorkflowDocumentVersionPickerModalElement extends UmbModalBaseEleme
   WorkflowDocumentVersionPickerModalData,
   WorkflowDocumentVersionPickerModalResult
 > {
-  #versionSorter = new WorkflowVersionSorterController();
   #repository = new AlternateVersionItemRepository(this);
+  #pagination = new UmbPaginationManager();
 
   @state()
-  private _versions: Record<
-    string,
-    Array<AlternateVersionCollectionResponseModel>
-  > = {};
-
-  @state()
-  private _multiCultures = false;
+  private _versions: Array<AlternateVersionCollectionResponseModel> = [];
 
   @state()
   private _loading = false;
 
-  #languages?: Array<UmbLanguageDetailModel> = [];
-  #defaultLanguage?: UmbLanguageDetailModel;
+  @state()
+  private _currentPageNumber = 1;
+
+  @state()
+  private _totalPages = 1;
 
   constructor() {
     super();
 
-    this.consumeContext(UMB_APP_LANGUAGE_CONTEXT, (context) => {
-      if (!context) return;
+    this.#pagination.setPageSize(5);
 
-      this.observe(context.languages, (languages) => {
-        this.#defaultLanguage = languages?.find((x) => x.isDefault);
-        this.#languages = languages;
-      });
-    });
+    this.observe(
+      this.#pagination.currentPage,
+      (number) => (this._currentPageNumber = number)
+    );
+    this.observe(
+      this.#pagination.totalPages,
+      (number) => (this._totalPages = number)
+    );
   }
 
-  async connectedCallback() {
+  connectedCallback() {
     super.connectedCallback();
+    this.#requestItems();
+  }
+
+  async #requestItems() {
     if (!this.data) return;
 
     this._loading = true;
 
-    const { data, error } = await this.#repository.requestItems([
-      this.data.unique,
-    ]);
+    const { data, total, error } = await this.#repository.requestItemsOfCulture(
+      {
+        unique: this.data.unique,
+        culture: this.data.culture ?? undefined,
+        segment: this.data.segment ?? undefined,
+        skip: this.#pagination.getSkip(),
+        take: this.#pagination.getPageSize(),
+      }
+    );
 
     this._loading = false;
-
     if (error) return;
+
+    this.#pagination.setTotalItems(total);
+
     const versions = this.data.culture
-      ? data?.filter((x) => x.variant === this.data?.culture)
+      ? data?.filter((x) => x.culture === this.data?.culture)
       : data;
 
     if (!versions?.length) {
       return;
     }
 
-    this._versions = this.#versionSorter.sortVersions(
-      versions ?? [],
-      this.#defaultLanguage?.unique ?? "en-US"
-    );
-
-    this._multiCultures = versions.length !== 0;
+    this._versions = versions;
   }
 
-  #onSelect(
-    e: UUIMenuItemEvent,
-    selectedItem: Partial<WorkflowAlternateVersionCollectionModel>
-  ) {
-    const target = e.target as UUIMenuItemElement;
-
-    if (this.data?.multiple) {
-      this.updateValue({
-        selectedItems: [...(this.value?.selectedItems ?? []), selectedItem],
-      });
-      return;
-    }
-
-    this.updateValue({ selectedItem });
-
-    target.parentElement
-      ?.querySelectorAll("uui-menu-item")
-      .forEach((childNode) => {
-        if (childNode.getAttribute("version-id") !== `${selectedItem.unique}`) {
-          childNode.selected = false;
-        }
-      });
+  #onSelect(selectedItem: Partial<AlternateVersionCollectionResponseModel>) {
+    this.updateValue({
+      selectedItems: [...(this.value?.selectedItems ?? []), selectedItem],
+    });
   }
 
-  #renderMenuItem(item: Partial<WorkflowAlternateVersionCollectionModel>) {
-    return html`<uui-menu-item
-      style="--uui-menu-item-flat-structure: 1;"
-      .versionId=${item.unique}
-      selectable
-      @selected=${(e) => this.#onSelect(e, item)}
-    >
-      <div slot="label">${item.name}</div>
-      <umb-icon .name=${item.icon} slot="icon"></umb-icon>
-    </uui-menu-item>`;
+  #onPageChange(event: UUIPaginationEvent) {
+    this.#pagination.setCurrentPageNumber(event.target?.current);
+    this.#requestItems();
   }
 
   #renderVersions() {
-    return repeat(
-      Object.keys(this._versions),
-      (culture) => culture,
-      (culture) =>
-        html`<div>
-          ${when(
-            Object.keys(this._versions).length > 1,
-            () => html` <strong
-              >${this.#languages?.find((x) => x.unique === culture)?.name ??
-              culture}</strong
-            >`
-          )}
-          ${repeat(
-            this._versions[culture] ?? [],
-            (version) => version,
-            (version) =>
-              this.#renderMenuItem({
-                ...version,
-                ...{ icon: version.icon ?? "icon-documents" },
-              })
-          )}
-        </div>`
+    return this._versions.map(
+      (version) => html`<uui-menu-item
+        style="--uui-menu-item-flat-structure: 1;"
+        .versionId=${version.unique}
+        selectable
+        @selected=${() => this.#onSelect(version)}
+      >
+        <div slot="label">${version.name}</div>
+        <umb-icon
+          .name=${version.icon ?? "icon-documents"}
+          slot="icon"
+        ></umb-icon>
+      </uui-menu-item> `
     );
   }
 
-  #renderEmpty() {
-    return html`${this.localize.term(
-      "workflow_alternateVersions_noVersions"
-    )} `;
+  #renderPagination() {
+    return html`
+      ${this._totalPages > 1
+        ? html`
+            <uui-pagination
+              class="pagination"
+              .current=${this._currentPageNumber}
+              .total=${this._totalPages}
+              firstlabel=${this.localize.term("general_first")}
+              previouslabel=${this.localize.term("general_previous")}
+              nextlabel=${this.localize.term("general_next")}
+              lastlabel=${this.localize.term("general_last")}
+              @change=${this.#onPageChange}
+            ></uui-pagination>
+          `
+        : nothing}
+    `;
   }
 
   render() {
@@ -173,10 +150,14 @@ export class WorkflowDocumentVersionPickerModalElement extends UmbModalBaseEleme
         )}
       >
         ${when(
-          this._multiCultures,
+          this._versions.length,
           () => this.#renderVersions(),
-          () => this.#renderEmpty()
+          () =>
+            html`${this.localize.term(
+              "workflow_alternateVersions_noVersions"
+            )} `
         )}
+        ${this.#renderPagination()}
 
         <div slot="actions">
           <uui-button
@@ -185,7 +166,7 @@ export class WorkflowDocumentVersionPickerModalElement extends UmbModalBaseEleme
           ></uui-button>
 
           ${when(
-            this._multiCultures,
+            this._versions.length,
             () => html` <uui-button
               label=${this.localize.term("general_submit")}
               look="primary"

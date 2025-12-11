@@ -4,10 +4,7 @@ import {
   WorkflowReleaseSetTaskCollectionContext,
 } from "../../release-set-task-collection.context.js";
 import { WorkflowReleaseSetComponentTableCollectionViewBaseElement } from "../../../../components/release-set-component-table-collection-view-base.element.js";
-import {
-  ReleaseSetTaskStatusModel,
-  type ReleaseSetTaskResponseModelReadable,
-} from "@umbraco-workflow/generated";
+import { type ReleaseSetTaskResponseModel } from "@umbraco-workflow/generated";
 
 import "./elements/release-set-task-table-collection-name-column-layout.element.js";
 import "./elements/release-set-task-table-collection-assignedto-column-layout.element.js";
@@ -16,7 +13,7 @@ const elementName = "workflow-releaseset-task-table-collection-view";
 
 @customElement(elementName)
 export class WorkflowReleaseSetTaskTableCollectionViewElement extends WorkflowReleaseSetComponentTableCollectionViewBaseElement<
-  ReleaseSetTaskResponseModelReadable,
+  ReleaseSetTaskResponseModel,
   WorkflowReleaseSetTaskCollectionContext
 > {
   constructor() {
@@ -52,33 +49,27 @@ export class WorkflowReleaseSetTaskTableCollectionViewElement extends WorkflowRe
     });
   }
 
-  #createTableItems(result: Array<ReleaseSetTaskResponseModelReadable>) {
-    this.tableItems = result.map(
-      (item: ReleaseSetTaskResponseModelReadable) => {
-        return {
-          id: item.unique,
-          icon:
-            Object.values(ReleaseSetTaskStatusModel)[item.status] ===
-            ReleaseSetTaskStatusModel.ACTIVE
-              ? "icon-calendar-alt"
-              : "icon-calendar",
-          data: [
-            {
-              columnAlias: "name",
-              value: item,
-            },
-            {
-              columnAlias: "assignedTo",
-              value: item.assignedTo,
-            },
-            {
-              columnAlias: "status",
-              value: item.status,
-            },
-          ],
-        };
-      }
-    );
+  #createTableItems(result: Array<ReleaseSetTaskResponseModel>) {
+    this.tableItems = result.map((item: ReleaseSetTaskResponseModel) => {
+      return {
+        id: item.unique,
+        icon: item.status === "Active" ? "icon-calendar-alt" : "icon-calendar",
+        data: [
+          {
+            columnAlias: "name",
+            value: item,
+          },
+          {
+            columnAlias: "assignedTo",
+            value: item.assignedTo,
+          },
+          {
+            columnAlias: "status",
+            value: item.status,
+          },
+        ],
+      };
+    });
   }
 }
 

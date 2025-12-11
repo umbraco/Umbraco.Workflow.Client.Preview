@@ -3,23 +3,23 @@ import type { UmbControllerHostElement } from "@umbraco-cms/backoffice/controlle
 import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
 import type { RequestResult } from "@hey-api/client-fetch";
 import { ValidActionDescriptor } from "../enums.js";
-import { WorkflowNotificationManagerController } from "@umbraco-workflow/core";
 import {
   ActionService,
   PostActionApproveResponses,
   type ActionWorkflowRequestModel,
-  type ActionWorkflowResponseModelReadable,
 } from "@umbraco-workflow/generated";
+import { WorkflowNotificationManagerController } from "../notification-manager.controller.js";
 
 export interface InitiateWorkflowArgs {
   nodeUnique: string;
   entityType: string;
   publish: boolean;
   comment: string;
-  variants: Array<string>;
+  cultures: Array<string>;
   releaseDate?: string;
   expireDate?: string;
   attachmentId?: string;
+  expander?: Record<string, any>;
 }
 
 export interface ActionWorkflowArgs {
@@ -41,28 +41,28 @@ export class WorkflowActionRepository extends UmbControllerBase {
     const { data, error } = await tryExecute(
       this._host,
       ActionService.postActionInitiate({
-          body: {
-            entityType: args.entityType,
+        body: {
+          entityType: args.entityType,
           entityId: args.nodeUnique,
           comment: args.comment,
           releaseDate: args.releaseDate,
           expireDate: args.expireDate,
           publish: args.publish,
-          variant: args.variants,
+          culture: args.cultures,
           attachmentId: args.attachmentId ? +args.attachmentId : 0,
+          expander: args.expander,
         },
       })
     );
 
     // only show variant names for variant content - invariant selector is meaningless
-    const displayVariants = args.variants.includes("*") ? [] : args.variants;
+    const displayCultures = args.cultures.includes("*") ? [] : args.cultures;
 
     if (error) {
-      this.#notificationManager.notify({
-        color: "danger",
-        key: 'workflow_unableToInitiate',
-        args: [args.nodeUnique, displayVariants],
-      });
+      this.#notificationManager.danger("workflow_unableToInitiate", [
+        args.nodeUnique,
+        displayCultures,
+      ]);
       return;
     }
 
@@ -89,10 +89,7 @@ export class WorkflowActionRepository extends UmbControllerBase {
     );
 
     if (error) {
-      this.#notificationManager.notify({
-        color: "danger",
-        key: "workflow_unableToAction",
-      });
+      this.#notificationManager.danger("workflow_unableToAction");
       return;
     }
 

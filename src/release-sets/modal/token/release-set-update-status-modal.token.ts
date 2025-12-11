@@ -1,11 +1,11 @@
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
-import type { StatusModel, StatusModelType } from "@umbraco-workflow/core";
+import type { StatusModel } from "@umbraco-workflow/core";
 
 export const WORKFLOW_RELEASESET_UPDATESTATUS_MODAL_ALIAS =
   "Workflow.Modal.ReleaseSet.UpdateStatus";
 
 export interface WorkflowReleaseSetUpdateStatusModalData {
-  optionType: StatusModelType;
+  optionType: Array<StatusModel>;
 }
 
 export interface WorkflowReleaseSetUpdateStatusModalResult {

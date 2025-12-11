@@ -2,7 +2,20 @@ import { css } from "@umbraco-cms/backoffice/external/lit";
 
 export const PropertyModifierStyles = css`
   [inert] {
-    opacity: 0.5;
+    --readonly-background-color: var(
+      --uui-input-background-color-readonly,
+      var(--uui-color-disabled, #f3f3f5)
+    );
+    --readonly-border-color: var(
+      --uui-input-border-color-readonly,
+      var(--uui-color-disabled-standalone, rgb(226, 226, 226))
+    );
+
+    --uui-input-background-color: var(--readonly-background-color);
+    --uui-select-background-color: var(--readonly-background-color);
+
+    --uui-input-border-color: var(--readonly-border-color);
+    --uui-select-border-color: var(--readonly-border-color);
   }
 
   [hidden] {

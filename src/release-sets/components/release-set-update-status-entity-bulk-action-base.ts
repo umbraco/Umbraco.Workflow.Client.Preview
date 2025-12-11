@@ -4,11 +4,14 @@ import {
   type UmbEntityBulkActionArgs,
 } from "@umbraco-cms/backoffice/entity-bulk-action";
 import type { MetaEntityBulkAction } from "@umbraco-cms/backoffice/extension-registry";
-import { UMB_MODAL_MANAGER_CONTEXT } from "@umbraco-cms/backoffice/modal";
+import { umbOpenModal } from "@umbraco-cms/backoffice/modal";
 import { WORKFLOW_RELEASESET_UPDATESTATUS_MODAL } from "../modal/index.js";
-import { WORKFLOW_RELEASESET_WORKSPACE_CONTEXT } from "../workspace/release-set-workspace.context-token.js";
-import type { StatusModel, StatusModelType } from "@umbraco-workflow/core";
-import { ObservableArrayGetterFnType, ObservableArraySetterFnType } from "../entities.js";
+import { WORKFLOW_RELEASESET_WORKSPACE_CONTEXT } from "../workspace/index.js";
+import type { StatusModel } from "@umbraco-workflow/core";
+import {
+  ObservableArrayGetterFnType,
+  ObservableArraySetterFnType,
+} from "../entities.js";
 
 export class WorkflowReleaseSetUpdateStatusEntityBulkActionBase<
   EntityType extends MetaEntityBulkAction & {
@@ -16,7 +19,7 @@ export class WorkflowReleaseSetUpdateStatusEntityBulkActionBase<
     status: StatusModel;
   }
 > extends UmbEntityBulkActionBase<EntityType> {
-  #optionType: StatusModelType;
+  #optionType: Array<StatusModel>;
 
   #getter: ObservableArrayGetterFnType<EntityType>;
   #setter: ObservableArraySetterFnType<EntityType>;
@@ -24,7 +27,7 @@ export class WorkflowReleaseSetUpdateStatusEntityBulkActionBase<
   constructor(
     host: UmbControllerHost,
     args: UmbEntityBulkActionArgs<EntityType>,
-    optionType: StatusModelType,
+    optionType: Array<StatusModel>,
     getter: ObservableArrayGetterFnType<EntityType>,
     setter: ObservableArraySetterFnType<EntityType>
   ) {
@@ -35,13 +38,8 @@ export class WorkflowReleaseSetUpdateStatusEntityBulkActionBase<
     this.#setter = setter;
   }
 
-  async execute(): Promise<void> {
-    const modalContext = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-    if (!modalContext) {
-      throw new Error("Context not found: UMB_MODAL_MANAGER_CONTEXT");
-    }
-
-    const modalHandler = modalContext.open(
+  async execute() {
+    const status = await umbOpenModal(
       this,
       WORKFLOW_RELEASESET_UPDATESTATUS_MODAL,
       {
@@ -49,10 +47,9 @@ export class WorkflowReleaseSetUpdateStatusEntityBulkActionBase<
           optionType: this.#optionType,
         },
       }
-    );
-
-    await modalHandler.onSubmit().catch(() => {});
-    const { status } = modalHandler.getValue();
+    )
+      .then((result) => result.status)
+      .catch(() => {});
 
     if (status === undefined) return;
 

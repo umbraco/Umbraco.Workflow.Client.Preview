@@ -17,17 +17,17 @@ export class ContentReviewFilters
       {
         alias: "groupIds",
         ui: FilterType.GROUP,
-        labelKey: "contentReviews_reviewGroup",
+        labelKey: "workflow_contentReviews_reviewGroup",
       },
       {
         alias: "dueOn",
-        labelKey: "contentReviews_nextReviewDue",
+        labelKey: "workflow_contentReviews_nextReviewDue",
         ui: FilterType.DATERANGE,
         default: { from: null, to: null },
       },
       {
         alias: "lastReview",
-        labelKey: "contentReviews_lastReviewed",
+        labelKey: "workflow_contentReviews_lastReviewed",
         ui: FilterType.DATERANGE,
         default: { from: null, to: null },
       },

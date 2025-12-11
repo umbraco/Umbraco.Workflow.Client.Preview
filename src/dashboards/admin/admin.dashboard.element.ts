@@ -11,6 +11,8 @@ import type { UUIInputElement } from "@umbraco-cms/backoffice/external/uui";
 import { type PackageVersionModel } from "@umbraco-workflow/generated";
 import { WORKFLOW_CONTEXT } from "@umbraco-workflow/context";
 
+import "./license-box/license-box.element.js";
+
 const elementName = "workflow-admin-dashboard";
 
 @customElement(elementName)
@@ -83,7 +85,7 @@ export class AdminDashboardElement extends UmbLitElement {
   #renderReviewsChart() {
     return html`<uui-box>
       <div slot="headline">
-        ${this.localize.term("contentReviews_contentReviewActivity")}
+        ${this.localize.term("workflow_contentReviews_contentReviewActivity")}
       </div>
       <workflow-day-range
         slot="header-actions"

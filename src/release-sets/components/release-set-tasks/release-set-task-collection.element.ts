@@ -5,13 +5,13 @@ import {
   WORKFLOW_RELEASESET_TASK_COLLECTION_CONTEXT,
   WorkflowReleaseSetTaskCollectionContext,
 } from "./release-set-task-collection.context.js";
-import type { ReleaseSetTaskResponseModelReadable } from "@umbraco-workflow/generated";
+import type { ReleaseSetTaskResponseModel } from "@umbraco-workflow/generated";
 
 const elementName = "workflow-release-set-task-collection";
 
 @customElement(elementName)
 export class WorkflowReleaseSetTaskCollectionElement extends ReleaseSetComponentCollectionElement<
-  ReleaseSetTaskResponseModelReadable,
+  ReleaseSetTaskResponseModel,
   WorkflowReleaseSetTaskCollectionContext
 > {
   constructor() {

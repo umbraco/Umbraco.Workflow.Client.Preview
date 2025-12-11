@@ -1,37 +1,69 @@
-import type { UmbTableItem } from "@umbraco-cms/backoffice/components";
+import type {
+  UmbTableColumn,
+  UmbTableConfig,
+  UmbTableItem,
+} from "@umbraco-cms/backoffice/components";
 import {
   customElement,
   html,
   state,
 } from "@umbraco-cms/backoffice/external/lit";
 import type { UmbLanguageDetailModel } from "@umbraco-cms/backoffice/language";
-import { ADVANCED_SEARCH_CONTEXT } from "../../advanced-search-context.token.js";
-import { WorkflowTableBaseElement, type WorkflowTable } from "@umbraco-workflow/core";
-import type {
-  AdvancedSearchResponseItemModel,
-  AdvancedSearchResponseModel,
-  ContentTypePropertyModel,
-} from "@umbraco-workflow/generated"
-;
+import { WORKFLOW_ADVANCEDSEARCH_CONTEXT } from "../../advanced-search-context.token.js";
+import {
+  type AdvancedSearchResponseItemModel,
+  type ContentTypePropertyModel,
+} from "@umbraco-workflow/generated";
 import "./advanced-search-results-table-name-column-layout.element.js";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 
 const elementName = "workflow-advanced-search-results-table";
 
 @customElement(elementName)
-export class AdvancedSearchResultsTableElement
-  extends WorkflowTableBaseElement
-  implements WorkflowTable
-{
+export class AdvancedSearchResultsTableElement extends UmbLitElement {
   @state()
   private _languages?: Array<UmbLanguageDetailModel>;
 
   @state()
   private _contentTypes?: Array<ContentTypePropertyModel>;
 
+  @state()
+  private _tableConfig: UmbTableConfig = {
+    allowSelection: false,
+  };
+
+  @state()
+  private _tableColumns: Array<UmbTableColumn> = [
+    {
+      name: this.localize.term("general_name"),
+      alias: "name",
+      elementName: "workflow-advanced-search-results-table-name-column-layout",
+    },
+    {
+      name: this.localize.term("content_documentType"),
+      alias: "documentType",
+    },
+    {
+      name: this.localize.term("content_published"),
+      alias: "published",
+    },
+    {
+      name: this.localize.term("redirectUrls_culture"),
+      alias: "culture",
+    },
+    {
+      name: this.localize.term("workflow_search_score"),
+      alias: "score",
+    },
+  ];
+
+  @state()
+  private _tableItems: Array<UmbTableItem> = [];
+
   connectedCallback() {
     super.connectedCallback();
 
-    this.consumeContext(ADVANCED_SEARCH_CONTEXT, (context) => {
+    this.consumeContext(WORKFLOW_ADVANCEDSEARCH_CONTEXT, (context) => {
       if (!context) return;
 
       this.observe(context.languages, (languages) => {
@@ -40,6 +72,10 @@ export class AdvancedSearchResultsTableElement
 
       this.observe(context.contentTypes, (contentTypes) => {
         this._contentTypes = contentTypes;
+      });
+
+      this.observe(context.searchResults, (searchResults) => {
+        this.buildTableItems(searchResults?.results ?? []);
       });
     });
   }
@@ -53,70 +89,47 @@ export class AdvancedSearchResultsTableElement
     return this._contentTypes?.find((x) => x.alias === alias)?.name ?? "-";
   }
 
-  buildTable() {
-    this.tableColumns = [
-      {
-        name: this.localize.term("general_name"),
-        alias: "name",
-        elementName:
-          "workflow-advanced-search-results-table-name-column-layout",
-      },
-      {
-        name: this.localize.term("content_documentType"),
-        alias: "documentType",
-      },
-      {
-        name: this.localize.term("content_published"),
-        alias: "published",
-      },
-      {
-        name: this.localize.term("redirectUrls_culture"),
-        alias: "culture",
-      },
-      {
-        name: this.localize.term("workflowSearch_score"),
-        alias: "score",
-      },
-    ];
+  buildTableItems(items: AdvancedSearchResponseItemModel[]) {
+    this._tableItems = items.map((r: AdvancedSearchResponseItemModel) => ({
+      id: r.key!,
+      icon: r.icon ?? "document",
+      data: [
+        {
+          columnAlias: "name",
+          value: r,
+        },
+        {
+          columnAlias: "documentType",
+          value: this.#getContentTypeName(r.documentTypeAlias),
+        },
+        {
+          columnAlias: "published",
+          value: html`<uui-icon
+            .name=${r.published ? "check" : "remove"}
+          ></uui-icon>`,
+        },
+        {
+          columnAlias: "culture",
+          value: r.culture?.map(
+            (c) => html`<uui-tag>${this.#getCultureName(c)}</uui-tag>`
+          ),
+        },
+        {
+          columnAlias: "score",
+          value: r.score,
+        },
+      ],
+    }));
   }
 
-  map(result: AdvancedSearchResponseModel): Array<UmbTableItem> {
-    if (result.totalItems === 0 || !result.results) {
-      return [];
-    }
-
-    return (result?.results ?? []).map(
-      (r: AdvancedSearchResponseItemModel) => ({
-        id: r.key!,
-        icon: r.icon ?? "document",
-        data: [
-          {
-            columnAlias: "name",
-            value: r,
-          },
-          {
-            columnAlias: "documentType",
-            value: this.#getContentTypeName(r.documentTypeAlias),
-          },
-          {
-            columnAlias: "published",
-            value: html`<uui-icon
-              .name=${r.published ? "check" : "remove"}
-            ></uui-icon>`,
-          },
-          {
-            columnAlias: "culture",
-            value: r.culture?.map(
-              (c) => html`<uui-tag>${this.#getCultureName(c)}</uui-tag>`
-            ),
-          },
-          {
-            columnAlias: "score",
-            value: r.score,
-          },
-        ],
-      })
-    );
+  override render() {
+    return html`
+      <umb-table
+        .config=${this._tableConfig}
+        .columns=${this._tableColumns}
+        .items=${this._tableItems}
+      ></umb-table>
+    `;
   }
 }
 

@@ -1,7 +1,10 @@
 import type { UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
-import type { RELEASESET_ENTITY_TYPE } from './constants.js';
-import { Observable, UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
-import { ReleaseSetDetailResponseModelReadable } from "generated/types.gen.js";
+import type { RELEASESET_ENTITY_TYPE } from "./constants.js";
+import {
+  Observable,
+  UmbObjectState,
+} from "@umbraco-cms/backoffice/observable-api";
+import { ReleaseSetDetailResponseModel } from "@umbraco-workflow/generated";
 import { WorkflowReleaseSetWorkspaceContext } from "./workspace/release-set-workspace.context.js";
 
 export type WorkflowReleaseSetEntityType = typeof RELEASESET_ENTITY_TYPE;
@@ -24,6 +27,6 @@ export type ObservableArrayGetterFnType<T> = (
 ) => Observable<Array<T> | undefined>;
 
 export type ObservableArraySetterFnType<T> = (
-  data: UmbObjectState<ReleaseSetDetailResponseModelReadable | undefined>,
+  data: UmbObjectState<ReleaseSetDetailResponseModel | undefined>,
   arr: Array<T>
 ) => void;

@@ -6,6 +6,8 @@ import type {
   WorkflowFilterPickerModalData,
   WorkflowFilterPickerModalResult,
 } from "./filter-picker-modal.token.js";
+import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
+import { appendToFrozenArray } from "@umbraco-cms/backoffice/observable-api";
 
 const elementName = "workflow-filter-picker-modal";
 
@@ -14,6 +16,54 @@ export class FilterPickerModalElement extends UmbModalBaseElement<
   WorkflowFilterPickerModalData,
   WorkflowFilterPickerModalResult
 > {
+  #documentContext?: typeof UMB_DOCUMENT_WORKSPACE_CONTEXT.TYPE;
+
+  constructor() {
+    super();
+
+    this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (context) => {
+      this.#documentContext = context;
+    });
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+
+    this.#maybeFreezeDocumentFilter();
+    this.#maybeFreezeLanguageFilter();
+  }
+
+  async #maybeFreezeLanguageFilter() {
+    if (!this.#documentContext) return;
+
+    const variesByCulture = this.#documentContext.getVariesByCulture();
+    if (variesByCulture) return;
+
+    this.#updateFilters({ alias: "variant" });
+  }
+
+  #maybeFreezeDocumentFilter() {
+    if (!this.#documentContext) return;
+
+    this.#updateFilters({
+      alias: "unique",
+      default: this.#documentContext.getUnique()?.toString(),
+      value: this.#documentContext.getUnique()?.toString(),
+    });
+  }
+
+  #updateFilters(filter: Filter<unknown>) {
+    if (!this.data?.config) return;
+
+    const filters = appendToFrozenArray(
+      this.data.config.filters,
+      filter,
+      (x) => x.alias === filter.alias
+    );
+
+    this.data = { ...this.data, config: { ...this.data.config, filters } };
+  }
+
   #handleClear() {
     Object.keys(this.value).forEach((key) => {
       const original = this.data?.config?.filters.find((x) => x.alias === key);
@@ -45,12 +95,12 @@ export class FilterPickerModalElement extends UmbModalBaseElement<
 
   #handleFilterValueChange<T>(e: Event, filter: Filter<T>) {
     const filterElement = e.target as WorkflowBaseFilterElement<T>;
-    this.modalContext?.updateValue({ [filter.alias]: filterElement.value });
+    this.updateValue({ [filter.alias]: filterElement.value });
   }
 
   render() {
     return html`
-      <umb-body-layout headline="Filter picker">
+      <umb-body-layout headline="Choose">
         <div id="main">
           <uui-box>
             ${this.data?.config?.filters.map((filter) =>

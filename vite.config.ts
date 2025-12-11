@@ -7,19 +7,18 @@ export default defineConfig({
       entry: "src/index.ts",
       formats: ["es"],
     },
-    outDir: './wwwroot',
+    outDir: "./wwwroot",
     sourcemap: true,
     emptyOutDir: false,
     rollupOptions: {
       external: [/^@umbraco-cms/],
-      onwarn: () => { },
+      onwarn: () => {},
       output: {
         chunkFileNames: "[name].js",
         manualChunks: {
-          signalr: ['@microsoft/signalr'],
-          chartjs: ['chart.js'],
-          humanize: ['humanize-duration'],
-        }
+          chartjs: ["chart.js"],
+          humanize: ["humanize-duration"],
+        },
       },
     },
   },

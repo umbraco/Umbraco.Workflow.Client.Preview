@@ -11,6 +11,7 @@ import {
 } from "../../repository/detail/alternate-version-detail.store.js";
 import type { WorkflowAlternateVersionsCollectionFilterModel } from "../types.js";
 import { WorkflowAlternateVersionsCollectionServerDataSource } from "./alternate-versions-collection.server.data-source.js";
+import { WORKFLOW_INVARIANT } from "@umbraco-workflow/core";
 
 export class WorkflowAlternateVersionsCollectionRepository
   extends UmbControllerBase
@@ -19,7 +20,9 @@ export class WorkflowAlternateVersionsCollectionRepository
   #localize = new UmbLocalizationController(this);
   #notificationContext?: typeof UMB_NOTIFICATION_CONTEXT.TYPE;
   #workspaceContext?: typeof UMB_DOCUMENT_WORKSPACE_CONTEXT.TYPE;
-  #collectionSource = new WorkflowAlternateVersionsCollectionServerDataSource(this);
+  #collectionSource = new WorkflowAlternateVersionsCollectionServerDataSource(
+    this
+  );
 
   #init: Promise<unknown>;
   #unique?: string | null;
@@ -28,7 +31,7 @@ export class WorkflowAlternateVersionsCollectionRepository
   #detailStore?: WorkflowAlternateVersionDetailStore;
 
   constructor(host: UmbControllerHost) {
-    super(host);      
+    super(host);
 
     this.#init = Promise.all([
       this.consumeContext(
@@ -55,7 +58,7 @@ export class WorkflowAlternateVersionsCollectionRepository
       (variants) => {
         const activeVariant = variants.at(0);
         this.#activeVariant =
-          activeVariant?.culture !== "invariant"
+          activeVariant?.culture !== WORKFLOW_INVARIANT
             ? new UmbVariantId(activeVariant?.culture, activeVariant?.segment)
             : UmbVariantId.CreateInvariant();
       }
@@ -104,7 +107,7 @@ export class WorkflowAlternateVersionsCollectionRepository
         count++;
       }
     }
-  }  
+  }
 }
 
 export default WorkflowAlternateVersionsCollectionRepository;

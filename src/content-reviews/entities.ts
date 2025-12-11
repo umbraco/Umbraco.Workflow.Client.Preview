@@ -1,12 +1,14 @@
-import type { UmbDocumentEntityType  } from '@umbraco-cms/backoffice/document';
-import type { UmbDocumentTypeEntityType } from '@umbraco-cms/backoffice/document-type';
-import type { WorkflowApprovalGroupCollectionModel } from '../approval-group/collection/index.js';
+import type { UmbDocumentEntityType } from "@umbraco-cms/backoffice/document";
+import type { UmbDocumentTypeEntityType } from "@umbraco-cms/backoffice/document-type";
+import { WorkflowApprovalGroupCollectionModel } from "@umbraco-workflow/approval-group";
 
-export type ContentReviewType = UmbDocumentEntityType | UmbDocumentTypeEntityType;
+export type ContentReviewType =
+  | UmbDocumentEntityType
+  | UmbDocumentTypeEntityType;
 
 export type ContentReviewConfigItem = {
   id?: number;
-  variant?: string;
+  culture?: string;
   groups?: Array<WorkflowApprovalGroupCollectionModel>;
   excluded?: boolean;
   period?: number;

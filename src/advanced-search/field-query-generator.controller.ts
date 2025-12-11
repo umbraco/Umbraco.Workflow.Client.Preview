@@ -21,7 +21,7 @@ export class FieldQueryGenerator {
       let include = false;
       if (this.#isSingleOrSomeSearch()) {
         include = this.#propertyFilter(prop);
-      } else if (this.#args.searchType === AdvancedSearchTypeModel.ALL) {
+      } else if (this.#args.searchType === "All") {
         include = this.#allFilter(prop);
       } else if (this.#isTypeOrEditorSearch()) {
         include = this.#dataTypeFilter(prop);
@@ -35,16 +35,15 @@ export class FieldQueryGenerator {
   }
 
   #setValue(p: Partial<PropertyDetailModel>, value: any) {
-    console.log(p);
     p.value = value;
   }
 
   #typeSearchKeyMapper(searchType: AdvancedSearchTypeModel): TypeSearchKey {
-    if (searchType === AdvancedSearchTypeModel.DATATYPE) {
+    if (searchType === "Datatype") {
       return "dataTypeKey";
     }
 
-    if (searchType === AdvancedSearchTypeModel.PROPERTY_EDITOR) {
+    if (searchType === "PropertyEditor") {
       return "propertyEditorAlias";
     }
 
@@ -93,10 +92,7 @@ export class FieldQueryGenerator {
 
     const isEmptyOrUndefined = this.#emptyOrUndefined(fieldValue);
 
-    if (
-      isEmptyOrUndefined &&
-      this.#args.searchType === AdvancedSearchTypeModel.SOME
-    ) {
+    if (isEmptyOrUndefined && this.#args.searchType === "Some") {
       return false;
     }
 
@@ -110,15 +106,14 @@ export class FieldQueryGenerator {
 
   #isSingleOrSomeSearch(): boolean {
     return (
-      this.#args.searchType === AdvancedSearchTypeModel.SINGLE ||
-      this.#args.searchType === AdvancedSearchTypeModel.SOME
+      this.#args.searchType === "Single" || this.#args.searchType === "Some"
     );
   }
 
   #isTypeOrEditorSearch(): boolean {
     return (
-      this.#args.searchType === AdvancedSearchTypeModel.DATATYPE ||
-      this.#args.searchType === AdvancedSearchTypeModel.PROPERTY_EDITOR
+      this.#args.searchType === "Datatype" ||
+      this.#args.searchType === "PropertyEditor"
     );
   }
 

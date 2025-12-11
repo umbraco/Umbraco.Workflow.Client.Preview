@@ -4,18 +4,20 @@ import { UmbContextBase } from "@umbraco-cms/backoffice/class-api";
 import { UMB_ENTITY_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/workspace";
 import { umbExtensionsRegistry } from "@umbraco-cms/backoffice/extension-registry";
 import { loadManifestApi } from "@umbraco-cms/backoffice/extension-api";
-import { tryExecute } from "@umbraco-cms/backoffice/resources";
 import {
   WORKFLOW_MANAGER_CONTEXT,
   type ScaffoldArgsModel,
   type WorkflowState,
 } from "../index.js";
 import { WorkflowStateController } from "../workflow-state.controller.js";
-import type { WorkflowEntityWorkflowInitializer } from "../../initializers/entity-workflow-initializer.manifest.js";
+import {
+  type WorkflowEntityWorkflowInitializer,
+  WORKFLOW_INITIALIZER_TYPE_ALIAS,
+} from "../../initializers/index.js";
 import { PermissionType, type ValidActionDescriptor } from "../../enums.js";
 import {
   ScaffoldService,
-  type WorkflowScaffoldResponseModelReadable,
+  type WorkflowScaffoldResponseModel,
   type NodePermissionsResponseModel,
   type ApprovalGroupDetailPermissionConfigModel,
 } from "@umbraco-workflow/generated";
@@ -23,9 +25,12 @@ import {
   WorkflowActionRepository,
   type InitiateWorkflowArgs,
 } from "@umbraco-workflow/repository";
+import { WORKFLOW_INVARIANT } from "../../constants.js";
 
 export class WorkflowManagerContext extends UmbContextBase {
   readonly IS_WORKFLOW_MANAGER_CONTEXT = true;
+
+  readonly invariantCulture = "*";
 
   readonly #defaultPermissions = {
     node: [],
@@ -37,7 +42,7 @@ export class WorkflowManagerContext extends UmbContextBase {
   };
 
   #repo: WorkflowActionRepository;
-  #stateController: WorkflowStateController;
+  #stateController = new WorkflowStateController(this);
 
   #workflowInitializer?: WorkflowEntityWorkflowInitializer;
   #currentScaffoldArgs?: ScaffoldArgsModel;
@@ -46,9 +51,9 @@ export class WorkflowManagerContext extends UmbContextBase {
   #permissions = new UmbObjectState<NodePermissionsResponseModel>(
     this.#defaultPermissions
   );
-  #scaffold = new UmbObjectState<
-    WorkflowScaffoldResponseModelReadable | undefined
-  >(undefined);
+  #scaffold = new UmbObjectState<WorkflowScaffoldResponseModel | undefined>(
+    undefined
+  );
 
   state = this.#state.asObservable();
   permissions = this.#permissions.asObservable();
@@ -58,7 +63,6 @@ export class WorkflowManagerContext extends UmbContextBase {
     super(host, WORKFLOW_MANAGER_CONTEXT.toString());
 
     this.#repo = new WorkflowActionRepository(host);
-    this.#stateController = new WorkflowStateController(this);
 
     // handles workspace-workflows only. dashboard is managed by the detail modal
     this.consumeContext(UMB_ENTITY_WORKSPACE_CONTEXT, (context) => {
@@ -80,7 +84,7 @@ export class WorkflowManagerContext extends UmbContextBase {
     if (!args.entityType) throw new Error("Entity type is missing");
 
     const manifests = umbExtensionsRegistry.getByTypeAndFilter(
-      "workflowInitializer",
+      WORKFLOW_INITIALIZER_TYPE_ALIAS,
       (x) => x.entityType === args.entityType
     );
 
@@ -118,12 +122,12 @@ export class WorkflowManagerContext extends UmbContextBase {
 
     const requestArgs = { ...args };
 
-    if (!requestArgs.variant || requestArgs.variant === "*") {
-      requestArgs.variant = "invariant";
+    if (!requestArgs.culture || requestArgs.culture === "*") {
+      requestArgs.culture = WORKFLOW_INVARIANT;
     }
 
     if (
-      this.#currentScaffoldArgs?.variant === requestArgs.variant &&
+      this.#currentScaffoldArgs?.culture === requestArgs.culture &&
       this.#currentScaffoldArgs.nodeKey === requestArgs.nodeKey &&
       this.#currentScaffoldArgs.entityType === requestArgs.entityType
     ) {
@@ -155,17 +159,14 @@ export class WorkflowManagerContext extends UmbContextBase {
   async refreshScaffold() {
     if (!this.#currentScaffoldArgs) return;
 
-    const variant =
-      this.#currentScaffoldArgs.variant === "invariant"
+    const culture =
+      this.#currentScaffoldArgs.culture === WORKFLOW_INVARIANT
         ? "*"
-        : this.#currentScaffoldArgs.variant;
+        : this.#currentScaffoldArgs.culture;
 
-    const { data } = await tryExecute(
-      this._host,
-      ScaffoldService.postScaffold({
-        body: { ...this.#currentScaffoldArgs, variant },
-      })
-    );
+    const { data } = await ScaffoldService.postScaffold({
+      body: { ...this.#currentScaffoldArgs, culture },
+    });
 
     this.#scaffold.setValue(data);
 
@@ -173,7 +174,7 @@ export class WorkflowManagerContext extends UmbContextBase {
       data?.tasks?.invariantTask?.instance?.key;
 
     const { state, valid } = await this.#stateController.generate(
-      this.#currentScaffoldArgs.isDashboard,
+      this.#currentScaffoldArgs,
       this.getIsPublished()
     );
 
@@ -232,8 +233,14 @@ export class WorkflowManagerContext extends UmbContextBase {
     return this.#permissions.getValue();
   }
 
-  getActiveVariant() {
-    return this.#currentScaffoldArgs?.variant;
+  // TODO => refactor to use 'invariant' rather than '*'
+  getActiveCulture() {
+    const culture = this.#currentScaffoldArgs?.culture ?? this.invariantCulture;
+    return culture === WORKFLOW_INVARIANT ? this.invariantCulture : culture;
+  }
+
+  getEntityType() {
+    return this.#currentScaffoldArgs?.entityType;
   }
 
   setNodePermissions(
@@ -248,7 +255,8 @@ export class WorkflowManagerContext extends UmbContextBase {
   getActivePermissions(): Array<ApprovalGroupDetailPermissionConfigModel> {
     const permissions = this.getPermissions();
 
-    if (permissions.new.length && !this.getIsPublished()) return permissions.new;
+    if (permissions.new.length && !this.getIsPublished())
+      return permissions.new;
     if (permissions.node.length) return permissions.node;
     if (permissions.contentType.length) return permissions.contentType;
     if (permissions.inherited.length) return permissions.inherited;
@@ -259,7 +267,8 @@ export class WorkflowManagerContext extends UmbContextBase {
   getActivePermissionType(): PermissionType | undefined {
     const permissions = this.getPermissions();
 
-    if (permissions.new.length && !this.getIsPublished()) return PermissionType.NEW;
+    if (permissions.new.length && !this.getIsPublished())
+      return PermissionType.NEW;
     if (permissions.node.length) return PermissionType.NODE;
     if (permissions.contentType.length) return PermissionType.CONTENT_TYPE;
     if (permissions.inherited.length) return PermissionType.INHERITED;

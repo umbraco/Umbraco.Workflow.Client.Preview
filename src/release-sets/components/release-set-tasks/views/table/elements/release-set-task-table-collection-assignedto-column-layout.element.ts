@@ -6,7 +6,7 @@ import {
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import { UMB_USER_ITEM_STORE_CONTEXT } from "@umbraco-cms/backoffice/user";
-import { EMPTY_GUID } from "@umbraco-workflow/core";
+import { EMPTY_GUID } from "../../../../../constants.js";
 
 const elementName = "release-set-task-table-assignedto-column-layout";
 
@@ -31,7 +31,7 @@ export class ReleaseSetTaskTableAssignedToColumnLayoutElement extends UmbLitElem
     if (!context) {
       throw new Error("Context not found: UMB_USER_ITEM_STORE_CONTEXT");
     }
-    
+
     const user = context.getItems([unique]);
     return user.at(0)?.name;
   }

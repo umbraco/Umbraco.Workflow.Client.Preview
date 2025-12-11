@@ -6,6 +6,7 @@ import {
   WORKFLOW_MANAGER_CONTEXT_ALIAS,
   WORKFLOW_SIGNALR_CONTEXT_ALIAS,
 } from "./index.js";
+import { WORKFLOW_RELEASESET_WORKSPACE_ALIAS } from "@umbraco-workflow/release-sets";
 
 export const manifests: Array<UmbExtensionManifest> = [
   {
@@ -15,8 +16,12 @@ export const manifests: Array<UmbExtensionManifest> = [
     api: () => import("./context/workflow-manager-context.js"),
     conditions: [
       {
-				alias: UMB_WORKSPACE_CONDITION_ALIAS,
-        oneOf: [UMB_DOCUMENT_WORKSPACE_ALIAS, WORKFLOW_ALTERNATEVERSION_WORKSPACE_ALIAS],
+        alias: UMB_WORKSPACE_CONDITION_ALIAS,
+        oneOf: [
+          UMB_DOCUMENT_WORKSPACE_ALIAS,
+          WORKFLOW_ALTERNATEVERSION_WORKSPACE_ALIAS,
+          WORKFLOW_RELEASESET_WORKSPACE_ALIAS,
+        ],
       },
     ],
   },

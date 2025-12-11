@@ -8,29 +8,29 @@ import {
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import { umbOpenModal } from "@umbraco-cms/backoffice/modal";
-import { WORKFLOW_DOCUMENTVERSION_PICKER_MODAL } from "@umbraco-workflow/alternate-versions";
+import {
+  WORKFLOW_CREATE_ALTERNATEVERSION_WORKSPACE_PATH_PATTERN,
+  WORKFLOW_DOCUMENTVERSION_PICKER_MODAL,
+} from "@umbraco-workflow/alternate-versions";
 import {
   UMB_APP_LANGUAGE_CONTEXT,
   type UmbLanguageDetailModel,
 } from "@umbraco-cms/backoffice/language";
 import { RELEASESET_VERSION_ENTITY_TYPE } from "../../constants.js";
 import { WorkflowVersionSorterController } from "../../version-sorter.controller.js";
-import { WORKFLOW_RELEASESET_ITEM_EDITOR_CONTEXT } from "./release-set-versions-editor.context.js";
-import type { WorkflowReleaseSetVersionElement } from "./release-set-version.element.js";
+import { WORKFLOW_RELEASESET_VERSIONS_EDITOR_CONTEXT } from "./release-set-versions-editor.context-token.js";
 import {
   ContentVariationModel,
-  ReleaseSetItemStatusModel,
-  VersionExpireActionModel,
-  type ReleaseSetVersionResponseModelReadable,
+  type ReleaseSetVersionResponseModel,
 } from "@umbraco-workflow/generated";
-import { WORKFLOW_RELEASESET_ITEM_COLLECTION_CONTEXT } from "../release-set-items/release-set-item-collection.context.js";
-import { WORKFLOW_RELEASESET_WORKSPACE_CONTEXT } from "src/release-sets/workspace/release-set-workspace.context-token.js";
+import { WORKFLOW_RELEASESET_ITEM_COLLECTION_CONTEXT } from "../release-set-items/index.js";
+import { WORKFLOW_RELEASESET_WORKSPACE_CONTEXT } from "../../workspace/index.js";
 
 const elementName = "workflow-release-set-versions";
 
 @customElement(elementName)
 export class WorkflowReleaseSetVersionsElement extends UmbLitElement {
-  #editorContext?: typeof WORKFLOW_RELEASESET_ITEM_EDITOR_CONTEXT.TYPE;
+  #editorContext?: typeof WORKFLOW_RELEASESET_VERSIONS_EDITOR_CONTEXT.TYPE;
   #releaseSetWorkspaceContext?: typeof WORKFLOW_RELEASESET_WORKSPACE_CONTEXT.TYPE;
 
   #versionSorter = new WorkflowVersionSorterController();
@@ -39,10 +39,7 @@ export class WorkflowReleaseSetVersionsElement extends UmbLitElement {
   #versionWorkspaceModalPath?: string;
 
   @state()
-  private _versions: Record<
-    string,
-    Array<ReleaseSetVersionResponseModelReadable>
-  > = {};
+  private _versions: Record<string, Array<ReleaseSetVersionResponseModel>> = {};
 
   @state()
   private _variation?: ContentVariationModel;
@@ -57,25 +54,28 @@ export class WorkflowReleaseSetVersionsElement extends UmbLitElement {
       });
     });
 
-    this.consumeContext(WORKFLOW_RELEASESET_ITEM_EDITOR_CONTEXT, (context) => {
-      if (!context) return;
-      this.#editorContext = context;
+    this.consumeContext(
+      WORKFLOW_RELEASESET_VERSIONS_EDITOR_CONTEXT,
+      (context) => {
+        if (!context) return;
+        this.#editorContext = context;
 
-      this.observe(this.#editorContext.variation, (variation) => {
-        if (!variation) return;
-        this._variation = variation;
-        this.#ensureVariants();
-      });
+        this.observe(this.#editorContext.variation, (variation) => {
+          if (!variation) return;
+          this._variation = variation;
+          this.#ensureVariants();
+        });
 
-      this.observe(this.#editorContext.items, (items) => {
-        this._versions = this.#versionSorter.sortVersions(
-          items,
-          this.#defaultCulture ?? ""
-        );
+        this.observe(this.#editorContext.items, (items) => {
+          this._versions = this.#versionSorter.sortVersions(
+            items,
+            this.#defaultCulture ?? ""
+          );
 
-        this.#ensureVariants();
-      });
-    });
+          this.#ensureVariants();
+        });
+      }
+    );
 
     this.consumeContext(
       WORKFLOW_RELEASESET_ITEM_COLLECTION_CONTEXT,
@@ -96,7 +96,7 @@ export class WorkflowReleaseSetVersionsElement extends UmbLitElement {
   #ensureVariants() {
     if (!this._variation || !this.#defaultCulture) return;
 
-    if (this._variation === ContentVariationModel.NOTHING) {
+    if (this._variation === "Nothing") {
       this._versions[this.#defaultCulture] =
         this._versions[this.#defaultCulture] ?? [];
 
@@ -115,12 +115,17 @@ export class WorkflowReleaseSetVersionsElement extends UmbLitElement {
   }
 
   async #createVersion(culture: string) {
-    history.pushState(
-      {},
-      "",
-      this.#versionWorkspaceModalPath +
-        `create/${this.#editorContext?.getUnique()}/${culture}/null`
-    );
+    const unique = this.#editorContext?.getUnique();
+    if (!unique || !this.#versionWorkspaceModalPath) return;
+
+    const path =
+      WORKFLOW_CREATE_ALTERNATEVERSION_WORKSPACE_PATH_PATTERN.generateAbsolute({
+        base: this.#versionWorkspaceModalPath.slice(0, -1),
+        unique,
+        culture,
+      });
+
+    history.pushState({}, "", path);
   }
 
   async #addVersion(culture: string) {
@@ -134,7 +139,6 @@ export class WorkflowReleaseSetVersionsElement extends UmbLitElement {
         data: {
           unique,
           culture,
-          multiple: true,
         },
       }
     ).catch(() => {});
@@ -153,53 +157,29 @@ export class WorkflowReleaseSetVersionsElement extends UmbLitElement {
     }
 
     value.selectedItems.forEach((selectedItem) => {
-      const version: ReleaseSetVersionResponseModelReadable = {
+      const version = {
         ...selectedItem,
-        unique: selectedItem.unique!,
-        name: selectedItem.name!,
         nodeUnique: unique,
         entityType: RELEASESET_VERSION_ENTITY_TYPE,
-        status: ReleaseSetItemStatusModel.DRAFT,
+        status: selectedItem.status ?? "Draft",
         releaseDate: this.#editorContext?.defaultReleaseDate,
-        expireAction: VersionExpireActionModel.REVERT,
+        expireAction: "Revert",
       };
 
-      this.#editorContext?.addVersion(version);
+      this.#editorContext?.addVersion(
+        version as ReleaseSetVersionResponseModel
+      );
     });
-  }
-
-  #removeVersion(e: CustomEvent) {
-    const unique = (e.target as WorkflowReleaseSetVersionElement).unique;
-    this.#editorContext?.removeVersion(unique);
-  }
-
-  #editVersion(e: CustomEvent) {
-    const version = (e.target as WorkflowReleaseSetVersionElement).version;
-    if (!version) return;
-
-    history.pushState(
-      {},
-      "",
-      this.#versionWorkspaceModalPath + `edit/${version.unique}`
-    );
-  }
-
-  #schedule(e: CustomEvent) {
-    const schedule = (e.target as WorkflowReleaseSetVersionElement).schedule;
-    this.#editorContext?.updateVersion(schedule);
   }
 
   #renderItems(culture: string) {
     return repeat(
       this._versions[culture],
       (item) => item.unique,
-      (item: ReleaseSetVersionResponseModelReadable, idx: number) =>
+      (item: ReleaseSetVersionResponseModel, idx: number) =>
         html`<release-set-version
           .version=${item}
           .requiresReleaseDate=${idx !== 0 && !item.releaseDate}
-          @selected=${this.#editVersion}
-          @remove=${this.#removeVersion}
-          @schedule=${this.#schedule}
         ></release-set-version>`
     );
   }

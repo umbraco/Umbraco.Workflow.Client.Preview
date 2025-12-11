@@ -22,7 +22,7 @@ export class WorkflowReleaseSetUnpublishAction extends UmbWorkspaceActionBase<ne
       );
     }
 
-    workspaceContext.updateSetStatus(ReleaseSetStatusModel.DRAFT);
+    workspaceContext.updateSetStatus("Draft");
     workspaceContext.submit();
   }
 }

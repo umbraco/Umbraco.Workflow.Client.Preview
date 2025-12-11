@@ -6,6 +6,7 @@
 // the release set should not allow creating alternate versions.
 
 export const WORKFLOW_USER_PERMISSION_ALTERNATEVERSION_CREATE = "Workflow.AlternateVersion.Create";
+export const WORKFLOW_USER_PERMISSION_ALTERNATEVERSION_READ = "Workflow.AlternateVersion.Read";
 export const WORKFLOW_USER_PERMISSION_ALTERNATEVERSION_UPDATE = "Workflow.AlternateVersion.Update";
 export const WORKFLOW_USER_PERMISSION_ALTERNATEVERSION_DELETE = "Workflow.AlternateVersion.Delete";
 export const WORKFLOW_USER_PERMISSION_ALTERNATEVERSION_PROMOTE = "Workflow.AlternateVersion.Promote";

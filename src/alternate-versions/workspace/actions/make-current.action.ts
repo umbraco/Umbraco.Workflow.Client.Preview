@@ -14,7 +14,7 @@ export class WorkflowAlternateVersionMakeCurrentWorkspaceAction extends Alternat
       content: this.localize.term(
         "workflow_alternateVersions_makeCurrentDescription"
       ),
-    }).catch(() => {});
+    });
 
     await this.#detailRepository.setActive(unique);
     await this.documentWorkspaceContext?.reload();

@@ -13,7 +13,7 @@ import type {
 } from "@umbraco-cms/backoffice/property";
 import { umbOpenModal } from "@umbraco-cms/backoffice/modal";
 import type { UUIBooleanInputEvent } from "@umbraco-cms/backoffice/external/uui";
-import { ADVANCED_SEARCH_CONTEXT } from "../../../advanced-search-context.token.js";
+import { WORKFLOW_ADVANCEDSEARCH_CONTEXT } from "../../../advanced-search-context.token.js";
 import { WORKFLOW_ITEM_PICKER_MODAL } from "../../../modal/index.js";
 import { AdvancedSearchFieldElement } from "../../../entities.js";
 import {
@@ -29,7 +29,7 @@ export class WorkflowAdvancedSearchPropertyElement
   extends UmbLitElement
   implements AdvancedSearchFieldElement
 {
-  #advancedSearchContext?: typeof ADVANCED_SEARCH_CONTEXT.TYPE;
+  #advancedSearchContext?: typeof WORKFLOW_ADVANCEDSEARCH_CONTEXT.TYPE;
 
   @state()
   private _availableProperties: Array<PropertyDetailModel> = [];
@@ -46,7 +46,7 @@ export class WorkflowAdvancedSearchPropertyElement
   constructor() {
     super();
 
-    this.consumeContext(ADVANCED_SEARCH_CONTEXT, (context) => {
+    this.consumeContext(WORKFLOW_ADVANCEDSEARCH_CONTEXT, (context) => {
       if (!context) return;
       this.#advancedSearchContext = context;
 
@@ -81,25 +81,25 @@ export class WorkflowAdvancedSearchPropertyElement
   #onValueChange(e: Event) {
     // allow empty search for single property only
     this.value = (e.target as UmbPropertyDatasetElement).value.filter((x) =>
-      this._searchType === AdvancedSearchTypeModel.SOME
-        ? x.value !== undefined
-        : true
+      this._searchType === "Some" ? x.value !== undefined : true
     );
 
     this.dispatchEvent(new UmbChangeEvent());
   }
 
   async #addSelectedProperty() {
-    const result = await umbOpenModal(this, WORKFLOW_ITEM_PICKER_MODAL, {
+    const selection = await umbOpenModal(this, WORKFLOW_ITEM_PICKER_MODAL, {
       data: {
-        multiple: this._searchType != AdvancedSearchTypeModel.SINGLE,
+        multiple: this._searchType != "Single",
         items: this._availableProperties,
       },
-    }).catch(() => {});
+    })
+      .then((result) => result.selection)
+      .catch(() => {});
 
-    if (!result) return;
+    if (!selection) return;
 
-    this.#advancedSearchContext?.setPropertiesSelected(result.selection);
+    this.#advancedSearchContext?.setPropertiesSelected(selection);
   }
 
   #removeSelectedProperty(prop) {
@@ -128,15 +128,14 @@ export class WorkflowAdvancedSearchPropertyElement
         )}
       </uui-ref-list>
       ${when(
-        this._searchType === AdvancedSearchTypeModel.SOME ||
-          (this._searchType === AdvancedSearchTypeModel.SINGLE &&
-            !this.hasSelectedProperty),
+        this._searchType === "Some" ||
+          (this._searchType === "Single" && !this.hasSelectedProperty),
         () => html`<uui-button
           look="placeholder"
           .label=${this.localize.term(
-            this._searchType === AdvancedSearchTypeModel.SOME
-              ? "workflowSearch_addProperties"
-              : "workflowSearch_addProperty"
+            this._searchType === "Some"
+              ? "workflow_search_addProperties"
+              : "workflow_search_addProperty"
           )}
           @click=${this.#addSelectedProperty}
         ></uui-button>`
@@ -158,13 +157,12 @@ export class WorkflowAdvancedSearchPropertyElement
           )}
       </umb-property-dataset>
       ${when(
-        this._searchType === AdvancedSearchTypeModel.SINGLE &&
-          this.hasSelectedProperty,
+        this._searchType === "Single" && this.hasSelectedProperty,
         () => html`<umb-property-layout
           alias="emptySearch"
-          .label=${this.localize.term("workflowSearch_emptyFieldSearch")}
+          .label=${this.localize.term("workflow_search_emptyFieldSearch")}
           .description=${this.localize.term(
-            "workflowSearch_emptyFieldSearchDescription"
+            "workflow_search_emptyFieldSearchDescription"
           )}
         >
           <uui-toggle

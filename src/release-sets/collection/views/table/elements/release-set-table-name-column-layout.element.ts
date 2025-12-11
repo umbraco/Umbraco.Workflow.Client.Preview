@@ -8,7 +8,6 @@ import {
   when,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
-import type { TableColumnLayout } from "@umbraco-workflow/core";
 import { WORKFLOW_USER_PERMISSION_RELEASESET_READ } from "../../../../user-permissions/constants.js";
 
 export type ReleaseSetTableNameColumnData = {
@@ -20,10 +19,7 @@ export type ReleaseSetTableNameColumnData = {
 const elementName = "release-set-table-name-column-layout";
 
 @customElement(elementName)
-export class ReleaseSetTableNameColumnLayoutElement
-  extends UmbLitElement
-  implements TableColumnLayout<ReleaseSetTableNameColumnData>
-{
+export class ReleaseSetTableNameColumnLayoutElement extends UmbLitElement {
   @property({ attribute: false })
   value!: ReleaseSetTableNameColumnData;
 

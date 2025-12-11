@@ -1,19 +1,18 @@
 import { UmbControllerBase } from "@umbraco-cms/backoffice/class-api";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
-import type { WorkflowState } from "./entities.js";
-import { WORKFLOW_MANAGER_CONTEXT } from "./token/workflow-manager.context-token.js";
-import { WORKFLOW_CONTEXT } from "./token/workflow.context-token.js";
+import type { ScaffoldArgsModel, WorkflowState } from "./entities.js";
+import { WORKFLOW_MANAGER_CONTEXT, WORKFLOW_CONTEXT } from "./token/index.js";
 import { UserActionsManagerController } from "./user-actions-manager.controller.js";
 import type {
   GlobalWorkflowVariablesModel,
   WorkflowLicenseModel,
-  WorkflowScaffoldResponseModelReadable,
+  WorkflowScaffoldResponseModel,
 } from "@umbraco-workflow/generated";
 
 export class WorkflowStateController extends UmbControllerBase {
   state?: Partial<WorkflowState>;
 
-  #scaffold?: WorkflowScaffoldResponseModelReadable;
+  #scaffold?: WorkflowScaffoldResponseModel;
   #globalVariables?: GlobalWorkflowVariablesModel;
   #license?: WorkflowLicenseModel;
   #actionsManager?: UserActionsManagerController;
@@ -36,7 +35,7 @@ export class WorkflowStateController extends UmbControllerBase {
   }
 
   async generate(
-    isDashboard?: boolean,
+    args: ScaffoldArgsModel,
     isPublished?: boolean
   ): Promise<{ state: WorkflowState; valid: boolean }> {
     this.#actionsManager = new UserActionsManagerController(
@@ -45,7 +44,7 @@ export class WorkflowStateController extends UmbControllerBase {
       this.#scaffold?.tasks?.invariantTask
     );
 
-    const baseState = await this.#getBaseState(isDashboard);
+    const baseState = await this.#getBaseState(args);
 
     if (!this.#hasValidConfig(isPublished)) {
       return { state: baseState, valid: false };
@@ -59,10 +58,10 @@ export class WorkflowStateController extends UmbControllerBase {
 
   // base state still sets all properties, even if overwritten later,
   // this is so we don't return a partial, which prevents settings observable values
-  async #getBaseState(isDashboard?: boolean): Promise<WorkflowState> {
+  async #getBaseState(args: ScaffoldArgsModel): Promise<WorkflowState> {
     return {
       active: !!this.#scaffold?.tasks?.invariantTask,
-      isDashboard,
+      isDashboard: args.isDashboard,
       exclude: this.#scaffold?.config?.excluded ?? false,
       review: this.#scaffold?.review ?? undefined,
       user: await this.#actionsManager?.getUserActions(),
@@ -70,9 +69,10 @@ export class WorkflowStateController extends UmbControllerBase {
       allowScheduling: false,
       requireComment: true,
       requireUnpublish: false,
-      activeVariants: [],
+      activeCultures: [],
       rejected: false,
       unique: "",
+      entityType: args.entityType ?? "",
     };
   }
 
@@ -82,7 +82,7 @@ export class WorkflowStateController extends UmbControllerBase {
       allowScheduling: this.#globalVariables?.allowScheduling ?? false,
       requireComment: this.#globalVariables?.mandatoryComments ?? true,
       requireUnpublish: this.#globalVariables?.requireUnpublish ?? false,
-      activeVariants: this.#scaffold?.activeVariants ?? [],
+      activeCultures: this.#scaffold?.activeCultures ?? [],
       rejected: this.#actionsManager?.rejected ?? false,
       unique: this.#scaffold?.tasks?.invariantTask?.node?.key,
     };

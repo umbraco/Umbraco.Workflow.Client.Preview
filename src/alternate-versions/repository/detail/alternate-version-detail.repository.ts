@@ -9,10 +9,10 @@ import { WorkflowAlternateVersionDetailServerDataSource } from "./alternate-vers
 import { WORKFLOW_ALTERNATEVERSION_DETAIL_STORE_CONTEXT } from "./alternate-version-detail.store.js";
 import {
   VersionsService,
-  type AlternateVersionDetailResponseModelReadable,
+  type AlternateVersionDetailResponseModel,
 } from "@umbraco-workflow/generated";
 
-export class WorkflowAlternateVersionDetailRepository extends UmbDetailRepositoryBase<AlternateVersionDetailResponseModelReadable> {
+export class WorkflowAlternateVersionDetailRepository extends UmbDetailRepositoryBase<AlternateVersionDetailResponseModel> {
   constructor(host: UmbControllerHost) {
     super(
       host,
@@ -28,13 +28,13 @@ export class WorkflowAlternateVersionDetailRepository extends UmbDetailRepositor
     });
   }
 
-  async deleteVersion(version: AlternateVersionDetailResponseModelReadable) {
+  async deleteVersion(version: AlternateVersionDetailResponseModel) {
     const { error } = await tryExecute(
       this,
       VersionsService.deleteVersionById({
         path: { id: version.unique },
         query: {
-          variant: version.variant ?? undefined,
+          culture: version.culture ?? undefined,
           segment: version.segment ?? undefined,
         },
       })

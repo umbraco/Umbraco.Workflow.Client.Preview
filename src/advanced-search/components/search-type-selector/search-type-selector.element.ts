@@ -5,7 +5,7 @@ import {
   html,
   state,
 } from "@umbraco-cms/backoffice/external/lit";
-import { ADVANCED_SEARCH_CONTEXT } from "../../advanced-search-context.token.js";
+import { WORKFLOW_ADVANCEDSEARCH_CONTEXT } from "../../advanced-search-context.token.js";
 import {
   AdvancedSearchTypeModel,
   type SelectableContentTypePropertyDetailModel,
@@ -15,7 +15,7 @@ const elementName = "workflow-advanced-search-search-type";
 
 @customElement(elementName)
 export class WorkflowAdvancedSearchSearchTypeElement extends UmbLitElement {
-  #advancedSearchContext?: typeof ADVANCED_SEARCH_CONTEXT.TYPE;
+  #advancedSearchContext?: typeof WORKFLOW_ADVANCEDSEARCH_CONTEXT.TYPE;
 
   @state()
   private _selectedContentTypes: Array<SelectableContentTypePropertyDetailModel> =
@@ -27,13 +27,13 @@ export class WorkflowAdvancedSearchSearchTypeElement extends UmbLitElement {
     searchType: AdvancedSearchTypeModel;
   } = {
     fuzzy: false,
-    searchType: AdvancedSearchTypeModel.ALL,
+    searchType: "All",
   };
 
   constructor() {
     super();
 
-    this.consumeContext(ADVANCED_SEARCH_CONTEXT, (context) => {
+    this.consumeContext(WORKFLOW_ADVANCEDSEARCH_CONTEXT, (context) => {
       if (!context) return;
       this.#advancedSearchContext = context;
 
@@ -63,7 +63,7 @@ export class WorkflowAdvancedSearchSearchTypeElement extends UmbLitElement {
     if (!this._selectedContentTypes.length) return;
 
     return html`<uui-box
-      .headline=${this.localize.term("workflowSearch_selectSearchType")}
+      .headline=${this.localize.term("workflow_search_selectSearchType")}
     >
       <div slot="header-actions">
         <div class="flex align-center" style="gap:var(--uui-size-3)">
@@ -71,10 +71,10 @@ export class WorkflowAdvancedSearchSearchTypeElement extends UmbLitElement {
             .checked=${this.value.fuzzy}
             label-position="left"
             @change=${this.#onFuzzyChange}
-            >${this.localize.term("workflowSearch_fuzzy")}
+            >${this.localize.term("workflow_search_fuzzy")}
           </uui-toggle>
           <workflow-tooltip
-            .key=${"workflowSearch_fuzzyDescription"}
+            .key=${"workflow_search_fuzzyDescription"}
           ></workflow-tooltip>
         </div>
       </div>
@@ -85,28 +85,28 @@ export class WorkflowAdvancedSearchSearchTypeElement extends UmbLitElement {
         name="searchType_radio"
       >
         <uui-radio
-          value=${AdvancedSearchTypeModel.ALL}
-          label=${this.localize.term("workflowSearch_allProperties")}
+          value=${"All"}
+          label=${this.localize.term("workflow_search_allProperties")}
         >
         </uui-radio>
         <uui-radio
-          value=${AdvancedSearchTypeModel.SOME}
-          label=${this.localize.term("workflowSearch_someProperties")}
+          value=${"Some"}
+          label=${this.localize.term("workflow_search_someProperties")}
         >
         </uui-radio>
         <uui-radio
-          value=${AdvancedSearchTypeModel.SINGLE}
-          label=${this.localize.term("workflowSearch_singleProperty")}
+          value=${"Single"}
+          label=${this.localize.term("workflow_search_singleProperty")}
         >
         </uui-radio>
         <uui-radio
-          value=${AdvancedSearchTypeModel.DATATYPE}
-          label=${this.localize.term("workflowSearch_datatype")}
+          value=${"Datatype"}
+          label=${this.localize.term("workflow_search_datatype")}
         >
         </uui-radio>
         <uui-radio
-          value=${AdvancedSearchTypeModel.PROPERTY_EDITOR}
-          label=${this.localize.term("workflowSearch_propertyEditor")}
+          value=${"PropertyEditor"}
+          label=${this.localize.term("workflow_search_propertyEditor")}
         >
         </uui-radio>
       </uui-radio-group>

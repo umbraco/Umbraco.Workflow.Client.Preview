@@ -10,6 +10,10 @@ type MessageArgs = Array<string | number | Array<string> | Array<number>>;
 export class WorkflowNotificationManagerController extends UmbControllerBase {
   #localize = new UmbLocalizationController(this);
 
+  async danger(key: string, args?: MessageArgs) {
+    this.notify({ color: "danger", key, args });
+  }
+
   async notify(args: {
     color: UmbNotificationColor;
     key: string;
@@ -31,10 +35,13 @@ export class WorkflowNotificationManagerController extends UmbControllerBase {
 
     const notificationHandler = await this.getContext(UMB_NOTIFICATION_CONTEXT);
     if (!notificationHandler) return;
-    
+
     notificationHandler.peek(args.color, {
       data: {
-        headline: args.headline !== false ? this.#localize.term("workflow_workflow") : undefined,
+        headline:
+          args.headline !== false
+            ? this.#localize.term("workflow_workflow")
+            : undefined,
         message: this.#localize.term(args.key, ...(args.args ?? [])),
       },
     });

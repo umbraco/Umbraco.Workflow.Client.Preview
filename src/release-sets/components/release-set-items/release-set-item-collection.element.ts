@@ -3,8 +3,8 @@ import { ReleaseSetComponentCollectionElement } from "../release-set-collection-
 import {
   WORKFLOW_RELEASESET_ITEM_COLLECTION_CONTEXT,
   WorkflowReleaseSetItemCollectionContext,
-} from "./release-set-item-collection.context.js";
-import type { ReleaseSetItemResponseModelReadable } from "@umbraco-workflow/generated";
+} from "./index.js";
+import type { ReleaseSetItemResponseModel } from "@umbraco-workflow/generated";
 import {
   UMB_MODAL_MANAGER_CONTEXT,
   UmbModalContext,
@@ -12,8 +12,9 @@ import {
 } from "@umbraco-cms/backoffice/modal";
 import { ALTERNATEVERSION_ENTITY_TYPE } from "@umbraco-workflow/alternate-versions";
 import { WORKFLOW_RELEASESET_ITEM_EDITOR_MODAL } from "../../modal/index.js";
+import { WORKFLOW_RELEASESET_VERSIONS_EDITOR_CONTEXT } from "../release-set-versions/index.js";
+
 import "./views/table/release-set-item-table-collection-view.element.js";
-import { WORKFLOW_RELEASESET_ITEM_EDITOR_CONTEXT } from "../release-set-versions/release-set-versions-editor.context.js";
 
 type ModalType = UmbModalContext<{ [key: string]: any }, any>;
 
@@ -21,21 +22,24 @@ const elementName = "workflow-release-set-item-collection";
 
 @customElement(elementName)
 export class WorkflowReleaseSetItemCollectionElement extends ReleaseSetComponentCollectionElement<
-  ReleaseSetItemResponseModelReadable,
+  ReleaseSetItemResponseModel,
   WorkflowReleaseSetItemCollectionContext
 > {
   #reopen = false;
   #lastModalKey?: string;
 
-  #editorContext?: typeof WORKFLOW_RELEASESET_ITEM_EDITOR_CONTEXT.TYPE;
+  #editorContext?: typeof WORKFLOW_RELEASESET_VERSIONS_EDITOR_CONTEXT.TYPE;
 
   constructor() {
-    super(WORKFLOW_RELEASESET_ITEM_COLLECTION_CONTEXT, ctx => ctx?.items);
+    super(WORKFLOW_RELEASESET_ITEM_COLLECTION_CONTEXT, (ctx) => ctx?.items);
 
-    this.consumeContext(WORKFLOW_RELEASESET_ITEM_EDITOR_CONTEXT, (context) => {
-      if (!context) return;
-      this.#editorContext = context;
-    });
+    this.consumeContext(
+      WORKFLOW_RELEASESET_VERSIONS_EDITOR_CONTEXT,
+      (context) => {
+        if (!context) return;
+        this.#editorContext = context;
+      }
+    );
 
     this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (context) => {
       this.observe(context?.modals, async (modals) => {
@@ -62,19 +66,18 @@ export class WorkflowReleaseSetItemCollectionElement extends ReleaseSetComponent
   }
 
   async #reopenItemEditorModal() {
-    const item = this.#editorContext?.getCurrent();
+    const current = this.#editorContext?.getCurrent();
+    if (!current) return;
+
+    const item = await umbOpenModal(this, WORKFLOW_RELEASESET_ITEM_EDITOR_MODAL)
+      .then((result) => result.item)
+      .catch(() => {});
+
     if (!item) return;
 
-    const value = await umbOpenModal(
-      this,
-      WORKFLOW_RELEASESET_ITEM_EDITOR_MODAL
-    ).catch(() => {});
-
-    if (!value?.item) return;
-
     this.workspaceContext?.updateItem({
+      ...current,
       ...item,
-      ...value.item,
     });
   }
 }

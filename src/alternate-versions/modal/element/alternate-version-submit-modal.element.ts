@@ -1,95 +1,37 @@
-import {
-  customElement,
-  html,
-  state,
-} from "@umbraco-cms/backoffice/external/lit";
-import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
-import { WORKFLOW_ALTERNATEVERSION_WORKSPACE_CONTEXT } from "../../workspace/context/alternate-version-workspace.context-token.js";
+import { customElement } from "@umbraco-cms/backoffice/external/lit";
+import { WORKFLOW_ALTERNATEVERSION_WORKSPACE_CONTEXT } from "../../workspace/index.js";
 import { ALTERNATEVERSION_ENTITY_TYPE } from "../../constants.js";
-import { WORKFLOW_MANAGER_CONTEXT } from "@umbraco-workflow/context";
-import type { WorkflowCommentsElement } from "@umbraco-workflow/editor-view";
+import { InitiateWorkflowArgs } from "@umbraco-workflow/repository";
+import { WorkflowSubmitModalBaseElement } from "@umbraco-workflow/core";
 
 const elementName = "workflow-alternate-version-submit-modal";
 
 @customElement(elementName)
-export class WorkflowAlternateVersionSubmitModalElement extends UmbModalBaseElement {
+export class WorkflowAlternateVersionSubmitModalElement extends WorkflowSubmitModalBaseElement {
   #documentWorkspace?: typeof WORKFLOW_ALTERNATEVERSION_WORKSPACE_CONTEXT.TYPE;
-  #workflowManager?: typeof WORKFLOW_MANAGER_CONTEXT.TYPE;
 
-  @state()
-  private _commentInvalid = false;
-
-  #comment?: string;
-  #templateKey!: string;
-
-  async connectedCallback() {
-    super.connectedCallback();
+  constructor() {
+    super();
 
     this.consumeContext(
       WORKFLOW_ALTERNATEVERSION_WORKSPACE_CONTEXT,
-      (context) => {
-        this.#documentWorkspace = context;
-      }
+      (context) => (this.#documentWorkspace = context)
     );
-
-    this.#workflowManager = await this.getContext(WORKFLOW_MANAGER_CONTEXT);
   }
 
-  async #submit() {
-    if (!this.#comment || !this.#documentWorkspace) return;
+  getInitiatorArgs(): Partial<InitiateWorkflowArgs> {
+    if (!this.#documentWorkspace) {
+      throw new Error("Alternate Version workspace is not available");
+    }
 
-    // alt version has minimal data
-    // no dates => schedule via release set
-    await this.#workflowManager?.initiate({
+    return {
       entityType: ALTERNATEVERSION_ENTITY_TYPE,
       nodeUnique: this.#documentWorkspace.getUnique()!,
-      comment: this.#comment,
-      releaseDate: undefined,
-      expireDate: undefined,
       publish: true,
-      variants: [
+      cultures: [
         this.#documentWorkspace.getCurrentVariant()?.toCultureString() ?? "",
       ],
-    });
-
-    this._submitModal();
-  }
-
-  #handleCommentChange(e: CustomEvent) {
-    const target = e.target as WorkflowCommentsElement;
-    this.#comment = target.value;
-    this._commentInvalid = target.invalid;
-  }
-
-  render() {
-    return html` <umb-body-layout
-      .headline=${this.localize.term("workflow_approvalRequest")}
-    >
-      <uui-box>
-        <workflow-comments
-          .templateKey=${this.#templateKey}
-          labelKey="workflow_describeChanges"
-          .mandatory=${true}
-          orientation="horizontal"
-          @change=${this.#handleCommentChange}
-        >
-        </workflow-comments>
-      </uui-box>
-
-      <div slot="actions">
-        <uui-button
-          label=${this.localize.term("general_close")}
-          @click=${this._rejectModal}
-        ></uui-button>
-        <uui-button
-          color="positive"
-          look="primary"
-          ?disabled=${this._commentInvalid}
-          label=${this.localize.term("workflow_approvalButton")}
-          @click=${this.#submit}
-        ></uui-button>
-      </div>
-    </umb-body-layout>`;
+    };
   }
 }
 

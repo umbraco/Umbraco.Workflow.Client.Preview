@@ -5,16 +5,16 @@ import {
   CalendarItemVersion,
   WorkflowContentCalendarContextBase,
 } from "@umbraco-workflow/calendar";
-import { WORKFLOW_RELEASESET_WORKSPACE_CONTEXT } from "../workspace/release-set-workspace.context-token";
+import { WORKFLOW_RELEASESET_WORKSPACE_CONTEXT } from "../workspace/index.js";
 import {
-  ReleaseSetDetailResponseModelReadable,
-  ReleaseSetItemResponseModelReadable,
+  ReleaseSetDetailResponseModel,
+  ReleaseSetItemResponseModel,
 } from "@umbraco-workflow/generated";
 import { asDatetimeLocal } from "@umbraco-workflow/core";
 
 export class WorkflowReleaseSetCalendarContext extends WorkflowContentCalendarContextBase {
   #workspaceContext?: typeof WORKFLOW_RELEASESET_WORKSPACE_CONTEXT.TYPE;
-  #releaseSet?: Partial<ReleaseSetDetailResponseModelReadable>;
+  #releaseSet?: Partial<ReleaseSetDetailResponseModel>;
 
   constructor(host: UmbControllerHost, config: CalendarConfig) {
     super(host, config);
@@ -58,7 +58,7 @@ export class WorkflowReleaseSetCalendarContext extends WorkflowContentCalendarCo
     });
   }
 
-  #getBoundaryDates(set: ReleaseSetDetailResponseModelReadable) {
+  #getBoundaryDates(set: ReleaseSetDetailResponseModel) {
     let start = set.releaseDate ?? asDatetimeLocal();
     let end = "";
 
@@ -91,7 +91,7 @@ export class WorkflowReleaseSetCalendarContext extends WorkflowContentCalendarCo
   }
 
   async #mapToCalendarItem(
-    items: Array<ReleaseSetItemResponseModelReadable>
+    items: Array<ReleaseSetItemResponseModel>
   ): Promise<Array<CalendarItem>> {
     const versions = items?.map((x) => x.items).flat() ?? [];
 
@@ -111,7 +111,7 @@ export class WorkflowReleaseSetCalendarContext extends WorkflowContentCalendarCo
                 const version: CalendarItemVersion = {
                   name: x.name,
                   unique: x.unique,
-                  culture: x.variant,
+                  culture: x.culture,
                   fromDate: x.releaseDate
                     ? new Date(x.releaseDate)
                     : defaultReleaseDate,

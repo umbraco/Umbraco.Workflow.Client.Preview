@@ -51,6 +51,10 @@ export class ReleaseSetsTableElement extends UmbLitElement {
       elementName: "release-set-table-name-column-layout",
     },
     {
+      name: this.localize.term("general_description"),
+      alias: "description",
+    },
+    {
       name: this.localize.term("workflow_releaseSets_itemCount"),
       alias: "itemCount",
     },
@@ -73,7 +77,7 @@ export class ReleaseSetsTableElement extends UmbLitElement {
 
       context.setupView(this);
 
-      this.observe(context.workspacePathBuilder, builder => {
+      this.observe(context.workspacePathBuilder, (builder) => {
         if (!builder) return;
         this._modalPath = builder({ entityType: RELEASESET_ENTITY_TYPE });
         this.#observeCollectionItems();
@@ -98,7 +102,7 @@ export class ReleaseSetsTableElement extends UmbLitElement {
     );
 
     this.observe(this.#collectionContext.selection.selection, (selection) => {
-      this._selection = selection.filter(x => x !== null) ?? []
+      this._selection = selection.filter((x) => x !== null) ?? [];
     });
   }
 
@@ -129,6 +133,10 @@ export class ReleaseSetsTableElement extends UmbLitElement {
               unique: set.unique,
               modalPath: this._modalPath,
             },
+          },
+          {
+            columnAlias: "description",
+            value: set.description,
           },
           {
             columnAlias: "status",

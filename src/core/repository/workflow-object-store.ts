@@ -1,12 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { UmbContextBase } from "@umbraco-cms/backoffice/class-api";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import type { ManifestApi } from "@umbraco-cms/backoffice/extension-api";
 import type { UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
+import { WORKFLOW_OBJECT_STORE_TYPE_ALIAS } from "./constants.js";
 
 export interface ManifestWorkflowObjectStore
   extends ManifestApi<WorkflowObjectStore> {
-  type: "workflowObjectStore";
+  type: typeof WORKFLOW_OBJECT_STORE_TYPE_ALIAS;
 }
 
 export abstract class WorkflowObjectStore<
@@ -31,6 +31,6 @@ export abstract class WorkflowObjectStore<
 
 declare global {
   interface UmbExtensionManifestMap {
-    workflowObjectStore: ManifestWorkflowObjectStore
+    workflowObjectStore: ManifestWorkflowObjectStore;
   }
 }

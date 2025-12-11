@@ -7,6 +7,7 @@ import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from "@umbraco-cms/backoffice/document";
 import { UMB_COLLECTION_CONTEXT } from "@umbraco-cms/backoffice/collection";
 import { ALTERNATEVERSION_ENTITY_TYPE } from "../../constants.js";
+import { WORKFLOW_CREATE_ALTERNATEVERSION_WORKSPACE_PATH_PATTERN } from "src/alternate-versions/paths.js";
 
 const elementName = "workflow-create-version-collection-action";
 
@@ -42,9 +43,16 @@ export class WorkflowCreateVersionCollectionElement extends UmbLitElement {
       this.#workspaceContext?.splitView.getActiveVariants()?.[0];
     if (!activeVariant) return "";
 
-    return `${this._createPath}create/${this.#workspaceContext?.getUnique()}/${
-      activeVariant.culture
-    }/${activeVariant.segment}`;
+    const unique = this.#workspaceContext?.getUnique();
+    if (!unique) return "";
+
+    return WORKFLOW_CREATE_ALTERNATEVERSION_WORKSPACE_PATH_PATTERN.generateAbsolute(
+      {
+        base: this._createPath.slice(0, -1),
+        unique,
+        ...activeVariant,
+      }
+    );
   }
 
   render() {

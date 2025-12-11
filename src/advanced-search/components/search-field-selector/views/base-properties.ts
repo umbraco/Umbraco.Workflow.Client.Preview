@@ -1,5 +1,18 @@
 import type { UmbPropertyValueData } from "@umbraco-cms/backoffice/property";
+import { makeArray } from "@umbraco-workflow/core";
 import { WorkflowStatusModel } from "@umbraco-workflow/generated";
+
+const statuses = makeArray<WorkflowStatusModel>(
+  "Approved",
+  "Cancelled",
+  "CancelledByThirdParty",
+  "Errored",
+  "NotRequired",
+  "Null",
+  "PendingApproval",
+  "Rejected",
+  "Resubmitted"
+);
 
 export const baseProperties: Array<
   UmbPropertyValueData & {
@@ -15,11 +28,11 @@ export const baseProperties: Array<
     config: [
       {
         alias: "items",
-        value: Object.values(WorkflowStatusModel)
+        value: statuses
           .filter(
             (x: string) =>
-              x === WorkflowStatusModel.PENDING_APPROVAL ||
-              x === WorkflowStatusModel.REJECTED
+              x === "PendingApproval" ||
+              x === "Rejected"
           )
           .map((x) => x.toString())
           .sort((a, b) => (a < b ? -1 : 1)),

@@ -7,15 +7,11 @@ import {
   repeat,
 } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
-import type { TableColumnLayout } from "@umbraco-workflow/core";
 
 const elementName = "alternate-version-table-inset-column-layout";
 
 @customElement(elementName)
-export class AlternateVersionTableInsetColumnLayoutElement
-  extends UmbLitElement
-  implements TableColumnLayout<Array<string>>
-{
+export class AlternateVersionTableInsetColumnLayoutElement extends UmbLitElement {
   @property({ attribute: false })
   value!: Array<string>;
 

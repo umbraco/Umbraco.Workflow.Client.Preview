@@ -5,7 +5,10 @@ import {
   state,
 } from "@umbraco-cms/backoffice/external/lit";
 import { umbFocus, UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
-import type { UUIInputElement } from "@umbraco-cms/backoffice/external/uui";
+import type {
+  UUIInputElement,
+  UUITextareaElement,
+} from "@umbraco-cms/backoffice/external/uui";
 import { type UmbWorkspaceViewElement } from "@umbraco-cms/backoffice/workspace";
 import { WORKFLOW_RELEASESET_WORKSPACE_ALIAS } from "../constants.js";
 import { WORKFLOW_RELEASESET_WORKSPACE_CONTEXT } from "./release-set-workspace.context-token.js";
@@ -28,6 +31,9 @@ export class WorkflowReleaseSetWorkspaceEditorElement
   @state()
   private _icon?: string;
 
+  @state()
+  private _description?: string | null;
+
   constructor() {
     super();
 
@@ -47,6 +53,10 @@ export class WorkflowReleaseSetWorkspaceEditorElement
       (name) => (this._name = name ?? "")
     );
 
+    this.observe(
+      this.#workspaceContext.description,
+      (description) => (this._description = description)
+    );
     this.observe(this.#workspaceContext.icon, (icon) => (this._icon = icon));
   }
 
@@ -78,6 +88,12 @@ export class WorkflowReleaseSetWorkspaceEditorElement
     });
   }
 
+  #onDescriptionChange(event: InputEvent & { target: UUITextareaElement }) {
+    this.#workspaceContext?.update({
+      description: event.target.value.toString() ?? "",
+    });
+  }
+
   render() {
     return html`<umb-workspace-editor
       main-no-padding
@@ -87,14 +103,23 @@ export class WorkflowReleaseSetWorkspaceEditorElement
         <uui-button id="icon" @click=${this.#onIconClick} label="icon" compact
           ><umb-icon .name=${this._icon}></umb-icon>
         </uui-button>
-        <uui-input
-          id="name"
-          label="name"
-          .value=${this._name}
-          @change=${this.#onNameChange}
-          ${umbFocus()}
-        >
-        </uui-input>
+        <div id="editors">
+          <uui-input
+            id="name"
+            label="name"
+            .value=${this._name}
+            @change=${this.#onNameChange}
+            ${umbFocus()}
+          >
+          </uui-input>
+          <uui-input
+            id="description"
+            .label=${this.localize.term("placeholders_enterDescription")}
+            .value=${this._description ?? ""}
+            .placeholder=${this.localize.term("placeholders_enterDescription")}
+            @input=${this.#onDescriptionChange}
+          ></uui-input>
+        </div>
       </div>
     </umb-workspace-editor>`;
   }
@@ -116,6 +141,23 @@ export class WorkflowReleaseSetWorkspaceEditorElement
 
       #name {
         width: 100%;
+      }
+
+      #editors {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        gap: 1px;
+      }
+
+      #description {
+        width: 100%;
+        --uui-input-height: var(--uui-size-8);
+        --uui-input-border-color: transparent;
+      }
+
+      #description:hover {
+        --uui-input-border-color: var(--uui-color-border);
       }
 
       #icon {

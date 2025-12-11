@@ -1,17 +1,13 @@
 import { UmbDefaultCollectionContext } from "@umbraco-cms/backoffice/collection";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
-import { UmbContextToken } from "@umbraco-cms/backoffice/context-api";
 import { WORKFLOW_RELEASESET_ITEM_TABLE_COLLECTION_VIEW_ALIAS } from "./constants.js";
-import { type ReleaseSetItemResponseModelReadable } from "@umbraco-workflow/generated";
+import { type ReleaseSetItemResponseModel } from "@umbraco-workflow/generated";
 import { ALTERNATEVERSION_ENTITY_TYPE } from "@umbraco-workflow/alternate-versions";
 import { UmbModalRouteRegistrationController } from "@umbraco-cms/backoffice/router";
 import { UMB_WORKSPACE_MODAL } from "@umbraco-cms/backoffice/workspace";
 import { UmbStringState } from "@umbraco-cms/backoffice/observable-api";
 
-export class WorkflowReleaseSetItemCollectionContext extends UmbDefaultCollectionContext<
-  ReleaseSetItemResponseModelReadable,
-  never
-> {
+export class WorkflowReleaseSetItemCollectionContext extends UmbDefaultCollectionContext<ReleaseSetItemResponseModel> {
   #alternateVersionModalPath = new UmbStringState("");
   alternateVersionModalPath = this.#alternateVersionModalPath.asObservable();
 
@@ -39,8 +35,3 @@ export class WorkflowReleaseSetItemCollectionContext extends UmbDefaultCollectio
 }
 
 export { WorkflowReleaseSetItemCollectionContext as api };
-
-export const WORKFLOW_RELEASESET_ITEM_COLLECTION_CONTEXT =
-  new UmbContextToken<WorkflowReleaseSetItemCollectionContext>(
-    "UmbCollectionContext"
-  );

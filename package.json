@@ -1,7 +1,7 @@
 {
   "name": "umbraco-workflow",
   "private": true,
-  "version": "0.0.0",
+  "version": "17.0.0-rc",
   "type": "module",
   "engines": {
     "node": ">=22",
@@ -18,31 +18,29 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "@microsoft/signalr": "^8.0.0",
-    "chart.js": "^4.4.0",
-    "humanize-duration": "^3.32.1"
+    "chart.js": "^4.5.0",
+    "humanize-duration": "^3.33.1"
   },
   "peerDependencies": {
-    "@umbraco-cms/backoffice": "16.1.0"
+    "@umbraco-cms/backoffice": "^17.0.0"
   },
   "devDependencies": {
-    "@hey-api/client-fetch": "^0.12.0",
-    "@hey-api/openapi-ts": "^0.71.0",
-    "@open-wc/lit-helpers": "^0.7.0",
+    "@hey-api/client-fetch": "^0.13.0",
+    "@hey-api/openapi-ts": "^0.85.0",
+    "@open-wc/lit-helpers": "0.7.0",
     "@types/humanize-duration": "^3.27.4",
     "@types/node": "^20.5.9",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
-    "@umbraco-cms/backoffice": "16.1.0",
     "eslint": "^8.56.0",
-    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-lit": "^1.11.0",
-    "eslint-plugin-lit-a11y": "^4.1.1",
-    "eslint-plugin-local-rules": "^2.0.1",
-    "eslint-plugin-wc": "^2.0.4",
-    "vite": "^6.3.2",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-lit": "^2.1.1",
+    "eslint-plugin-lit-a11y": "^5.1.1",
+    "eslint-plugin-local-rules": "^3.0.2",
+    "eslint-plugin-wc": "^3.0.2",
+    "vite": "^7.1.11",
     "vite-tsconfig-paths": "^5.1.4"
   }
 }

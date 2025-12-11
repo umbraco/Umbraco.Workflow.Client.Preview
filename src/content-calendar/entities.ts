@@ -1,5 +1,5 @@
 import { UmbModalToken } from "@umbraco-cms/backoffice/modal";
-import { WorkflowContentCalendarDayDetailModalData } from "./modal";
+import { WorkflowContentCalendarDayDetailModalData } from "./modal/index.js";
 
 export interface CalendarItem {
   name: string;
@@ -32,9 +32,9 @@ export interface CalendarItemVersion {
 }
 
 export interface CalendarDay {
-    display: number;
-    isAffix: boolean;
-    items: Array<CalendarItem>;
+  display: number;
+  isAffix: boolean;
+  items: Array<CalendarItem>;
 }
 
 export type CalendarView = "Week" | "Month";
@@ -53,7 +53,10 @@ export interface CalendarLegendItem {
 
 export interface CalendarConfig {
   hideLegend?: boolean;
-  detailModalToken?: UmbModalToken<WorkflowContentCalendarDayDetailModalData, any>;
+  detailModalToken?: UmbModalToken<
+    WorkflowContentCalendarDayDetailModalData,
+    any
+  >;
 }
 
 export interface CalendarItemCultureDetail {

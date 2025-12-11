@@ -1,13 +1,15 @@
 import { observeMultiple } from "@umbraco-cms/backoffice/observable-api";
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
-import { WorkflowInitializerBaseController } from "../core/initializers/workflow-initializer-base.controller.js";
-import type { WorkflowEntityWorkflowInitializer } from "../core/initializers/entity-workflow-initializer.manifest.js";
 import {
   ALTERNATEVERSION_ENTITY_TYPE,
   WORKFLOW_ALTERNATEVERSION_WORKSPACE_CONTEXT,
   type WorkflowAlternateVersionWorkspaceContext,
 } from "@umbraco-workflow/alternate-versions";
 import type { ScaffoldArgsModel } from "@umbraco-workflow/context";
+import {
+  WorkflowEntityWorkflowInitializer,
+  WorkflowInitializerBaseController,
+} from "@umbraco-workflow/core";
 
 export class WorkflowAlternateVersionWorkflowInitializerController
   extends WorkflowInitializerBaseController<WorkflowAlternateVersionWorkspaceContext>
@@ -31,10 +33,11 @@ export class WorkflowAlternateVersionWorkflowInitializerController
 
         this.setInitializerArgs({
           nodeKey: unique,
-          variant: variant?.toString(),
+          culture: variant?.toCultureString(),
           isDashboard: false,
           isNew,
           entityType: ALTERNATEVERSION_ENTITY_TYPE,
+          parentKey: this.workspaceContext?.getParentUnique(),
         });
       }
     );
