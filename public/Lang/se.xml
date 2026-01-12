@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<language alias="sv" intName="Swedish" localName="Svenska" lcid="" culture="sv-SE">
+  <area alias="workflow">
+    <key alias="changeDescription">Ändra beskrivning</key>
+    <key alias="changeDescriptionDetail">%0% begärd av %1% den %2% kl %3%</key>
+    <key alias="summary">Sammanfattning</key>
+    <key alias="currentStatus">Nuvarande status</key>
+    <key alias="stage">Steg</key>
+    <key alias="by">av</key>
+    <key alias="on">den</key>
+    <key alias="at">kl</key>
+    <key alias="comment">kommentar</key>
+    <key alias="status1">Godkänd</key>
+    <key alias="status2">Avvisad</key>
+    <key alias="status3">Väntar på godkännande</key>
+    <key alias="status4">Krävs ej</key>
+    <key alias="status5">Avbruten</key>
+    <key alias="status6">Fel uppstod</key>
+    <key alias="status7">Återinsänd</key>
+    <key alias="status8">Avbruten av tredje part</key>
+    <key alias="status9">Utesluten</key>
+    <key alias="status10">Väntar på återinsändning</key>
+    <key alias="approved">Godkänd</key>
+    <key alias="cancelled">Avbruten</key>
+    <key alias="cancelledbythirdparty">Avbruten av tredje part</key>
+    <key alias="errored">Fel uppstod</key>
+    <key alias="excluded">Utesluten</key>
+    <key alias="notrequired">Krävs ej</key>
+    <key alias="pendingapproval">Väntar på godkännande</key>
+    <key alias="rejected">Avvisad</key>
+    <key alias="resubmitted">Återinsänd</key>
+    <key alias="awaitingresubmission">Väntar på återinsändning</key>
+  </area>
+</language>
