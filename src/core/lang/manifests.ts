@@ -59,4 +59,14 @@ export const manifests: Array<UmbExtensionManifest> = [
     },
     js: () => import("./fr.js"),
   },
+    {
+    type: "localization",
+    alias: "Workflow.Localization.Se",
+    weight: -100,
+    name: "Workflow Localization - Swedish",
+    meta: {
+      culture: "se",
+    },
+    js: () => import("./se.js"),
+  },
 ];
