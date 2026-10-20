@@ -9,7 +9,7 @@ resources:
   - repository: build
     type: github
     name: Umbraco/Umbraco.Build
-    endpoint: github.com_umbraco
+    endpoint: umbraco
 
 parameters:
   - name: sbom_generate
