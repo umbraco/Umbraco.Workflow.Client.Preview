@@ -20,6 +20,8 @@ parameters:
 variables:
   - name: productName
     value: 'Umbraco.Workflow.Client.Preview'
+  - name: nodeVersion
+    value: '>=22'
 
 stages:
   - stage: GenerateSBOM
