@@ -4,33 +4,37 @@ trigger:
     - main
 pr: none
 
+resources:
+  repositories:
+  - repository: build
+    type: github
+    name: Umbraco/Umbraco.Build
+    endpoint: github.com_umbraco
+
 parameters:
-  - name: skipSBOM
-    displayName: Skip SBOM Generation
+  - name: sbom_generate
+    displayName: Generate SBOM
     type: boolean
     default: false
 
 variables:
-  # SBOM variables
-  productGroup: 'DXP'
-  productName: 'Umbraco.Workflow.Client.Preview'
-  productVersion: 'main'
-  DT_BASE_URL: $(dtBaseUrl)
-  DT_API_KEY: $(dtApiKey)
+  - name: productName
+    value: 'Umbraco.Workflow.Client.Preview'
 
 stages:
-  # Generate SBOM Stage
-  # Generates Software Bill of Materials for dependency tracking.
-  # Only runs on main branch unless skipSBOM parameter is checked.
-  # Note: DT_API_KEY secret variable must be configured in
-  # Azure DevOps for SBOM upload. If not configured, job
-  # will gracefully skip with a warning message.
   - stage: GenerateSBOM
     displayName: Generate SBOM
-    condition: |
-      and(
-        eq(variables['Build.SourceBranch'], 'refs/heads/main'),
-        ne('${{ parameters.skipSBOM }}', true)
-      )
+    dependsOn: []
+    condition: or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq('${{ parameters.sbom_generate }}', 'true'))
     jobs:
-      - template: devops/cloud-sbom.yml
+    - job: GenerateSBOM
+      displayName: Generate SBOM
+      steps:
+      - template: devops/templates/generate-sbom-template.yml@build
+        parameters:
+          sbom_nuget: false
+          sbom_npm_paths: ['.']
+          sbom_version_from: package.json # v<major> of package.json, e.g. 17.0.0-beta.2 -> v17
+          # a run forced with sbom_generate must not displace the latest version in Dependency-Track
+          ${{ if eq(parameters.sbom_generate, true) }}:
+            sbom_is_latest: 'false'
